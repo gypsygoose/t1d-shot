@@ -1,31 +1,38 @@
-import { useCallback } from 'react';
-import { TouchableOpacity, Text, StyleSheet, GestureResponderEvent } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import { ButtonColor } from '../types';
-import { COLOR_HEX, checkmarkColor } from '../logic/stateMachine';
+import { useCallback } from "react";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  GestureResponderEvent,
+} from "react-native";
+import * as Haptics from "expo-haptics";
+import Svg, { Defs, RadialGradient, Stop, Circle } from "react-native-svg";
+import { ButtonColor } from "../types";
+import { COLOR_HEX, checkmarkColor } from "../logic/stateMachine";
 
-// Match Figma button group size: ~29px diameter
-const BTN_SIZE = 29;
-const INNER_SIZE = 20;
+// Sizes match the Figma "with buttons" frame (node 27:744, file
+// grYg39698ogy0nEBd88Fup): glow halo ~30px diameter, knob ~20px diameter.
+const GLOW_SIZE = 30;
+const KNOB_SIZE = 20;
 
 interface Props {
+  id: string;
   color: ButtonColor;
+  glowColor: string;
   showCheckmark: boolean;
   onPress: () => void;
   onLongPress: () => void;
-  x: number; // 0..1 fraction of container
-  y: number; // 0..1 fraction of container
 }
 
 export default function InjectionButton({
+  id,
   color,
+  glowColor,
   showCheckmark,
   onPress,
   onLongPress,
-  x,
-  y,
 }: Props) {
-  const isBlocked = color === 'black' || color === 'gray';
+  const isBlocked = color === "black" || color === "gray";
 
   const handlePress = useCallback(
     (_: GestureResponderEvent) => {
@@ -39,7 +46,7 @@ export default function InjectionButton({
 
   const handleLongPress = useCallback(
     (_: GestureResponderEvent) => {
-      if (color !== 'black') {
+      if (color !== "black") {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         onLongPress();
       }
@@ -49,6 +56,7 @@ export default function InjectionButton({
 
   const bg = COLOR_HEX[color];
   const ck = checkmarkColor(color);
+  const gradientId = `glow-${id}`;
 
   return (
     <TouchableOpacity
@@ -56,59 +64,46 @@ export default function InjectionButton({
       onLongPress={handleLongPress}
       delayLongPress={800}
       activeOpacity={0.75}
-      style={[
-        styles.outer,
-        {
-          backgroundColor: bg,
-          left: `${(x * 100).toFixed(2)}%` as unknown as number,
-          top: `${(y * 100).toFixed(2)}%` as unknown as number,
-        },
-      ]}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      style={styles.outer}
       accessible
       accessibilityRole="button"
       accessibilityState={{ disabled: isBlocked }}
     >
-      {/* Inner white ring to mimic Figma multi-layer button */}
-      <Text style={[styles.inner, { backgroundColor: bg }]}>
-        {showCheckmark ? (
-          <Text style={[styles.check, { color: ck }]}>✓</Text>
-        ) : null}
-      </Text>
+      <Svg width={GLOW_SIZE} height={GLOW_SIZE} style={StyleSheet.absoluteFill}>
+        <Defs>
+          <RadialGradient id={gradientId} cx="50%" cy="50%" r="50%">
+            <Stop offset="0" stopColor={glowColor} stopOpacity={0.55} />
+            <Stop offset="0.55" stopColor={glowColor} stopOpacity={0.28} />
+            <Stop offset="1" stopColor={glowColor} stopOpacity={0} />
+          </RadialGradient>
+        </Defs>
+        <Circle cx={GLOW_SIZE / 2} cy={GLOW_SIZE / 2} r={GLOW_SIZE / 2} fill={`url(#${gradientId})`} />
+        <Circle
+          cx={GLOW_SIZE / 2}
+          cy={GLOW_SIZE / 2}
+          r={KNOB_SIZE / 2}
+          fill={bg}
+          stroke={glowColor}
+          strokeWidth={1.5}
+          strokeOpacity={0.9}
+        />
+      </Svg>
+      {showCheckmark ? <Text style={[styles.check, { color: ck }]}>✓</Text> : null}
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   outer: {
-    position: 'absolute',
-    width: BTN_SIZE,
-    height: BTN_SIZE,
-    borderRadius: BTN_SIZE / 2,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.25)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: -(BTN_SIZE / 2),
-    marginTop: -(BTN_SIZE / 2),
-    // Soft shadow so buttons stand out on body image
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.4,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  inner: {
-    width: INNER_SIZE,
-    height: INNER_SIZE,
-    borderRadius: INNER_SIZE / 2,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.55)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: GLOW_SIZE,
+    height: GLOW_SIZE,
+    alignItems: "center",
+    justifyContent: "center",
   },
   check: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: "800",
     lineHeight: 12,
   },
 });

@@ -129,20 +129,18 @@ Long-press (~800 ms) → toggle `isManuallyBlocked`. Gray overrides all colours 
 
 ## Zones and buttons
 
-6 zones, 30 buttons total. All button positions are fractions (0–1) of the body image container (300×580 viewBox). Buttons are 22 px diameter circles.
+6 zones, 30 buttons total. All button positions are fractions (0–1) of the body image container (393.46×621.91, matching `body.png`'s aspect ratio), extracted directly from the Figma "with buttons" frame (node `27:744`, file `grYg39698ogy0nEBd88Fup`). Each button renders as a 20 px knob (state colour fill) inside a 30 px radial-gradient glow halo tinted with its zone's `glow` colour (see `ZONE_COLORS` in `src/data/zones.ts`).
 
 ### Zone list
 
-| Zone ID | Label | Group | Buttons |
-|---|---|---|---|
-| `shoulder-right` | Правое плечо | shoulders-and-belly | 3 (vertical column) |
-| `shoulder-left` | Левое плечо | shoulders-and-belly | 3 (vertical column) |
-| `belly-right` | Живот справа | shoulders-and-belly | 9 (3×3 grid) |
-| `belly-left` | Живот слева | shoulders-and-belly | 9 (3×3 grid) |
-| `thigh-right` | Правое бедро | thighs | 6 (2×3 grid) |
-| `thigh-left` | Левое бедро | thighs | 6 (2×3 grid) |
-
-**TODO:** Verify exact button positions against Figma design (node-id 26-3 in file `grYg39698ogy0nEBd88Fup`) once Figma API token is refreshed.
+| Zone ID | Label | Group | Buttons | Accent | Glow |
+|---|---|---|---|---|---|
+| `shoulder-right` | Правое плечо | shoulders-and-belly | 3 (vertical column) | `#F5D020` | `#C4A800` |
+| `shoulder-left` | Левое плечо | shoulders-and-belly | 3 (vertical column) | `#F5D020` | `#C4A800` |
+| `belly-right` | Живот справа | shoulders-and-belly | 9 (3×3 grid) | `#36D97A` | `#22A85E` |
+| `belly-left` | Живот слева | shoulders-and-belly | 9 (3×3 grid) | `#36D97A` | `#22A85E` |
+| `thigh-right` | Правое бедро | thighs | 6 (2×3 grid) | `#FF8C33` | `#CC6800` |
+| `thigh-left` | Левое бедро | thighs | 6 (2×3 grid) | `#FF8C33` | `#CC6800` |
 
 ### Group indicators
 
@@ -155,8 +153,6 @@ Derived by scanning `events[]` from newest to oldest, skipping `manual-block` / 
 
 ## Known limitations / TODO
 
-- [ ] Exact button positions need verification against Figma design (token expired at project start)
-- [ ] Body silhouette is a programmatic SVG — replace with exported Figma asset once available
 - [ ] No safe-area handling for devices with home indicator (bottom padding is hardcoded to 20 px)
 - [ ] Haptics do not fire on Android Expo Go (native module not available in managed workflow without dev build)
 - [ ] Dark mode not yet implemented

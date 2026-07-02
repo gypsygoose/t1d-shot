@@ -22,9 +22,17 @@ export interface Zone {
 export interface ButtonDefinition {
   id: string;
   zoneId: string;
-  // Position as fraction of image dimensions (0..1)
+}
+
+// Zone container layout: position + size as fraction of the body image
+// container (0..1), plus the button grid dimensions inside it.
+export interface ZoneLayout {
   x: number;
   y: number;
+  width: number;
+  height: number;
+  rows: number;
+  cols: number;
 }
 
 // Persisted per-button state

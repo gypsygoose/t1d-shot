@@ -1,86 +1,151 @@
-import { Zone, ButtonDefinition } from '../types';
+import { Zone, ButtonDefinition, ZoneLayout } from "../types";
 
 // Zones from Figma design (grYg39698ogy0nEBd88Fup, node 26:3)
 // Group label follows patient perspective: "правое" = patient's right = screen LEFT
 
 export const ZONES: Zone[] = [
-  { id: 'shoulder-right', label: 'Правое плечо',  group: 'shoulders-and-belly' },
-  { id: 'shoulder-left',  label: 'Левое плечо',   group: 'shoulders-and-belly' },
-  { id: 'belly-right',    label: 'Живот справа',  group: 'shoulders-and-belly' },
-  { id: 'belly-left',     label: 'Живот слева',   group: 'shoulders-and-belly' },
-  { id: 'thigh-right',    label: 'Правое бедро',  group: 'thighs' },
-  { id: 'thigh-left',     label: 'Левое бедро',   group: 'thighs' },
+  { id: "shoulder-right", label: "Правое плечо", group: "shoulders-and-belly" },
+  { id: "shoulder-left", label: "Левое плечо", group: "shoulders-and-belly" },
+  { id: "belly-right", label: "Живот справа", group: "shoulders-and-belly" },
+  { id: "belly-left", label: "Живот слева", group: "shoulders-and-belly" },
+  { id: "thigh-right", label: "Правое бедро", group: "thighs" },
+  { id: "thigh-left", label: "Левое бедро", group: "thighs" },
 ];
 
 export const ZONE_MAP: Record<string, Zone> = Object.fromEntries(
-  ZONES.map((z) => [z.id, z])
+  ZONES.map((z) => [z.id, z]),
 );
 
+// Per-zone accent colours, taken from the Figma "with buttons" frame
+// (node 27:744, file grYg39698ogy0nEBd88Fup): `accent` is the zone container
+// fill/border colour, `glow` is the darker shade used for the radial shadow
+// behind each injection button in that zone.
+export const ZONE_COLORS: Record<string, { accent: string; glow: string }> = {
+  "shoulder-right": { accent: "#F5D020", glow: "#C4A800" },
+  "shoulder-left": { accent: "#F5D020", glow: "#C4A800" },
+  "belly-right": { accent: "#36D97A", glow: "#22A85E" },
+  "belly-left": { accent: "#36D97A", glow: "#22A85E" },
+  "thigh-right": { accent: "#FF8C33", glow: "#CC6800" },
+  "thigh-left": { accent: "#FF8C33", glow: "#CC6800" },
+};
+
 // ---------------------------------------------------------------------------
-// Button positions extracted from Figma frame 393×852.
-// Body image container: starts at y=99.258 in screen coords, size 393×621.91.
-// All (x, y) are fractions (0–1) of the image container dimensions.
-// Button center is at (x * containerW, y * containerH).
+// Zone container layout — bounding box of each zone as a fraction (0..1) of
+// the body image container (393.46×621.91), derived from the zone rectangles
+// in the Figma "with buttons" frame (node 27:744, file grYg39698ogy0nEBd88Fup)
+// / assets/images/body_icon.svg. Each zone renders as an absolutely
+// positioned block matching this box; `rows`/`cols` describe the button grid
+// laid out *inside* that block (buttons are positioned relative to their own
+// zone container, not by global coordinates).
 // ---------------------------------------------------------------------------
 
-// Right shoulder — patient's right = screen LEFT (3 buttons vertical)
+export const ZONE_LAYOUT: Record<string, ZoneLayout> = {
+  "shoulder-right": {
+    x: 0.1098,
+    y: 0.1485,
+    width: 0.1067,
+    height: 0.1954,
+    rows: 3,
+    cols: 1,
+  },
+  "shoulder-left": {
+    x: 0.8065,
+    y: 0.1485,
+    width: 0.1067,
+    height: 0.1954,
+    rows: 3,
+    cols: 1,
+  },
+  "belly-right": {
+    x: 0.24,
+    y: 0.32,
+    width: 0.25,
+    height: 0.2047,
+    rows: 3,
+    cols: 3,
+  },
+  "belly-left": {
+    x: 0.525,
+    y: 0.32,
+    width: 0.25,
+    height: 0.2047,
+    rows: 3,
+    cols: 3,
+  },
+  "thigh-right": {
+    x: 0.23,
+    y: 0.6997,
+    width: 0.18,
+    height: 0.2047,
+    rows: 3,
+    cols: 2,
+  },
+  "thigh-left": {
+    x: 0.605,
+    y: 0.6997,
+    width: 0.18,
+    height: 0.2047,
+    rows: 3,
+    cols: 2,
+  },
+};
+
+// Buttons within each zone, in row-major order (matches ZONE_LAYOUT rows/cols
+// for that zone) — position on screen comes from the flex grid inside the
+// zone container, not from stored coordinates.
+
 const shoulderRight: ButtonDefinition[] = [
-  { id: 'sr-0', zoneId: 'shoulder-right', x: 0.160, y: 0.179 },
-  { id: 'sr-1', zoneId: 'shoulder-right', x: 0.160, y: 0.244 },
-  { id: 'sr-2', zoneId: 'shoulder-right', x: 0.160, y: 0.309 },
+  { id: "sr-0", zoneId: "shoulder-right" },
+  { id: "sr-1", zoneId: "shoulder-right" },
+  { id: "sr-2", zoneId: "shoulder-right" },
 ];
 
-// Left shoulder — patient's left = screen RIGHT (3 buttons vertical)
 const shoulderLeft: ButtonDefinition[] = [
-  { id: 'sl-0', zoneId: 'shoulder-left', x: 0.858, y: 0.179 },
-  { id: 'sl-1', zoneId: 'shoulder-left', x: 0.858, y: 0.244 },
-  { id: 'sl-2', zoneId: 'shoulder-left', x: 0.858, y: 0.309 },
+  { id: "sl-0", zoneId: "shoulder-left" },
+  { id: "sl-1", zoneId: "shoulder-left" },
+  { id: "sl-2", zoneId: "shoulder-left" },
 ];
 
-// Belly right — patient's right = screen LEFT (3×3 grid)
 const bellyRight: ButtonDefinition[] = [
-  { id: 'br-0', zoneId: 'belly-right', x: 0.309, y: 0.316 },
-  { id: 'br-1', zoneId: 'belly-right', x: 0.379, y: 0.316 },
-  { id: 'br-2', zoneId: 'belly-right', x: 0.449, y: 0.316 },
-  { id: 'br-3', zoneId: 'belly-right', x: 0.309, y: 0.384 },
-  { id: 'br-4', zoneId: 'belly-right', x: 0.379, y: 0.384 },
-  { id: 'br-5', zoneId: 'belly-right', x: 0.449, y: 0.384 },
-  { id: 'br-6', zoneId: 'belly-right', x: 0.309, y: 0.452 },
-  { id: 'br-7', zoneId: 'belly-right', x: 0.379, y: 0.452 },
-  { id: 'br-8', zoneId: 'belly-right', x: 0.449, y: 0.452 },
+  { id: "br-0", zoneId: "belly-right" },
+  { id: "br-1", zoneId: "belly-right" },
+  { id: "br-2", zoneId: "belly-right" },
+  { id: "br-3", zoneId: "belly-right" },
+  { id: "br-4", zoneId: "belly-right" },
+  { id: "br-5", zoneId: "belly-right" },
+  { id: "br-6", zoneId: "belly-right" },
+  { id: "br-7", zoneId: "belly-right" },
+  { id: "br-8", zoneId: "belly-right" },
 ];
 
-// Belly left — patient's left = screen RIGHT (3×3 grid)
 const bellyLeft: ButtonDefinition[] = [
-  { id: 'bl-0', zoneId: 'belly-left', x: 0.566, y: 0.316 },
-  { id: 'bl-1', zoneId: 'belly-left', x: 0.636, y: 0.316 },
-  { id: 'bl-2', zoneId: 'belly-left', x: 0.706, y: 0.316 },
-  { id: 'bl-3', zoneId: 'belly-left', x: 0.566, y: 0.384 },
-  { id: 'bl-4', zoneId: 'belly-left', x: 0.636, y: 0.384 },
-  { id: 'bl-5', zoneId: 'belly-left', x: 0.706, y: 0.384 },
-  { id: 'bl-6', zoneId: 'belly-left', x: 0.566, y: 0.452 },
-  { id: 'bl-7', zoneId: 'belly-left', x: 0.636, y: 0.452 },
-  { id: 'bl-8', zoneId: 'belly-left', x: 0.706, y: 0.452 },
+  { id: "bl-0", zoneId: "belly-left" },
+  { id: "bl-1", zoneId: "belly-left" },
+  { id: "bl-2", zoneId: "belly-left" },
+  { id: "bl-3", zoneId: "belly-left" },
+  { id: "bl-4", zoneId: "belly-left" },
+  { id: "bl-5", zoneId: "belly-left" },
+  { id: "bl-6", zoneId: "belly-left" },
+  { id: "bl-7", zoneId: "belly-left" },
+  { id: "bl-8", zoneId: "belly-left" },
 ];
 
-// Right thigh — patient's right = screen LEFT (2×3 grid)
 const thighRight: ButtonDefinition[] = [
-  { id: 'tr-0', zoneId: 'thigh-right', x: 0.274, y: 0.732 },
-  { id: 'tr-1', zoneId: 'thigh-right', x: 0.347, y: 0.732 },
-  { id: 'tr-2', zoneId: 'thigh-right', x: 0.274, y: 0.800 },
-  { id: 'tr-3', zoneId: 'thigh-right', x: 0.347, y: 0.800 },
-  { id: 'tr-4', zoneId: 'thigh-right', x: 0.274, y: 0.868 },
-  { id: 'tr-5', zoneId: 'thigh-right', x: 0.347, y: 0.868 },
+  { id: "tr-0", zoneId: "thigh-right" },
+  { id: "tr-1", zoneId: "thigh-right" },
+  { id: "tr-2", zoneId: "thigh-right" },
+  { id: "tr-3", zoneId: "thigh-right" },
+  { id: "tr-4", zoneId: "thigh-right" },
+  { id: "tr-5", zoneId: "thigh-right" },
 ];
 
-// Left thigh — patient's left = screen RIGHT (2×3 grid)
 const thighLeft: ButtonDefinition[] = [
-  { id: 'tl-0', zoneId: 'thigh-left', x: 0.671, y: 0.732 },
-  { id: 'tl-1', zoneId: 'thigh-left', x: 0.744, y: 0.732 },
-  { id: 'tl-2', zoneId: 'thigh-left', x: 0.671, y: 0.800 },
-  { id: 'tl-3', zoneId: 'thigh-left', x: 0.744, y: 0.800 },
-  { id: 'tl-4', zoneId: 'thigh-left', x: 0.671, y: 0.868 },
-  { id: 'tl-5', zoneId: 'thigh-left', x: 0.744, y: 0.868 },
+  { id: "tl-0", zoneId: "thigh-left" },
+  { id: "tl-1", zoneId: "thigh-left" },
+  { id: "tl-2", zoneId: "thigh-left" },
+  { id: "tl-3", zoneId: "thigh-left" },
+  { id: "tl-4", zoneId: "thigh-left" },
+  { id: "tl-5", zoneId: "thigh-left" },
 ];
 
 export const BUTTONS: ButtonDefinition[] = [
@@ -93,5 +158,13 @@ export const BUTTONS: ButtonDefinition[] = [
 ];
 
 export const BUTTON_MAP: Record<string, ButtonDefinition> = Object.fromEntries(
-  BUTTONS.map((b) => [b.id, b])
+  BUTTONS.map((b) => [b.id, b]),
+);
+
+export const BUTTONS_BY_ZONE: Record<string, ButtonDefinition[]> = ZONES.reduce(
+  (acc, zone) => {
+    acc[zone.id] = BUTTONS.filter((b) => b.zoneId === zone.id);
+    return acc;
+  },
+  {} as Record<string, ButtonDefinition[]>,
 );
