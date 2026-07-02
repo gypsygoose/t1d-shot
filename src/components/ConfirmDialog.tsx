@@ -1,4 +1,3 @@
-import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 interface Props {
@@ -42,9 +41,7 @@ export default function ConfirmDialog({
               onPress={onConfirm}
               activeOpacity={0.8}
             >
-              <Text style={[styles.confirmLabel, destructive && styles.destructiveLabel]}>
-                {confirmLabel}
-              </Text>
+              <Text style={styles.confirmLabel}>{confirmLabel}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -56,28 +53,30 @@ export default function ConfirmDialog({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
   },
   box: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#141824',
     borderRadius: 16,
     padding: 24,
     width: '100%',
     maxWidth: 360,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   title: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
-    color: '#111111',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   message: {
-    fontSize: 15,
-    color: '#444444',
-    lineHeight: 22,
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.6)',
+    lineHeight: 21,
     marginBottom: 24,
   },
   row: {
@@ -87,20 +86,20 @@ const styles = StyleSheet.create({
   cancelBtn: {
     flex: 1,
     borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: '#CCCCCC',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
     paddingVertical: 12,
     alignItems: 'center',
   },
   cancelLabel: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#444444',
+    color: 'rgba(255,255,255,0.7)',
   },
   confirmBtn: {
     flex: 1,
     borderRadius: 10,
-    backgroundColor: '#1A56DB',
+    backgroundColor: '#2563EB',
     paddingVertical: 12,
     alignItems: 'center',
   },
@@ -111,8 +110,5 @@ const styles = StyleSheet.create({
   },
   destructiveBtn: {
     backgroundColor: '#DC2626',
-  },
-  destructiveLabel: {
-    color: '#FFFFFF',
   },
 });

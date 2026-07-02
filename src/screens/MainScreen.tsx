@@ -1,57 +1,69 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import {
   View,
   StyleSheet,
-  SafeAreaView,
   Text,
+  Image,
   ActivityIndicator,
   useWindowDimensions,
+  SafeAreaView,
+  StatusBar,
 } from 'react-native';
-import BodySilhouette from '../components/BodySilhouette';
 import InjectionButton from '../components/InjectionButton';
 import BottomMenu from '../components/BottomMenu';
 import { useAppStore } from '../store/useAppStore';
 import { computeButtonColor } from '../logic/stateMachine';
 import { BUTTONS } from '../data/zones';
 
-// The SVG viewBox is 300 × 580. We render it at the full container width,
-// maintaining aspect ratio so buttons can be positioned as percentage of container.
-
-const VIEWBOX_W = 300;
-const VIEWBOX_H = 580;
+// Figma body image aspect ratio: 393.46 wide × 621.91 tall
+const IMG_ASPECT = 393.46 / 621.91;
 
 export default function MainScreen() {
   const [state, actions] = useAppStore();
   const { width: screenW } = useWindowDimensions();
 
-  const containerW = screenW;
-  const containerH = containerW * (VIEWBOX_H / VIEWBOX_W);
+  // Image fills full screen width; height derived from aspect ratio
+  const imgW = screenW;
+  const imgH = imgW / IMG_ASPECT;
 
   const handlePress = useCallback((id: string) => actions.pressButton(id), [actions]);
   const handleLongPress = useCallback((id: string) => actions.longPressButton(id), [actions]);
 
   if (!state.isLoaded) {
     return (
-      <SafeAreaView style={styles.loading}>
-        <ActivityIndicator size="large" color="#1A56DB" />
-      </SafeAreaView>
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" color="#FFFFFF" />
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.root}>
-      <Text style={styles.header}>T1D Shot</Text>
+    <View style={styles.root}>
+      <StatusBar barStyle="light-content" backgroundColor="#080C18" />
 
+      {/* Header */}
+      <SafeAreaView style={styles.headerSafe}>
+        <View style={styles.header}>
+          <Text style={styles.title}>T1D SHOTS</Text>
+        </View>
+      </SafeAreaView>
+
+      {/* Body image + buttons overlay */}
       <View style={styles.bodyWrap}>
-        <View style={[styles.silhouetteContainer, { width: containerW, height: containerH }]}>
-          <BodySilhouette />
+        <View style={[styles.imageContainer, { width: imgW, height: imgH }]}>
+          <Image
+            source={require('../../assets/images/body_icon.png')}
+            style={StyleSheet.absoluteFill}
+            resizeMode="contain"
+          />
 
           {BUTTONS.map((btn) => {
             const btnState = state.buttonStates[btn.id];
             if (!btnState) return null;
             const color = computeButtonColor(btnState, state.now);
-            const showCheckmark = state.lastInGroup['thighs'] === btn.id
-              || state.lastInGroup['shoulders-and-belly'] === btn.id;
+            const showCheckmark =
+              state.lastInGroup['thighs'] === btn.id ||
+              state.lastInGroup['shoulders-and-belly'] === btn.id;
 
             return (
               <InjectionButton
@@ -68,40 +80,49 @@ export default function MainScreen() {
         </View>
       </View>
 
+      {/* Bottom menu */}
       <BottomMenu
         canUndo={state.events.length > 0}
         onUndo={actions.undo}
         onClear={actions.clearAll}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#080C18',
   },
   loading: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#080C18',
+  },
+  headerSafe: {
+    backgroundColor: '#080C18',
   },
   header: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#111111',
-    textAlign: 'center',
-    paddingVertical: 12,
-    letterSpacing: 0.5,
+    paddingTop: 12,
+    paddingBottom: 12,
+    alignItems: 'center',
+  },
+  title: {
+    color: 'rgba(255,255,255,0.26)',
+    fontSize: 13,
+    fontWeight: '400',
+    letterSpacing: 3.1,
+    textTransform: 'uppercase',
   },
   bodyWrap: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
-  silhouetteContainer: {
+  imageContainer: {
     position: 'relative',
   },
 });

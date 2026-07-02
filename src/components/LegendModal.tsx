@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Modal,
   View,
@@ -40,12 +39,14 @@ export default function LegendModal({ visible, onClose }: Props) {
     >
       <View style={styles.overlay}>
         <View style={styles.sheet}>
+          <View style={styles.handle} />
           <View style={styles.header}>
             <Text style={styles.title}>Легенда</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn} activeOpacity={0.7}>
               <Text style={styles.closeLabel}>✕</Text>
             </TouchableOpacity>
           </View>
+
           <ScrollView showsVerticalScrollIndicator={false}>
             <Text style={styles.sectionTitle}>Зоны введения</Text>
             {ZONES.map((z) => (
@@ -60,20 +61,28 @@ export default function LegendModal({ visible, onClose }: Props) {
             <Text style={styles.sectionTitle}>Цветовая схема</Text>
             {COLOR_ORDER.map((c) => (
               <View key={c} style={styles.colorRow}>
-                <View style={[styles.swatch, { backgroundColor: COLOR_HEX[c], borderColor: c === 'white' ? '#BDBDBD' : COLOR_HEX[c] }]} />
+                <View
+                  style={[
+                    styles.swatch,
+                    {
+                      backgroundColor: COLOR_HEX[c],
+                      borderColor: c === 'white' ? 'rgba(255,255,255,0.3)' : COLOR_HEX[c],
+                    },
+                  ]}
+                />
                 <Text style={styles.colorLabel}>{COLOR_LABEL[c]}</Text>
               </View>
             ))}
 
             <Text style={styles.sectionTitle}>Управление</Text>
             <Text style={styles.hint}>
-              <Text style={styles.bold}>Нажатие</Text> — зафиксировать укол в этой точке.
+              <Text style={styles.bold}>Нажатие</Text> — зафиксировать укол.
             </Text>
             <Text style={styles.hint}>
-              <Text style={styles.bold}>Долгое нажатие</Text> (~1 сек) — заблокировать/разблокировать точку вручную (травма, синяк).
+              <Text style={styles.bold}>Долгое нажатие</Text> (~1 с) — заблокировать / разблокировать вручную (травма, синяк).
             </Text>
             <Text style={styles.hint}>
-              <Text style={styles.bold}>✓ Галочка</Text> — точка, в которую был сделан последний укол в своей группе.
+              <Text style={styles.bold}>✓ Галочка</Text> — последняя использованная точка в группе.
             </Text>
             <View style={styles.bottomPad} />
           </ScrollView>
@@ -86,16 +95,26 @@ export default function LegendModal({ visible, onClose }: Props) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#141824',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: '85%',
+    maxHeight: '88%',
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 12,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(255,255,255,0.1)',
+  },
+  handle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignSelf: 'center',
+    marginBottom: 14,
   },
   header: {
     flexDirection: 'row',
@@ -104,69 +123,71 @@ const styles = StyleSheet.create({
   },
   title: {
     flex: 1,
-    fontSize: 20,
+    fontSize: 19,
     fontWeight: '700',
-    color: '#111111',
+    color: '#FFFFFF',
   },
   closeBtn: {
     padding: 8,
   },
   closeLabel: {
-    fontSize: 18,
-    color: '#666666',
+    fontSize: 17,
+    color: 'rgba(255,255,255,0.5)',
   },
   sectionTitle: {
-    fontSize: 15,
+    fontSize: 11,
     fontWeight: '700',
-    color: '#333333',
-    marginTop: 16,
-    marginBottom: 8,
+    color: 'rgba(255,255,255,0.4)',
+    marginTop: 20,
+    marginBottom: 10,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   zoneRow: {
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#EEEEEE',
+    borderBottomColor: 'rgba(255,255,255,0.08)',
   },
   zoneName: {
     fontSize: 15,
-    color: '#111111',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   zoneGroup: {
-    fontSize: 13,
-    color: '#888888',
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.45)',
     marginTop: 2,
   },
   colorRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 5,
-    gap: 12,
+    paddingVertical: 6,
+    gap: 14,
   },
   swatch: {
     width: 26,
     height: 26,
     borderRadius: 13,
     borderWidth: 1.5,
+    flexShrink: 0,
   },
   colorLabel: {
     flex: 1,
-    fontSize: 14,
-    color: '#333333',
-    lineHeight: 20,
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.75)',
+    lineHeight: 19,
   },
   hint: {
-    fontSize: 14,
-    color: '#444444',
-    lineHeight: 22,
-    marginBottom: 8,
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.6)',
+    lineHeight: 21,
+    marginBottom: 10,
   },
   bold: {
     fontWeight: '700',
+    color: '#FFFFFF',
   },
   bottomPad: {
-    height: 32,
+    height: 36,
   },
 });
