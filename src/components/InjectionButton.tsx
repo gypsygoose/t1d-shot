@@ -38,8 +38,8 @@ export default function InjectionButton({
     (_: GestureResponderEvent) => {
       if (!isBlocked) {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        onPress();
       }
+      onPress();
     },
     [isBlocked, onPress],
   );

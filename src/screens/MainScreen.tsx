@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -13,9 +13,13 @@ import BottomMenu from "../components/BottomMenu";
 import ButtonActionMenu from "../components/ButtonActionMenu";
 import MarkDialog from "../components/MarkDialog";
 import ConfirmDialog from "../components/ConfirmDialog";
+import Toast from "../components/Toast";
 import { useAppStore } from "../store/useAppStore";
 import { computeButtonColor } from "../logic/stateMachine";
 import { ZONES, BUTTON_MAP, ZONE_MAP } from "../data/zones";
+
+const BLOCKED_TOAST_MESSAGE = "Точка заблокирована и не может быть отмечена";
+const TOAST_DURATION_MS = 2000;
 
 // Figma body image aspect ratio: 393.46 wide × 621.91 tall
 const IMG_ASPECT = 393.46 / 621.91;
@@ -29,10 +33,33 @@ export default function MainScreen() {
   const [menuButtonId, setMenuButtonId] = useState<string | null>(null);
   const [markButtonId, setMarkButtonId] = useState<string | null>(null);
   const [clearButtonId, setClearButtonId] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
+
+  const showBlockedToast = useCallback(() => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToastMessage(BLOCKED_TOAST_MESSAGE);
+    toastTimerRef.current = setTimeout(() => {
+      setToastMessage(null);
+    }, TOAST_DURATION_MS);
+  }, []);
 
   const handlePress = useCallback(
-    (id: string) => actions.pressButton(id),
-    [actions],
+    (id: string) => {
+      const color = computeButtonColor(state.buttonStates[id], state.now);
+      if (color === "gray" || color === "black") {
+        showBlockedToast();
+        return;
+      }
+      actions.pressButton(id);
+    },
+    [actions, state.buttonStates, state.now, showBlockedToast],
   );
   const handleLongPress = useCallback((id: string) => setMenuButtonId(id), []);
 
@@ -54,6 +81,8 @@ export default function MainScreen() {
   return (
     <View style={styles.root}>
       <StatusBar barStyle="light-content" backgroundColor="#080C18" />
+
+      <Toast message={toastMessage} />
 
       {/* Header */}
       <SafeAreaView style={styles.headerSafe} edges={["top"]}>
