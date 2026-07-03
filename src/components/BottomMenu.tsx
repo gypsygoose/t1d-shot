@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import ConfirmDialog from "./ConfirmDialog";
-import LegendModal from "./LegendModal";
+import HelpModal from "./HelpModal";
 
 interface Props {
   canUndo: boolean;
@@ -35,46 +35,25 @@ function UndoIcon({ disabled }: { disabled: boolean }) {
   );
 }
 
-function LegendIcon() {
+function HelpIcon() {
   return (
     <Svg width={22} height={22} viewBox="0 0 22 22" fill="none">
       <Path
-        d="M8.25 2.75H3.66667C3.16041 2.75 2.75 3.16043 2.75 3.66669V8.25002C2.75 8.75628 3.16041 9.16668 3.66667 9.16668H8.25C8.75626 9.16668 9.16667 8.75628 9.16667 8.25002V3.66669C9.16667 3.16043 8.75626 2.75 8.25 2.75Z"
-        stroke="#FFFFFF"
-        strokeWidth={1.83332}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M8.25 12.8333H3.66667C3.16041 12.8333 2.75 13.2437 2.75 13.75V18.3333C2.75 18.8396 3.16041 19.25 3.66667 19.25H8.25C8.75626 19.25 9.16667 18.8396 9.16667 18.3333V13.75C9.16667 13.2437 8.75626 12.8333 8.25 12.8333Z"
-        stroke="#FFFFFF"
-        strokeWidth={1.83332}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M12.8333 3.66667H19.25"
+        d="M11 20.1667C16.0626 20.1667 20.1667 16.0626 20.1667 11C20.1667 5.93743 16.0626 1.83333 11 1.83333C5.93743 1.83333 1.83333 5.93743 1.83333 11C1.83333 16.0626 5.93743 20.1667 11 20.1667Z"
         stroke="#FFFFFF"
         strokeWidth={1.83333}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <Path
-        d="M12.8333 8.25H19.25"
+        d="M8.33333 8.25C8.58983 7.52014 9.09572 6.90371 9.76109 6.51461C10.4265 6.1255 11.2084 5.98882 11.9655 6.12882C12.7226 6.26883 13.4067 6.6766 13.8918 7.27834C14.377 7.88008 14.6318 8.63615 14.6115 9.41077C14.6115 11.5 11.4583 12.5417 11.4583 12.5417"
         stroke="#FFFFFF"
         strokeWidth={1.83333}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <Path
-        d="M12.8333 13.75H19.25"
-        stroke="#FFFFFF"
-        strokeWidth={1.83333}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M12.8333 18.3333H19.25"
+        d="M11 16.0417V16.0521"
         stroke="#FFFFFF"
         strokeWidth={1.83333}
         strokeLinecap="round"
@@ -131,19 +110,19 @@ function ClearIcon() {
 export default function BottomMenu({ canUndo, onUndo, onClear }: Props) {
   const [showUndo, setShowUndo] = useState(false);
   const [showClear, setShowClear] = useState(false);
-  const [showLegend, setShowLegend] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   return (
     <>
       {/* Rendered before the bar so the bar paints on top and stays
-          visible/tappable while the legend sheet is open. */}
-      <LegendModal visible={showLegend} onClose={() => setShowLegend(false)} />
+          visible/tappable while the help sheet is open. */}
+      <HelpModal visible={showHelp} onClose={() => setShowHelp(false)} />
 
       <View style={styles.bar}>
         <TouchableOpacity
           style={[styles.btn, !canUndo && styles.btnDisabled]}
           onPress={() => {
-            setShowLegend(false);
+            setShowHelp(false);
             setShowUndo(true);
           }}
           disabled={!canUndo}
@@ -154,16 +133,16 @@ export default function BottomMenu({ canUndo, onUndo, onClear }: Props) {
 
         <TouchableOpacity
           style={styles.btn}
-          onPress={() => setShowLegend((v) => !v)}
+          onPress={() => setShowHelp((v) => !v)}
           activeOpacity={0.6}
         >
-          <LegendIcon />
+          <HelpIcon />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.btn}
           onPress={() => {
-            setShowLegend(false);
+            setShowHelp(false);
             setShowClear(true);
           }}
           activeOpacity={0.6}

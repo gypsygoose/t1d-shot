@@ -45,7 +45,7 @@ export interface StoredButtonState {
 }
 
 // Event in undo history
-export type AppEventType = 'injection' | 'blackout' | 'manual-block' | 'manual-unblock';
+export type AppEventType = 'injection' | 'blackout' | 'manual-block' | 'manual-unblock' | 'manual-clear';
 
 export interface AppEvent {
   id: string;

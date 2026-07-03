@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -10,9 +10,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import ZoneContainer from "../components/ZoneContainer";
 import BottomMenu from "../components/BottomMenu";
+import ButtonActionMenu from "../components/ButtonActionMenu";
+import MarkDialog from "../components/MarkDialog";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { useAppStore } from "../store/useAppStore";
 import { computeButtonColor } from "../logic/stateMachine";
-import { ZONES } from "../data/zones";
+import { ZONES, BUTTON_MAP, ZONE_MAP } from "../data/zones";
 
 // Figma body image aspect ratio: 393.46 wide × 621.91 tall
 const IMG_ASPECT = 393.46 / 621.91;
@@ -20,14 +23,20 @@ const IMG_ASPECT = 393.46 / 621.91;
 export default function MainScreen() {
   const [state, actions] = useAppStore();
 
+  // Long-pressed button awaiting an action from the menu / follow-up dialogs.
+  const [menuButtonId, setMenuButtonId] = useState<string | null>(null);
+  const [markButtonId, setMarkButtonId] = useState<string | null>(null);
+  const [clearButtonId, setClearButtonId] = useState<string | null>(null);
+
   const handlePress = useCallback(
     (id: string) => actions.pressButton(id),
     [actions],
   );
-  const handleLongPress = useCallback(
-    (id: string) => actions.longPressButton(id),
-    [actions],
-  );
+  const handleLongPress = useCallback((id: string) => setMenuButtonId(id), []);
+
+  const menuZoneLabel = menuButtonId
+    ? ZONE_MAP[BUTTON_MAP[menuButtonId]?.zoneId]?.label
+    : undefined;
 
   if (!state.isLoaded) {
     return (
@@ -80,6 +89,47 @@ export default function MainScreen() {
         canUndo={state.events.length > 0}
         onUndo={actions.undo}
         onClear={actions.clearAll}
+      />
+
+      {/* Long-press menu for a single button */}
+      <ButtonActionMenu
+        visible={menuButtonId !== null}
+        zoneLabel={menuZoneLabel}
+        onBlock={() => {
+          if (menuButtonId) actions.blockButton(menuButtonId);
+          setMenuButtonId(null);
+        }}
+        onMark={() => {
+          setMarkButtonId(menuButtonId);
+          setMenuButtonId(null);
+        }}
+        onClear={() => {
+          setClearButtonId(menuButtonId);
+          setMenuButtonId(null);
+        }}
+        onCancel={() => setMenuButtonId(null)}
+      />
+
+      <MarkDialog
+        visible={markButtonId !== null}
+        onConfirm={(timestamp) => {
+          if (markButtonId) actions.markButtonAt(markButtonId, timestamp);
+          setMarkButtonId(null);
+        }}
+        onCancel={() => setMarkButtonId(null)}
+      />
+
+      <ConfirmDialog
+        visible={clearButtonId !== null}
+        title="Очистить точку?"
+        message="Данные этой точки будут удалены, и она станет белой (свободной). Это действие нельзя отменить повторно."
+        confirmLabel="Очистить"
+        onConfirm={() => {
+          if (clearButtonId) actions.clearButton(clearButtonId);
+          setClearButtonId(null);
+        }}
+        onCancel={() => setClearButtonId(null)}
+        destructive
       />
     </View>
   );

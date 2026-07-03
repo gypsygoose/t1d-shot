@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { AppStorage, AppEvent, ZoneGroup } from '../types';
+import { AppStorage, AppEvent, StoredButtonState, ZoneGroup } from '../types';
 import { loadStorage, saveStorage, clearStorage } from '../storage/storage';
-import { onPress, toggleManualBlock, computeButtonColor } from '../logic/stateMachine';
+import { onPress } from '../logic/stateMachine';
 import { BUTTON_MAP, ZONE_MAP } from '../data/zones';
 function uuid(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
@@ -14,7 +14,9 @@ export interface AppState extends AppStorage {
 
 export interface AppActions {
   pressButton(buttonId: string): void;
-  longPressButton(buttonId: string): void;
+  blockButton(buttonId: string): void;
+  markButtonAt(buttonId: string, timestamp: number): void;
+  clearButton(buttonId: string): void;
   undo(): void;
   clearAll(): void;
 }
@@ -99,27 +101,86 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
     });
   }, []);
 
-  const longPressButton = useCallback((buttonId: string) => {
+  const blockButton = useCallback((buttonId: string) => {
     setState((prev) => {
       const now = Date.now();
       const btn = BUTTON_MAP[buttonId];
       if (!btn) return prev;
 
       const currentBtnState = prev.buttonStates[buttonId];
-      // Can't long-press a black (system blocked) button
-      const color = computeButtonColor(currentBtnState, now);
-      if (color === 'black') return prev;
-
-      const newBtnState = toggleManualBlock(currentBtnState);
-      const eventType = newBtnState.isManuallyBlocked ? 'manual-block' : 'manual-unblock';
+      const newBtnState: StoredButtonState = {
+        ...currentBtnState,
+        buttonId,
+        isManuallyBlocked: true,
+      };
 
       const event: AppEvent = {
         id: uuid(),
         timestamp: now,
-        type: eventType,
+        type: 'manual-block',
         buttonId,
         zoneId: btn.zoneId,
-        prevButtonState: { ...currentBtnState },
+        prevButtonState: currentBtnState
+          ? { ...currentBtnState }
+          : { buttonId, isManuallyBlocked: false },
+      };
+
+      const nextButtonStates = { ...prev.buttonStates, [buttonId]: newBtnState };
+      const nextEvents = [...prev.events, event];
+      const next: AppStorage = { buttonStates: nextButtonStates, events: nextEvents };
+      scheduleSave(next);
+      return { ...prev, ...next, now };
+    });
+  }, []);
+
+  // Records the button as if it had been pressed at the given timestamp
+  // instead of now, reusing the normal press state machine.
+  const markButtonAt = useCallback((buttonId: string, timestamp: number) => {
+    setState((prev) => {
+      const btn = BUTTON_MAP[buttonId];
+      if (!btn) return prev;
+
+      const currentBtnState = prev.buttonStates[buttonId];
+      const result = onPress(currentBtnState, timestamp);
+      if (result.kind === 'blocked') return prev;
+
+      const event: AppEvent = {
+        id: uuid(),
+        timestamp,
+        type: result.kind,
+        buttonId,
+        zoneId: btn.zoneId,
+        prevButtonState: currentBtnState
+          ? { ...currentBtnState }
+          : { buttonId, isManuallyBlocked: false },
+      };
+
+      const nextButtonStates = { ...prev.buttonStates, [buttonId]: result.newState };
+      const nextEvents = [...prev.events, event];
+      const next: AppStorage = { buttonStates: nextButtonStates, events: nextEvents };
+      scheduleSave(next);
+      return { ...prev, ...next };
+    });
+  }, []);
+
+  const clearButton = useCallback((buttonId: string) => {
+    setState((prev) => {
+      const now = Date.now();
+      const btn = BUTTON_MAP[buttonId];
+      if (!btn) return prev;
+
+      const currentBtnState = prev.buttonStates[buttonId];
+      const newBtnState: StoredButtonState = { buttonId, isManuallyBlocked: false };
+
+      const event: AppEvent = {
+        id: uuid(),
+        timestamp: now,
+        type: 'manual-clear',
+        buttonId,
+        zoneId: btn.zoneId,
+        prevButtonState: currentBtnState
+          ? { ...currentBtnState }
+          : { buttonId, isManuallyBlocked: false },
       };
 
       const nextButtonStates = { ...prev.buttonStates, [buttonId]: newBtnState };
@@ -153,5 +214,8 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
 
   const lastInGroup = lastPressedByGroup(state.events);
 
-  return [{ ...state, lastInGroup }, { pressButton, longPressButton, undo, clearAll }];
+  return [
+    { ...state, lastInGroup },
+    { pressButton, blockButton, markButtonAt, clearButton, undo, clearAll },
+  ];
 }

@@ -17,7 +17,7 @@ const SCREEN_HEIGHT = Dimensions.get("window").height;
 const DISMISS_DISTANCE = 80;
 const DISMISS_VELOCITY = 0.5;
 
-// Injection zone descriptions, taken from the Figma "legend" frame
+// Injection zone descriptions, taken from the Figma "help" frame
 // (node 26:239, file grYg39698ogy0nEBd88Fup).
 const INJECTION_ZONE_INFO = [
   {
@@ -65,7 +65,7 @@ interface Props {
   onClose: () => void;
 }
 
-export default function LegendModal({ visible, onClose }: Props) {
+export default function HelpModal({ visible, onClose }: Props) {
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   // Kept mounted for the duration of the dismiss animation, then unmounted
   // entirely so the (otherwise full-screen) overlay stops intercepting
@@ -145,7 +145,7 @@ export default function LegendModal({ visible, onClose }: Props) {
         <View {...panResponder.panHandlers}>
           <View style={styles.handle} />
           <View style={styles.header}>
-            <Text style={styles.title}>Легенда</Text>
+            <Text style={styles.title}>Справка</Text>
           </View>
         </View>
 

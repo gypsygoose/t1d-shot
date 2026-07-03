@@ -46,12 +46,10 @@ export default function InjectionButton({
 
   const handleLongPress = useCallback(
     (_: GestureResponderEvent) => {
-      if (color !== "black") {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        onLongPress();
-      }
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      onLongPress();
     },
-    [color, onLongPress],
+    [onLongPress],
   );
 
   const bg = COLOR_HEX[color];
