@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { AppStorage, AppEvent, StoredButtonState, ZoneGroup } from '../types';
+import { AppStorage, AppEvent, ExportedAppData, StoredButtonState, ZoneGroup } from '../types';
 import {
   loadStorage,
   saveStorage,
@@ -34,7 +34,7 @@ export interface AppActions {
   setMirrored(mirrored: boolean): void;
   exportData(): Promise<void>;
   pickImportFile(): Promise<ImportResult>;
-  applyImport(data: AppStorage): void;
+  applyImport(data: ExportedAppData): void;
 }
 
 // Derive checked buttonId per group: the button with the latest press date
@@ -284,10 +284,14 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
   }, []);
 
   const exportData = useCallback(async () => {
-    await exportStorageToFile({ buttonStates: state.buttonStates, events: state.events });
-  }, [state.buttonStates, state.events]);
+    await exportStorageToFile({
+      buttonStates: state.buttonStates,
+      events: state.events,
+      mirrored: state.mirrored,
+    });
+  }, [state.buttonStates, state.events, state.mirrored]);
 
-  const applyImport = useCallback((data: AppStorage) => {
+  const applyImport = useCallback((data: ExportedAppData) => {
     setState((prev) => ({ ...prev, ...data }));
     importStorage(data);
   }, []);

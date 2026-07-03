@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
-import { AppEvent, AppEventType, AppStorage, StoredButtonState } from '../types';
+import { AppEvent, AppEventType, AppStorage, ExportedAppData, StoredButtonState } from '../types';
 import { BUTTONS } from '../data/zones';
 
 const STORAGE_KEY = '@t1d_shot_v1';
@@ -96,19 +96,20 @@ function isValidEvent(value: unknown): value is AppEvent {
   return true;
 }
 
-function isValidAppStorage(data: unknown): data is AppStorage {
+function isValidAppStorage(data: unknown): data is ExportedAppData {
   if (!data || typeof data !== 'object') return false;
-  const candidate = data as Partial<AppStorage>;
+  const candidate = data as Partial<ExportedAppData>;
   if (!candidate.buttonStates || typeof candidate.buttonStates !== 'object') return false;
   if (!Object.values(candidate.buttonStates).every(isValidButtonState)) return false;
   if (!Array.isArray(candidate.events)) return false;
   if (!candidate.events.every(isValidEvent)) return false;
+  if (candidate.mirrored !== undefined && typeof candidate.mirrored !== 'boolean') return false;
   return true;
 }
 
 // Writes the full app state to a JSON file in cache and opens the system
 // share sheet so the user can pick where on the device to save it.
-export async function exportStorageToFile(data: AppStorage): Promise<void> {
+export async function exportStorageToFile(data: ExportedAppData): Promise<void> {
   const dateStamp = new Date().toISOString().slice(0, 10);
   const fileUri = `${FileSystem.cacheDirectory}t1d-shot-export-${dateStamp}.json`;
   await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(data, null, 2));
@@ -123,7 +124,7 @@ export async function exportStorageToFile(data: AppStorage): Promise<void> {
 }
 
 export type ImportResult =
-  | { kind: 'success'; data: AppStorage }
+  | { kind: 'success'; data: ExportedAppData }
   | { kind: 'cancelled' }
   | { kind: 'invalid' };
 
@@ -140,12 +141,14 @@ export async function pickImportFile(): Promise<ImportResult> {
     const raw = await FileSystem.readAsStringAsync(picked.assets[0].uri);
     const parsed = JSON.parse(raw);
     if (!isValidAppStorage(parsed)) return { kind: 'invalid' };
-    return { kind: 'success', data: normalizeStorage(parsed) };
+    const normalized = normalizeStorage(parsed);
+    return { kind: 'success', data: { ...normalized, mirrored: parsed.mirrored ?? false } };
   } catch {
     return { kind: 'invalid' };
   }
 }
 
-export async function importStorage(data: AppStorage): Promise<void> {
-  await saveStorage(data);
+export async function importStorage(data: ExportedAppData): Promise<void> {
+  await saveStorage({ buttonStates: data.buttonStates, events: data.events });
+  await saveMirrored(data.mirrored);
 }

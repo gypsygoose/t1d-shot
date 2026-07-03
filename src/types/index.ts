@@ -61,3 +61,9 @@ export interface AppStorage {
   buttonStates: Record<string, StoredButtonState>;
   events: AppEvent[];
 }
+
+// Full app state as written to / read from an export file — includes
+// settings (like mirror mode) that live outside AppStorage in AsyncStorage.
+export interface ExportedAppData extends AppStorage {
+  mirrored: boolean;
+}

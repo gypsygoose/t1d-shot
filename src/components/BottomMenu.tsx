@@ -4,7 +4,7 @@ import Svg, { Path } from "react-native-svg";
 import ConfirmDialog from "./ConfirmDialog";
 import HelpSheet from "./HelpSheet";
 import MenuSheet from "./MenuSheet";
-import { AppStorage } from "../types";
+import { ExportedAppData } from "../types";
 import { ImportResult } from "../storage/storage";
 
 interface Props {
@@ -15,7 +15,7 @@ interface Props {
   onToggleMirrored: (value: boolean) => void;
   onExport: () => Promise<void>;
   onPickImportFile: () => Promise<ImportResult>;
-  onApplyImport: (data: AppStorage) => void;
+  onApplyImport: (data: ExportedAppData) => void;
 }
 
 // Icon components matching Figma icon shapes (node-id 26-3, file grYg39698ogy0nEBd88Fup)
@@ -123,7 +123,7 @@ export default function BottomMenu({
   const [showClear, setShowClear] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [pendingImport, setPendingImport] = useState<AppStorage | null>(null);
+  const [pendingImport, setPendingImport] = useState<ExportedAppData | null>(null);
 
   const handleImport = async () => {
     setShowMenu(false);
