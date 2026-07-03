@@ -2,7 +2,8 @@ import { useState } from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import ConfirmDialog from "./ConfirmDialog";
-import HelpModal from "./HelpModal";
+import HelpSheet from "./HelpSheet";
+import MenuSheet from "./MenuSheet";
 
 interface Props {
   canUndo: boolean;
@@ -63,7 +64,7 @@ function HelpIcon() {
   );
 }
 
-function ClearIcon() {
+function MenuIcon() {
   return (
     <Svg width={22} height={22} viewBox="0 0 22 22" fill="none">
       <Path
@@ -74,30 +75,14 @@ function ClearIcon() {
         strokeLinejoin="round"
       />
       <Path
-        d="M17.4167 5.5V18.3333C17.4167 19.25 16.5 20.1667 15.5833 20.1667H6.41667C5.5 20.1667 4.58333 19.25 4.58333 18.3333V5.5"
-        stroke="#FFFFFF"
-        strokeWidth={1.83333}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <Path
-        d="M7.33333 5.5V3.66667C7.33333 2.75 8.25 1.83333 9.16667 1.83333H12.8333C13.75 1.83333 14.6667 2.75 14.6667 3.66667V5.5"
-        stroke="#FFFFFF"
-        strokeWidth={1.83333}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <Path
-        d="M9.16667 10.0833V15.5833"
+        d="M2.75 11H19.25"
         stroke="#FFFFFF"
         strokeWidth={1.83333}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <Path
-        d="M12.8333 10.0833V15.5833"
+        d="M2.75 16.5H19.25"
         stroke="#FFFFFF"
         strokeWidth={1.83333}
         strokeLinecap="round"
@@ -111,18 +96,28 @@ export default function BottomMenu({ canUndo, onUndo, onClear }: Props) {
   const [showUndo, setShowUndo] = useState(false);
   const [showClear, setShowClear] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   return (
     <>
       {/* Rendered before the bar so the bar paints on top and stays
-          visible/tappable while the help sheet is open. */}
-      <HelpModal visible={showHelp} onClose={() => setShowHelp(false)} />
+          visible/tappable while the help/menu sheet is open. */}
+      <HelpSheet visible={showHelp} onClose={() => setShowHelp(false)} />
+      <MenuSheet
+        visible={showMenu}
+        onClose={() => setShowMenu(false)}
+        onClear={() => {
+          setShowMenu(false);
+          setShowClear(true);
+        }}
+      />
 
       <View style={styles.bar}>
         <TouchableOpacity
           style={[styles.btn, !canUndo && styles.btnDisabled]}
           onPress={() => {
             setShowHelp(false);
+            setShowMenu(false);
             setShowUndo(true);
           }}
           disabled={!canUndo}
@@ -133,21 +128,24 @@ export default function BottomMenu({ canUndo, onUndo, onClear }: Props) {
 
         <TouchableOpacity
           style={styles.btn}
-          onPress={() => setShowHelp((v) => !v)}
+          onPress={() => {
+            setShowHelp(false);
+            setShowMenu((v) => !v);
+          }}
           activeOpacity={0.6}
         >
-          <HelpIcon />
+          <MenuIcon />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.btn}
           onPress={() => {
-            setShowHelp(false);
-            setShowClear(true);
+            setShowMenu(false);
+            setShowHelp((v) => !v);
           }}
           activeOpacity={0.6}
         >
-          <ClearIcon />
+          <HelpIcon />
         </TouchableOpacity>
       </View>
 

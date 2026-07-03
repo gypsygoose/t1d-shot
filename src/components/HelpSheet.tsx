@@ -51,7 +51,7 @@ interface Props {
   onClose: () => void;
 }
 
-export default function HelpModal({ visible, onClose }: Props) {
+export default function HelpSheet({ visible, onClose }: Props) {
   return (
     <BottomSheet visible={visible} onClose={onClose} title="Справка">
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -98,12 +98,12 @@ export default function HelpModal({ visible, onClose }: Props) {
           <Text style={styles.bold}>Нажатие</Text> — зафиксировать укол.
         </Text>
         <Text style={styles.hint}>
-          <Text style={styles.bold}>Долгое нажатие</Text> (~1 с) —
-          заблокировать / разблокировать вручную (травма, синяк).
+          <Text style={styles.bold}>Долгое нажатие</Text> (~1 с) — заблокировать
+          / разблокировать вручную (травма, синяк).
         </Text>
         <Text style={styles.hint}>
-          <Text style={styles.bold}>✓ Галочка</Text> — последняя
-          использованная точка в группе.
+          <Text style={styles.bold}>✓ Галочка</Text> — последняя использованная
+          точка в группе.
         </Text>
         <View style={styles.bottomPad} />
       </ScrollView>

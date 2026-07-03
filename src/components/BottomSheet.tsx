@@ -21,7 +21,12 @@ interface Props {
   children: ReactNode;
 }
 
-export default function BottomSheet({ visible, onClose, title, children }: Props) {
+export default function BottomSheet({
+  visible,
+  onClose,
+  title,
+  children,
+}: Props) {
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   // Kept mounted for the duration of the dismiss animation, then unmounted
   // entirely so the (otherwise full-screen) overlay stops intercepting
@@ -123,7 +128,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#141824",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: "80%",
+    height: "80%",
     paddingHorizontal: 20,
     paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
