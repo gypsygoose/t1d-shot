@@ -104,6 +104,9 @@ export default function MainScreen() {
         onClear={actions.clearAll}
         mirrored={state.mirrored}
         onToggleMirrored={actions.setMirrored}
+        onExport={actions.exportData}
+        onPickImportFile={actions.pickImportFile}
+        onApplyImport={actions.applyImport}
       />
 
       {/* Long-press menu for a single button */}

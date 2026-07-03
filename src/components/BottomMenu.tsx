@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import ConfirmDialog from "./ConfirmDialog";
 import HelpSheet from "./HelpSheet";
 import MenuSheet from "./MenuSheet";
+import { AppStorage } from "../types";
+import { ImportResult } from "../storage/storage";
 
 interface Props {
   canUndo: boolean;
@@ -11,6 +13,9 @@ interface Props {
   onClear: () => void;
   mirrored: boolean;
   onToggleMirrored: (value: boolean) => void;
+  onExport: () => Promise<void>;
+  onPickImportFile: () => Promise<ImportResult>;
+  onApplyImport: (data: AppStorage) => void;
 }
 
 // Icon components matching Figma icon shapes (node-id 26-3, file grYg39698ogy0nEBd88Fup)
@@ -110,11 +115,29 @@ export default function BottomMenu({
   onClear,
   mirrored,
   onToggleMirrored,
+  onExport,
+  onPickImportFile,
+  onApplyImport,
 }: Props) {
   const [showUndo, setShowUndo] = useState(false);
   const [showClear, setShowClear] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [pendingImport, setPendingImport] = useState<AppStorage | null>(null);
+
+  const handleImport = async () => {
+    setShowMenu(false);
+    const result = await onPickImportFile();
+    if (result.kind === "cancelled") return;
+    if (result.kind === "invalid") {
+      Alert.alert(
+        "Не удалось импортировать",
+        "Выбранный файл повреждён или имеет неверный формат.",
+      );
+      return;
+    }
+    setPendingImport(result.data);
+  };
 
   return (
     <>
@@ -126,6 +149,11 @@ export default function BottomMenu({
         onClose={() => setShowMenu(false)}
         mirrored={mirrored}
         onToggleMirrored={onToggleMirrored}
+        onImport={handleImport}
+        onExport={() => {
+          setShowMenu(false);
+          onExport();
+        }}
         onClear={() => {
           setShowMenu(false);
           setShowClear(true);
@@ -192,6 +220,20 @@ export default function BottomMenu({
           onClear();
         }}
         onCancel={() => setShowClear(false)}
+        destructive
+      />
+
+      <ConfirmDialog
+        visible={pendingImport !== null}
+        title="Импортировать данные?"
+        message="Все текущие данные будут стёрты и заменены данными из файла. Это действие нельзя отменить."
+        confirmLabel="Импортировать"
+        cancelLabel="Отмена"
+        onConfirm={() => {
+          if (pendingImport) onApplyImport(pendingImport);
+          setPendingImport(null);
+        }}
+        onCancel={() => setPendingImport(null)}
         destructive
       />
     </>

@@ -6,6 +6,8 @@ interface Props {
   onClose: () => void;
   mirrored: boolean;
   onToggleMirrored: (value: boolean) => void;
+  onImport: () => void;
+  onExport: () => void;
   onClear: () => void;
 }
 
@@ -14,6 +16,8 @@ export default function MenuSheet({
   onClose,
   mirrored,
   onToggleMirrored,
+  onImport,
+  onExport,
   onClear,
 }: Props) {
   return (
@@ -27,6 +31,22 @@ export default function MenuSheet({
           thumbColor="#FFFFFF"
         />
       </View>
+
+      <TouchableOpacity
+        style={styles.row}
+        onPress={onExport}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.rowLabel}>Экспорт</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.row}
+        onPress={onImport}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.rowLabel}>Импорт</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.row}

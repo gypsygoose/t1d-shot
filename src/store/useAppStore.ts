@@ -6,6 +6,10 @@ import {
   clearStorage,
   loadMirrored,
   saveMirrored,
+  exportStorageToFile,
+  pickImportFile as pickImportFileFromDisk,
+  importStorage,
+  ImportResult,
 } from '../storage/storage';
 import { onPress } from '../logic/stateMachine';
 import { BUTTON_MAP, ZONE_MAP } from '../data/zones';
@@ -28,6 +32,9 @@ export interface AppActions {
   undo(): void;
   clearAll(): void;
   setMirrored(mirrored: boolean): void;
+  exportData(): Promise<void>;
+  pickImportFile(): Promise<ImportResult>;
+  applyImport(data: AppStorage): void;
 }
 
 // Derive checked buttonId per group: the button with the latest press date
@@ -276,6 +283,15 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
     saveMirrored(mirrored);
   }, []);
 
+  const exportData = useCallback(async () => {
+    await exportStorageToFile({ buttonStates: state.buttonStates, events: state.events });
+  }, [state.buttonStates, state.events]);
+
+  const applyImport = useCallback((data: AppStorage) => {
+    setState((prev) => ({ ...prev, ...data }));
+    importStorage(data);
+  }, []);
+
   const lastInGroup = lastPressedByGroup(state.buttonStates);
 
   return [
@@ -289,6 +305,9 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
       undo,
       clearAll,
       setMirrored,
+      exportData,
+      pickImportFile: pickImportFileFromDisk,
+      applyImport,
     },
   ];
 }
