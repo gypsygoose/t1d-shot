@@ -94,13 +94,6 @@ export default function MainScreen() {
         </View>
       </SafeAreaView>
 
-      <View
-        style={[styles.sideLabels, state.mirrored && styles.sideLabelsMirrored]}
-      >
-        <Text style={styles.sideLabel}>{RIGHT_SIDE_LABEL}</Text>
-        <Text style={styles.sideLabel}>{LEFT_SIDE_LABEL}</Text>
-      </View>
-
       {/* Body image + buttons overlay */}
       <View style={styles.bodyWrap}>
         <View style={styles.imageContainer}>
@@ -109,6 +102,16 @@ export default function MainScreen() {
             style={[styles.image, StyleSheet.absoluteFill]}
             resizeMode="contain"
           />
+
+          <View
+            style={[
+              styles.sideLabels,
+              state.mirrored && styles.sideLabelsMirrored,
+            ]}
+          >
+            <Text style={styles.sideLabel}>{RIGHT_SIDE_LABEL}</Text>
+            <Text style={styles.sideLabel}>{LEFT_SIDE_LABEL}</Text>
+          </View>
 
           {ZONES.map((zone) => (
             <ZoneContainer
@@ -213,28 +216,11 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "rgba(255,255,255,0.26)",
+    paddingBottom: 16,
     fontSize: 13,
     fontWeight: "400",
     letterSpacing: 3.1,
     textTransform: "uppercase",
-  },
-  sideLabels: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 24,
-    paddingTop: 12,
-    width: "100%",
-    boxSizing: "border-box",
-  },
-  sideLabelsMirrored: {
-    flexDirection: "row-reverse",
-  },
-  sideLabel: {
-    color: "rgba(255,255,255,0.4)",
-    fontSize: 12,
-    fontWeight: "400",
-    textTransform: "uppercase",
-    textAlign: "center",
   },
   bodyWrap: {
     flex: 1,
@@ -251,5 +237,24 @@ const styles = StyleSheet.create({
   image: {
     maxWidth: "100%",
     maxHeight: "100%",
+  },
+  sideLabels: {
+    position: "absolute",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    width: "100%",
+    boxSizing: "border-box",
+  },
+  sideLabelsMirrored: {
+    flexDirection: "row-reverse",
+  },
+  sideLabel: {
+    color: "rgba(255,255,255,0.4)",
+    fontSize: 12,
+    fontWeight: "400",
+    textTransform: "uppercase",
+    textAlign: "center",
   },
 });

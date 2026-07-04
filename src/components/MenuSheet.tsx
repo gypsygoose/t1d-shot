@@ -37,7 +37,7 @@ export default function MenuSheet({
         onPress={onExport}
         activeOpacity={0.7}
       >
-        <Text style={styles.rowLabel}>Экспорт</Text>
+        <Text style={styles.rowLabel}>Экспорт...</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -45,7 +45,7 @@ export default function MenuSheet({
         onPress={onImport}
         activeOpacity={0.7}
       >
-        <Text style={styles.rowLabel}>Импорт</Text>
+        <Text style={styles.rowLabel}>Импорт...</Text>
       </TouchableOpacity>
 
       <TouchableOpacity

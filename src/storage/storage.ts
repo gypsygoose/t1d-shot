@@ -1,12 +1,18 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as FileSystem from 'expo-file-system/legacy';
-import * as Sharing from 'expo-sharing';
-import * as DocumentPicker from 'expo-document-picker';
-import { AppEvent, AppEventType, AppStorage, ExportedAppData, StoredButtonState } from '../types';
-import { BUTTONS } from '../data/zones';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as FileSystem from "expo-file-system/legacy";
+import * as Sharing from "expo-sharing";
+import * as DocumentPicker from "expo-document-picker";
+import {
+  AppEvent,
+  AppEventType,
+  AppStorage,
+  ExportedAppData,
+  StoredButtonState,
+} from "../types";
+import { BUTTONS } from "../data/zones";
 
-const STORAGE_KEY = '@t1d_shot_v1';
-const MIRROR_KEY = '@t1d_shot_mirror_v1';
+const STORAGE_KEY = "@t1d_shot_v1";
+const MIRROR_KEY = "@t1d_shot_mirror_v1";
 
 function defaultStorage(): AppStorage {
   const buttonStates: Record<string, StoredButtonState> = {};
@@ -51,14 +57,14 @@ export async function clearStorage(): Promise<AppStorage> {
 
 export async function loadMirrored(): Promise<boolean> {
   try {
-    return (await AsyncStorage.getItem(MIRROR_KEY)) === '1';
+    return (await AsyncStorage.getItem(MIRROR_KEY)) === "1";
   } catch {
     return false;
   }
 }
 
 export async function saveMirrored(mirrored: boolean): Promise<void> {
-  await AsyncStorage.setItem(MIRROR_KEY, mirrored ? '1' : '0');
+  await AsyncStorage.setItem(MIRROR_KEY, mirrored ? "1" : "0");
 }
 
 // ---------------------------------------------------------------------------
@@ -66,85 +72,110 @@ export async function saveMirrored(mirrored: boolean): Promise<void> {
 // ---------------------------------------------------------------------------
 
 const APP_EVENT_TYPES: AppEventType[] = [
-  'injection',
-  'blackout',
-  'manual-block',
-  'manual-unblock',
-  'manual-clear',
+  "injection",
+  "blackout",
+  "manual-block",
+  "manual-unblock",
+  "manual-clear",
 ];
 
 function isValidButtonState(value: unknown): value is StoredButtonState {
-  if (!value || typeof value !== 'object') return false;
+  if (!value || typeof value !== "object") return false;
   const s = value as Partial<StoredButtonState>;
-  if (typeof s.buttonId !== 'string') return false;
-  if (typeof s.isManuallyBlocked !== 'boolean') return false;
-  if (s.lastInjectionAt !== undefined && typeof s.lastInjectionAt !== 'number') return false;
-  if (s.blackoutStartedAt !== undefined && typeof s.blackoutStartedAt !== 'number') return false;
-  if (s.blackoutDurationDays !== undefined && typeof s.blackoutDurationDays !== 'number') return false;
+  if (typeof s.buttonId !== "string") return false;
+  if (typeof s.isManuallyBlocked !== "boolean") return false;
+  if (s.lastInjectionAt !== undefined && typeof s.lastInjectionAt !== "number")
+    return false;
+  if (
+    s.blackoutStartedAt !== undefined &&
+    typeof s.blackoutStartedAt !== "number"
+  )
+    return false;
+  if (
+    s.blackoutDurationDays !== undefined &&
+    typeof s.blackoutDurationDays !== "number"
+  )
+    return false;
   return true;
 }
 
 function isValidEvent(value: unknown): value is AppEvent {
-  if (!value || typeof value !== 'object') return false;
+  if (!value || typeof value !== "object") return false;
   const e = value as Partial<AppEvent>;
-  if (typeof e.id !== 'string') return false;
-  if (typeof e.timestamp !== 'number') return false;
-  if (typeof e.type !== 'string' || !APP_EVENT_TYPES.includes(e.type as AppEventType)) return false;
-  if (typeof e.buttonId !== 'string') return false;
-  if (typeof e.zoneId !== 'string') return false;
+  if (typeof e.id !== "string") return false;
+  if (typeof e.timestamp !== "number") return false;
+  if (
+    typeof e.type !== "string" ||
+    !APP_EVENT_TYPES.includes(e.type as AppEventType)
+  )
+    return false;
+  if (typeof e.buttonId !== "string") return false;
+  if (typeof e.zoneId !== "string") return false;
   if (!isValidButtonState(e.prevButtonState)) return false;
   return true;
 }
 
 function isValidAppStorage(data: unknown): data is ExportedAppData {
-  if (!data || typeof data !== 'object') return false;
+  if (!data || typeof data !== "object") return false;
   const candidate = data as Partial<ExportedAppData>;
-  if (!candidate.buttonStates || typeof candidate.buttonStates !== 'object') return false;
-  if (!Object.values(candidate.buttonStates).every(isValidButtonState)) return false;
+  if (!candidate.buttonStates || typeof candidate.buttonStates !== "object")
+    return false;
+  if (!Object.values(candidate.buttonStates).every(isValidButtonState))
+    return false;
   if (!Array.isArray(candidate.events)) return false;
   if (!candidate.events.every(isValidEvent)) return false;
-  if (candidate.mirrored !== undefined && typeof candidate.mirrored !== 'boolean') return false;
+  if (
+    candidate.mirrored !== undefined &&
+    typeof candidate.mirrored !== "boolean"
+  )
+    return false;
   return true;
 }
 
 // Writes the full app state to a JSON file in cache and opens the system
 // share sheet so the user can pick where on the device to save it.
-export async function exportStorageToFile(data: ExportedAppData): Promise<void> {
+export async function exportStorageToFile(
+  data: ExportedAppData,
+): Promise<void> {
   const dateStamp = new Date().toISOString().slice(0, 10);
-  const fileUri = `${FileSystem.cacheDirectory}t1d-shot-export-${dateStamp}.json`;
+  const fileUri = `${FileSystem.cacheDirectory}t1d-shot-${dateStamp}.json`;
   await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(data, null, 2));
 
   if (await Sharing.isAvailableAsync()) {
     await Sharing.shareAsync(fileUri, {
-      mimeType: 'application/json',
-      dialogTitle: 'Экспорт данных T1D Shot',
-      UTI: 'public.json',
+      mimeType: "application/json",
+      dialogTitle: "Экспорт данных T1D Shot",
+      UTI: "public.json",
     });
   }
 }
 
 export type ImportResult =
-  | { kind: 'success'; data: ExportedAppData }
-  | { kind: 'cancelled' }
-  | { kind: 'invalid' };
+  | { kind: "success"; data: ExportedAppData }
+  | { kind: "cancelled" }
+  | { kind: "invalid" };
 
 // Lets the user pick a JSON file from the device and parses/validates it.
 // Does not touch AsyncStorage — the caller decides whether/when to apply it.
 export async function pickImportFile(): Promise<ImportResult> {
   const picked = await DocumentPicker.getDocumentAsync({
-    type: 'application/json',
+    type: "application/json",
     copyToCacheDirectory: true,
   });
-  if (picked.canceled || picked.assets.length === 0) return { kind: 'cancelled' };
+  if (picked.canceled || picked.assets.length === 0)
+    return { kind: "cancelled" };
 
   try {
     const raw = await FileSystem.readAsStringAsync(picked.assets[0].uri);
     const parsed = JSON.parse(raw);
-    if (!isValidAppStorage(parsed)) return { kind: 'invalid' };
+    if (!isValidAppStorage(parsed)) return { kind: "invalid" };
     const normalized = normalizeStorage(parsed);
-    return { kind: 'success', data: { ...normalized, mirrored: parsed.mirrored ?? false } };
+    return {
+      kind: "success",
+      data: { ...normalized, mirrored: parsed.mirrored ?? false },
+    };
   } catch {
-    return { kind: 'invalid' };
+    return { kind: "invalid" };
   }
 }
 
