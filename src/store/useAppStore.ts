@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { AppStorage, AppEvent, ExportedAppData, StoredButtonState, ZoneGroup } from '../types';
+import { AppStorage, AppEvent, AppEventType, ExportedAppData, StoredButtonState, ZoneGroup } from '../types';
 import {
   loadStorage,
   saveStorage,
@@ -18,7 +18,7 @@ import {
   importStorage,
   ImportResult,
 } from '../storage/storage';
-import { onPress } from '../logic/stateMachine';
+import { onPress, PressResultType } from '../logic/stateMachine';
 import { BUTTON_MAP, ZONE_MAP } from '../data/zones';
 function uuid(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
@@ -64,12 +64,12 @@ function lastPressedByGroup(
   buttonStates: Record<string, StoredButtonState>,
 ): Record<ZoneGroup, string | null> {
   const result: Record<ZoneGroup, string | null> = {
-    thighs: null,
-    'shoulders-and-belly': null,
+    [ZoneGroup.Thighs]: null,
+    [ZoneGroup.ShouldersAndBelly]: null,
   };
   const bestTime: Record<ZoneGroup, number> = {
-    thighs: -Infinity,
-    'shoulders-and-belly': -Infinity,
+    [ZoneGroup.Thighs]: -Infinity,
+    [ZoneGroup.ShouldersAndBelly]: -Infinity,
   };
   for (const buttonId in buttonStates) {
     const btnState = buttonStates[buttonId];
@@ -207,12 +207,15 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
 
       const currentBtnState = prev.buttonStates[buttonId];
       const result = onPress(currentBtnState, now);
-      if (result.kind === 'blocked') return prev;
+      if (result.type === PressResultType.Blocked) return prev;
 
       const event: AppEvent = {
         id: uuid(),
         timestamp: now,
-        type: result.kind,
+        type:
+          result.type === PressResultType.Injection
+            ? AppEventType.Injection
+            : AppEventType.Blackout,
         buttonId,
         zoneId: btn.zoneId,
         prevButtonState: { ...currentBtnState },
@@ -259,7 +262,7 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
       const event: AppEvent = {
         id: uuid(),
         timestamp: now,
-        type: 'manual-block',
+        type: AppEventType.ManualBlock,
         buttonId,
         zoneId: btn.zoneId,
         prevButtonState: currentBtnState
@@ -292,7 +295,7 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
       const event: AppEvent = {
         id: uuid(),
         timestamp: now,
-        type: 'manual-unblock',
+        type: AppEventType.ManualUnblock,
         buttonId,
         zoneId: btn.zoneId,
         prevButtonState: { ...currentBtnState },
@@ -316,12 +319,15 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
 
       const currentBtnState = prev.buttonStates[buttonId];
       const result = onPress(currentBtnState, timestamp);
-      if (result.kind === 'blocked') return prev;
+      if (result.type === PressResultType.Blocked) return prev;
 
       const event: AppEvent = {
         id: uuid(),
         timestamp,
-        type: result.kind,
+        type:
+          result.type === PressResultType.Injection
+            ? AppEventType.Injection
+            : AppEventType.Blackout,
         buttonId,
         zoneId: btn.zoneId,
         prevButtonState: currentBtnState
@@ -349,7 +355,7 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
       const event: AppEvent = {
         id: uuid(),
         timestamp: now,
-        type: 'manual-clear',
+        type: AppEventType.ManualClear,
         buttonId,
         zoneId: btn.zoneId,
         prevButtonState: currentBtnState

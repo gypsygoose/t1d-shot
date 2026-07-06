@@ -56,8 +56,8 @@ export function ButtonActionMenu({
   onClear,
   onCancel,
 }: Props) {
-  const isGray = color === "gray";
-  const isBlack = color === "black";
+  const isGray = color === ButtonColor.Gray;
+  const isBlack = color === ButtonColor.Black;
   const blackoutEndAt = buttonState ? getBlackoutEndAt(buttonState) : undefined;
   const hasInfo =
     buttonState?.lastInjectionAt !== undefined ||

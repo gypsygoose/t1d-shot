@@ -9,23 +9,23 @@ export const DAY_MS = 24 * 60 * 60 * 1000;
 function injectionCycleColor(daysSince: number): ButtonColor {
   switch (daysSince) {
     case 0:
-      return "maroon";
+      return ButtonColor.Maroon;
     case 1:
-      return "red";
+      return ButtonColor.Red;
     case 2:
-      return "dark-orange";
+      return ButtonColor.DarkOrange;
     case 3:
-      return "orange";
+      return ButtonColor.Orange;
     case 4:
-      return "dark-yellow";
+      return ButtonColor.DarkYellow;
     case 5:
-      return "yellow";
+      return ButtonColor.Yellow;
     case 6:
-      return "dark-green";
+      return ButtonColor.DarkGreen;
     case 7:
-      return "green";
+      return ButtonColor.Green;
     default:
-      return "white";
+      return ButtonColor.White;
   }
 }
 
@@ -33,21 +33,21 @@ function injectionCycleColor(daysSince: number): ButtonColor {
 function postBlackoutColor(daysSinceEnd: number): ButtonColor {
   switch (daysSinceEnd) {
     case 0:
-      return "red";
+      return ButtonColor.Red;
     case 1:
-      return "dark-orange";
+      return ButtonColor.DarkOrange;
     case 2:
-      return "orange";
+      return ButtonColor.Orange;
     case 3:
-      return "dark-yellow";
+      return ButtonColor.DarkYellow;
     case 4:
-      return "yellow";
+      return ButtonColor.Yellow;
     case 5:
-      return "dark-green";
+      return ButtonColor.DarkGreen;
     case 6:
-      return "green";
+      return ButtonColor.Green;
     default:
-      return "white";
+      return ButtonColor.White;
   }
 }
 
@@ -55,7 +55,7 @@ export function computeButtonColor(
   state: StoredButtonState,
   now: number,
 ): ButtonColor {
-  if (state.isManuallyBlocked) return "gray";
+  if (state.isManuallyBlocked) return ButtonColor.Gray;
 
   const hasBlackout =
     state.blackoutStartedAt !== undefined &&
@@ -69,13 +69,13 @@ export function computeButtonColor(
       state.lastInjectionAt > state.blackoutStartedAt!;
 
     if (!injectionAfterBlackout) {
-      if (now < blackoutEnd) return "black";
+      if (now < blackoutEnd) return ButtonColor.Black;
       const days = Math.floor((now - blackoutEnd) / DAY_MS);
       return postBlackoutColor(days);
     }
   }
 
-  if (state.lastInjectionAt === undefined) return "white";
+  if (state.lastInjectionAt === undefined) return ButtonColor.White;
   const days = Math.floor((now - state.lastInjectionAt) / DAY_MS);
   return injectionCycleColor(days);
 }
@@ -94,14 +94,14 @@ export function getBlackoutEndAt(state: StoredButtonState): number | undefined {
 
 export function blackoutDurationFor(color: ButtonColor): number | null {
   switch (color) {
-    case "maroon":
-    case "red":
+    case ButtonColor.Maroon:
+    case ButtonColor.Red:
       return 4;
-    case "dark-orange":
-    case "orange":
+    case ButtonColor.DarkOrange:
+    case ButtonColor.Orange:
       return 2;
-    case "dark-yellow":
-    case "yellow":
+    case ButtonColor.DarkYellow:
+    case ButtonColor.Yellow:
       return 1;
     default:
       return null; // not a blockable color
@@ -112,20 +112,31 @@ export function blackoutDurationFor(color: ButtonColor): number | null {
 // State transitions
 // ---------------------------------------------------------------------------
 
+export enum PressResultType {
+  Injection = "injection",
+  Blackout = "blackout",
+  Blocked = "blocked",
+}
+
 export type PressResult =
-  | { kind: "injection"; newState: StoredButtonState }
-  | { kind: "blackout"; newState: StoredButtonState }
-  | { kind: "blocked" };
+  | { type: PressResultType.Injection; newState: StoredButtonState }
+  | { type: PressResultType.Blackout; newState: StoredButtonState }
+  | { type: PressResultType.Blocked };
 
 export function onPress(state: StoredButtonState, now: number): PressResult {
   const color = computeButtonColor(state, now);
 
-  if (color === "gray" || color === "black") return { kind: "blocked" };
+  if (color === ButtonColor.Gray || color === ButtonColor.Black)
+    return { type: PressResultType.Blocked };
 
   // White, dark-green, green → fresh injection
-  if (color === "white" || color === "dark-green" || color === "green") {
+  if (
+    color === ButtonColor.White ||
+    color === ButtonColor.DarkGreen ||
+    color === ButtonColor.Green
+  ) {
     return {
-      kind: "injection",
+      type: PressResultType.Injection,
       newState: {
         ...state,
         lastInjectionAt: now,
@@ -138,7 +149,7 @@ export function onPress(state: StoredButtonState, now: number): PressResult {
   // Non-white, non-green → trigger blackout
   const days = blackoutDurationFor(color)!;
   return {
-    kind: "blackout",
+    type: PressResultType.Blackout,
     newState: {
       ...state,
       blackoutStartedAt: now,
@@ -156,39 +167,39 @@ export function toggleManualBlock(state: StoredButtonState): StoredButtonState {
 // ---------------------------------------------------------------------------
 
 export const COLOR_HEX: Record<ButtonColor, string> = {
-  white: "#EBEBEB",
-  maroon: "#7B1D1D",
-  red: "#DC2626",
-  "dark-orange": "#C2410C",
-  orange: "#EA580C",
-  "dark-yellow": "#A16207",
-  yellow: "#EAB308",
-  "dark-green": "#166534",
-  green: "#16A34A",
-  black: "#111111",
-  gray: "#6B7280",
+  [ButtonColor.White]: "#EBEBEB",
+  [ButtonColor.Maroon]: "#7B1D1D",
+  [ButtonColor.Red]: "#DC2626",
+  [ButtonColor.DarkOrange]: "#C2410C",
+  [ButtonColor.Orange]: "#EA580C",
+  [ButtonColor.DarkYellow]: "#A16207",
+  [ButtonColor.Yellow]: "#EAB308",
+  [ButtonColor.DarkGreen]: "#166534",
+  [ButtonColor.Green]: "#16A34A",
+  [ButtonColor.Black]: "#111111",
+  [ButtonColor.Gray]: "#6B7280",
 };
 
 export const COLOR_LABEL: Record<ButtonColor, string> = {
-  white: "Свободно (не использовалось 8+ дней)",
-  maroon: "Только что (день 0)",
-  red: "1 день",
-  "dark-orange": "2 дня",
-  orange: "3 дня",
-  "dark-yellow": "4 дня",
-  yellow: "5 дней",
-  "dark-green": "6 дней",
-  green: "7 дней",
-  black: "Заблокировано системой из-за частого использования",
-  gray: "Заблокировано вручную (травма/синяк)",
+  [ButtonColor.White]: "Свободно (не использовалось 8+ дней)",
+  [ButtonColor.Maroon]: "Только что (день 0)",
+  [ButtonColor.Red]: "1 день",
+  [ButtonColor.DarkOrange]: "2 дня",
+  [ButtonColor.Orange]: "3 дня",
+  [ButtonColor.DarkYellow]: "4 дня",
+  [ButtonColor.Yellow]: "5 дней",
+  [ButtonColor.DarkGreen]: "6 дней",
+  [ButtonColor.Green]: "7 дней",
+  [ButtonColor.Black]: "Заблокировано системой из-за частого использования",
+  [ButtonColor.Gray]: "Заблокировано вручную (травма/синяк)",
 };
 
 // Contrast text color for checkmark/text on each background
 export function checkmarkColor(bg: ButtonColor): string {
   switch (bg) {
-    case "white":
-    case "yellow":
-    case "orange":
+    case ButtonColor.White:
+    case ButtonColor.Yellow:
+    case ButtonColor.Orange:
       return "#111111";
     default:
       return "#FFFFFF";

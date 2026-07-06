@@ -121,13 +121,7 @@ export async function saveAutoLock(data: StoredAutoLock): Promise<void> {
 // Export / import full app state to/from a JSON file
 // ---------------------------------------------------------------------------
 
-const APP_EVENT_TYPES: AppEventType[] = [
-  "injection",
-  "blackout",
-  "manual-block",
-  "manual-unblock",
-  "manual-clear",
-];
+const APP_EVENT_TYPES: AppEventType[] = Object.values(AppEventType);
 
 function isValidButtonState(value: unknown): value is StoredButtonState {
   if (!value || typeof value !== "object") return false;
@@ -215,10 +209,16 @@ export async function exportStorageToFile(
   }
 }
 
+export enum ImportResultType {
+  Success = "success",
+  Cancelled = "cancelled",
+  Invalid = "invalid",
+}
+
 export type ImportResult =
-  | { kind: "success"; data: ExportedAppData }
-  | { kind: "cancelled" }
-  | { kind: "invalid" };
+  | { type: ImportResultType.Success; data: ExportedAppData }
+  | { type: ImportResultType.Cancelled }
+  | { type: ImportResultType.Invalid };
 
 // Lets the user pick a JSON file from the device and parses/validates it.
 // Does not touch AsyncStorage — the caller decides whether/when to apply it.
@@ -228,15 +228,15 @@ export async function pickImportFile(): Promise<ImportResult> {
     copyToCacheDirectory: true,
   });
   if (picked.canceled || picked.assets.length === 0)
-    return { kind: "cancelled" };
+    return { type: ImportResultType.Cancelled };
 
   try {
     const raw = await FileSystem.readAsStringAsync(picked.assets[0].uri);
     const parsed = JSON.parse(raw);
-    if (!isValidAppStorage(parsed)) return { kind: "invalid" };
+    if (!isValidAppStorage(parsed)) return { type: ImportResultType.Invalid };
     const normalized = normalizeStorage(parsed);
     return {
-      kind: "success",
+      type: ImportResultType.Success,
       data: {
         ...normalized,
         mirrored: parsed.mirrored ?? false,
@@ -250,7 +250,7 @@ export async function pickImportFile(): Promise<ImportResult> {
       },
     };
   } catch {
-    return { kind: "invalid" };
+    return { type: ImportResultType.Invalid };
   }
 }
 

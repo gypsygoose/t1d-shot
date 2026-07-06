@@ -32,7 +32,7 @@ export function InjectionButton({
   onPress,
   onLongPress,
 }: Props) {
-  const isBlocked = color === "black" || color === "gray";
+  const isBlocked = color === ButtonColor.Black || color === ButtonColor.Gray;
 
   const handlePress = useCallback(
     (_: GestureResponderEvent) => {

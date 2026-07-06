@@ -17,6 +17,7 @@ import { Toast } from "../components/Toast";
 import { useAppStore } from "../store/useAppStore";
 import { computeButtonColor } from "../logic/stateMachine";
 import { ZONES, BUTTON_MAP, ZONE_MAP } from "../data/zones";
+import { ButtonColor, ZoneGroup } from "../types";
 import {
   BACKGROUND_COLOR,
   BLOCKED_TOAST_MESSAGE,
@@ -57,7 +58,7 @@ export function MainScreen() {
     (id: string) => {
       const color = computeButtonColor(state.buttonStates[id], state.now);
 
-      if (color === "gray" || color === "black") {
+      if (color === ButtonColor.Gray || color === ButtonColor.Black) {
         showToast(BLOCKED_TOAST_MESSAGE, TOAST_DURATION_MS);
         return;
       }
@@ -135,8 +136,8 @@ export function MainScreen() {
                 computeButtonColor(state.buttonStates[buttonId], state.now)
               }
               isCheckmarked={(buttonId) =>
-                state.lastInGroup["thighs"] === buttonId ||
-                state.lastInGroup["shoulders-and-belly"] === buttonId
+                state.lastInGroup[ZoneGroup.Thighs] === buttonId ||
+                state.lastInGroup[ZoneGroup.ShouldersAndBelly] === buttonId
               }
               onPress={handlePress}
               onLongPress={handleLongPress}

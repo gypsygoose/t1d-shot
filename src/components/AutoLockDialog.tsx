@@ -9,19 +9,20 @@ import {
   Platform,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import { AutoLockDialogMode } from "../types";
 
 interface Props {
   visible: boolean;
-  mode: "enable" | "edit";
+  mode: AutoLockDialogMode;
   initialAfterMarkSeconds: number;
   initialAfterUnlockSeconds: number;
   onConfirm: (afterMarkSeconds: number, afterUnlockSeconds: number) => void;
   onCancel: () => void;
 }
 
-const CONFIRM_LABELS: Record<Props["mode"], string> = {
-  enable: "Включить",
-  edit: "Сохранить",
+const CONFIRM_LABELS: Record<AutoLockDialogMode, string> = {
+  [AutoLockDialogMode.Enable]: "Включить",
+  [AutoLockDialogMode.Edit]: "Сохранить",
 };
 
 const MINUTE_OPTIONS = Array.from({ length: 100 }, (_, i) => i);

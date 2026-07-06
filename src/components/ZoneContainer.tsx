@@ -6,7 +6,7 @@ import {
   ZONE_MIRROR_MAP,
   BUTTONS_BY_ZONE,
 } from "../data/zones";
-import { ButtonColor } from "../types";
+import { ButtonColor, ZoneId } from "../types";
 
 // Combined fill/stroke opacity baked into the colour (matches the
 // fill-opacity 0.22 / stroke-opacity 0.88, both under a 0.78 group opacity,
@@ -23,7 +23,7 @@ function chunk<T>(items: T[], size: number): T[][] {
 }
 
 interface Props {
-  zoneId: string;
+  zoneId: ZoneId;
   mirrored: boolean;
   getColor: (buttonId: string) => ButtonColor;
   isCheckmarked: (buttonId: string) => boolean;

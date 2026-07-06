@@ -1,44 +1,44 @@
-import { Zone, ButtonDefinition, ZoneLayout } from "../types";
+import { Zone, ButtonDefinition, ZoneLayout, ZoneGroup, ZoneId } from "../types";
 
 // Zones from Figma design (grYg39698ogy0nEBd88Fup, node 26:3)
 // Group label follows patient perspective: "правое" = patient's right = screen LEFT
 
 export const ZONES: Zone[] = [
-  { id: "shoulder-right", label: "Правое плечо", group: "shoulders-and-belly" },
-  { id: "shoulder-left", label: "Левое плечо", group: "shoulders-and-belly" },
-  { id: "belly-right", label: "Живот справа", group: "shoulders-and-belly" },
-  { id: "belly-left", label: "Живот слева", group: "shoulders-and-belly" },
-  { id: "thigh-right", label: "Правое бедро", group: "thighs" },
-  { id: "thigh-left", label: "Левое бедро", group: "thighs" },
+  { id: ZoneId.ShoulderRight, label: "Правое плечо", group: ZoneGroup.ShouldersAndBelly },
+  { id: ZoneId.ShoulderLeft, label: "Левое плечо", group: ZoneGroup.ShouldersAndBelly },
+  { id: ZoneId.BellyRight, label: "Живот справа", group: ZoneGroup.ShouldersAndBelly },
+  { id: ZoneId.BellyLeft, label: "Живот слева", group: ZoneGroup.ShouldersAndBelly },
+  { id: ZoneId.ThighRight, label: "Правое бедро", group: ZoneGroup.Thighs },
+  { id: ZoneId.ThighLeft, label: "Левое бедро", group: ZoneGroup.Thighs },
 ];
 
-export const ZONE_MAP: Record<string, Zone> = Object.fromEntries(
+export const ZONE_MAP: Record<ZoneId, Zone> = Object.fromEntries(
   ZONES.map((z) => [z.id, z]),
-);
+) as Record<ZoneId, Zone>;
 
 // Maps each zone to its left/right counterpart, used when mirror mode is on:
 // a zone then renders in the screen position its counterpart normally
 // occupies (see ZONE_LAYOUT), while keeping its own colour/button identity.
-export const ZONE_MIRROR_MAP: Record<string, string> = {
-  "shoulder-right": "shoulder-left",
-  "shoulder-left": "shoulder-right",
-  "belly-right": "belly-left",
-  "belly-left": "belly-right",
-  "thigh-right": "thigh-left",
-  "thigh-left": "thigh-right",
+export const ZONE_MIRROR_MAP: Record<ZoneId, ZoneId> = {
+  [ZoneId.ShoulderRight]: ZoneId.ShoulderLeft,
+  [ZoneId.ShoulderLeft]: ZoneId.ShoulderRight,
+  [ZoneId.BellyRight]: ZoneId.BellyLeft,
+  [ZoneId.BellyLeft]: ZoneId.BellyRight,
+  [ZoneId.ThighRight]: ZoneId.ThighLeft,
+  [ZoneId.ThighLeft]: ZoneId.ThighRight,
 };
 
 // Per-zone accent colours, taken from the Figma "with buttons" frame
 // (node 27:744, file grYg39698ogy0nEBd88Fup): `accent` is the zone container
 // fill/border colour, `glow` is the darker shade used for the radial shadow
 // behind each injection button in that zone.
-export const ZONE_COLORS: Record<string, { accent: string; glow: string }> = {
-  "shoulder-right": { accent: "#F5D020", glow: "#C4A800" },
-  "shoulder-left": { accent: "#F5D020", glow: "#C4A800" },
-  "belly-right": { accent: "#36D97A", glow: "#22A85E" },
-  "belly-left": { accent: "#36D97A", glow: "#22A85E" },
-  "thigh-right": { accent: "#FF8C33", glow: "#CC6800" },
-  "thigh-left": { accent: "#FF8C33", glow: "#CC6800" },
+export const ZONE_COLORS: Record<ZoneId, { accent: string; glow: string }> = {
+  [ZoneId.ShoulderRight]: { accent: "#F5D020", glow: "#C4A800" },
+  [ZoneId.ShoulderLeft]: { accent: "#F5D020", glow: "#C4A800" },
+  [ZoneId.BellyRight]: { accent: "#36D97A", glow: "#22A85E" },
+  [ZoneId.BellyLeft]: { accent: "#36D97A", glow: "#22A85E" },
+  [ZoneId.ThighRight]: { accent: "#FF8C33", glow: "#CC6800" },
+  [ZoneId.ThighLeft]: { accent: "#FF8C33", glow: "#CC6800" },
 };
 
 // ---------------------------------------------------------------------------
@@ -51,8 +51,8 @@ export const ZONE_COLORS: Record<string, { accent: string; glow: string }> = {
 // zone container, not by global coordinates).
 // ---------------------------------------------------------------------------
 
-export const ZONE_LAYOUT: Record<string, ZoneLayout> = {
-  "shoulder-right": {
+export const ZONE_LAYOUT: Record<ZoneId, ZoneLayout> = {
+  [ZoneId.ShoulderRight]: {
     x: 0.08,
     y: 0.15,
     width: 0.12,
@@ -60,7 +60,7 @@ export const ZONE_LAYOUT: Record<string, ZoneLayout> = {
     rows: 3,
     cols: 1,
   },
-  "shoulder-left": {
+  [ZoneId.ShoulderLeft]: {
     x: 0.815,
     y: 0.15,
     width: 0.12,
@@ -68,7 +68,7 @@ export const ZONE_LAYOUT: Record<string, ZoneLayout> = {
     rows: 3,
     cols: 1,
   },
-  "belly-right": {
+  [ZoneId.BellyRight]: {
     x: 0.215,
     y: 0.29,
     width: 0.28,
@@ -76,7 +76,7 @@ export const ZONE_LAYOUT: Record<string, ZoneLayout> = {
     rows: 3,
     cols: 3,
   },
-  "belly-left": {
+  [ZoneId.BellyLeft]: {
     x: 0.52,
     y: 0.29,
     width: 0.28,
@@ -84,7 +84,7 @@ export const ZONE_LAYOUT: Record<string, ZoneLayout> = {
     rows: 3,
     cols: 3,
   },
-  "thigh-right": {
+  [ZoneId.ThighRight]: {
     x: 0.21,
     y: 0.65,
     width: 0.21,
@@ -92,7 +92,7 @@ export const ZONE_LAYOUT: Record<string, ZoneLayout> = {
     rows: 3,
     cols: 2,
   },
-  "thigh-left": {
+  [ZoneId.ThighLeft]: {
     x: 0.605,
     y: 0.65,
     width: 0.2,
@@ -107,57 +107,57 @@ export const ZONE_LAYOUT: Record<string, ZoneLayout> = {
 // zone container, not from stored coordinates.
 
 const shoulderRight: ButtonDefinition[] = [
-  { id: "sr-0", zoneId: "shoulder-right" },
-  { id: "sr-1", zoneId: "shoulder-right" },
-  { id: "sr-2", zoneId: "shoulder-right" },
+  { id: "sr-0", zoneId: ZoneId.ShoulderRight },
+  { id: "sr-1", zoneId: ZoneId.ShoulderRight },
+  { id: "sr-2", zoneId: ZoneId.ShoulderRight },
 ];
 
 const shoulderLeft: ButtonDefinition[] = [
-  { id: "sl-0", zoneId: "shoulder-left" },
-  { id: "sl-1", zoneId: "shoulder-left" },
-  { id: "sl-2", zoneId: "shoulder-left" },
+  { id: "sl-0", zoneId: ZoneId.ShoulderLeft },
+  { id: "sl-1", zoneId: ZoneId.ShoulderLeft },
+  { id: "sl-2", zoneId: ZoneId.ShoulderLeft },
 ];
 
 const bellyRight: ButtonDefinition[] = [
-  { id: "br-0", zoneId: "belly-right" },
-  { id: "br-1", zoneId: "belly-right" },
-  { id: "br-2", zoneId: "belly-right" },
-  { id: "br-3", zoneId: "belly-right" },
-  { id: "br-4", zoneId: "belly-right" },
-  { id: "br-5", zoneId: "belly-right" },
-  { id: "br-6", zoneId: "belly-right" },
-  { id: "br-7", zoneId: "belly-right" },
-  { id: "br-8", zoneId: "belly-right" },
+  { id: "br-0", zoneId: ZoneId.BellyRight },
+  { id: "br-1", zoneId: ZoneId.BellyRight },
+  { id: "br-2", zoneId: ZoneId.BellyRight },
+  { id: "br-3", zoneId: ZoneId.BellyRight },
+  { id: "br-4", zoneId: ZoneId.BellyRight },
+  { id: "br-5", zoneId: ZoneId.BellyRight },
+  { id: "br-6", zoneId: ZoneId.BellyRight },
+  { id: "br-7", zoneId: ZoneId.BellyRight },
+  { id: "br-8", zoneId: ZoneId.BellyRight },
 ];
 
 const bellyLeft: ButtonDefinition[] = [
-  { id: "bl-0", zoneId: "belly-left" },
-  { id: "bl-1", zoneId: "belly-left" },
-  { id: "bl-2", zoneId: "belly-left" },
-  { id: "bl-3", zoneId: "belly-left" },
-  { id: "bl-4", zoneId: "belly-left" },
-  { id: "bl-5", zoneId: "belly-left" },
-  { id: "bl-6", zoneId: "belly-left" },
-  { id: "bl-7", zoneId: "belly-left" },
-  { id: "bl-8", zoneId: "belly-left" },
+  { id: "bl-0", zoneId: ZoneId.BellyLeft },
+  { id: "bl-1", zoneId: ZoneId.BellyLeft },
+  { id: "bl-2", zoneId: ZoneId.BellyLeft },
+  { id: "bl-3", zoneId: ZoneId.BellyLeft },
+  { id: "bl-4", zoneId: ZoneId.BellyLeft },
+  { id: "bl-5", zoneId: ZoneId.BellyLeft },
+  { id: "bl-6", zoneId: ZoneId.BellyLeft },
+  { id: "bl-7", zoneId: ZoneId.BellyLeft },
+  { id: "bl-8", zoneId: ZoneId.BellyLeft },
 ];
 
 const thighRight: ButtonDefinition[] = [
-  { id: "tr-0", zoneId: "thigh-right" },
-  { id: "tr-1", zoneId: "thigh-right" },
-  { id: "tr-2", zoneId: "thigh-right" },
-  { id: "tr-3", zoneId: "thigh-right" },
-  { id: "tr-4", zoneId: "thigh-right" },
-  { id: "tr-5", zoneId: "thigh-right" },
+  { id: "tr-0", zoneId: ZoneId.ThighRight },
+  { id: "tr-1", zoneId: ZoneId.ThighRight },
+  { id: "tr-2", zoneId: ZoneId.ThighRight },
+  { id: "tr-3", zoneId: ZoneId.ThighRight },
+  { id: "tr-4", zoneId: ZoneId.ThighRight },
+  { id: "tr-5", zoneId: ZoneId.ThighRight },
 ];
 
 const thighLeft: ButtonDefinition[] = [
-  { id: "tl-0", zoneId: "thigh-left" },
-  { id: "tl-1", zoneId: "thigh-left" },
-  { id: "tl-2", zoneId: "thigh-left" },
-  { id: "tl-3", zoneId: "thigh-left" },
-  { id: "tl-4", zoneId: "thigh-left" },
-  { id: "tl-5", zoneId: "thigh-left" },
+  { id: "tl-0", zoneId: ZoneId.ThighLeft },
+  { id: "tl-1", zoneId: ZoneId.ThighLeft },
+  { id: "tl-2", zoneId: ZoneId.ThighLeft },
+  { id: "tl-3", zoneId: ZoneId.ThighLeft },
+  { id: "tl-4", zoneId: ZoneId.ThighLeft },
+  { id: "tl-5", zoneId: ZoneId.ThighLeft },
 ];
 
 export const BUTTONS: ButtonDefinition[] = [
@@ -173,10 +173,10 @@ export const BUTTON_MAP: Record<string, ButtonDefinition> = Object.fromEntries(
   BUTTONS.map((b) => [b.id, b]),
 );
 
-export const BUTTONS_BY_ZONE: Record<string, ButtonDefinition[]> = ZONES.reduce(
+export const BUTTONS_BY_ZONE: Record<ZoneId, ButtonDefinition[]> = ZONES.reduce(
   (acc, zone) => {
     acc[zone.id] = BUTTONS.filter((b) => b.zoneId === zone.id);
     return acc;
   },
-  {} as Record<string, ButtonDefinition[]>,
+  {} as Record<ZoneId, ButtonDefinition[]>,
 );

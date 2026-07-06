@@ -5,8 +5,8 @@ import { ConfirmDialog } from "./ConfirmDialog";
 import { HelpSheet } from "./HelpSheet";
 import { MenuSheet } from "./MenuSheet";
 import { AutoLockDialog } from "./AutoLockDialog";
-import { ExportedAppData } from "../types";
-import { ImportResult } from "../storage/storage";
+import { AutoLockDialogMode, ExportedAppData } from "../types";
+import { ImportResult, ImportResultType } from "../storage/storage";
 import { DISABLED_ICON_COLOR, ICON_COLOR } from "../constants";
 
 interface Props {
@@ -185,9 +185,8 @@ export function BottomMenu({
   const [showClear, setShowClear] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [autoLockDialogIntent, setAutoLockDialogIntent] = useState<
-    "enable" | "edit" | null
-  >(null);
+  const [autoLockDialogIntent, setAutoLockDialogIntent] =
+    useState<AutoLockDialogMode | null>(null);
   const [pendingImport, setPendingImport] = useState<ExportedAppData | null>(
     null,
   );
@@ -195,7 +194,7 @@ export function BottomMenu({
   const handleToggleAutoLock = (value: boolean) => {
     if (value) {
       setShowMenu(false);
-      setAutoLockDialogIntent("enable");
+      setAutoLockDialogIntent(AutoLockDialogMode.Enable);
     } else {
       onDisableAutoLock();
     }
@@ -203,14 +202,14 @@ export function BottomMenu({
 
   const handleEditAutoLockSettings = () => {
     setShowMenu(false);
-    setAutoLockDialogIntent("edit");
+    setAutoLockDialogIntent(AutoLockDialogMode.Edit);
   };
 
   const handleImport = async () => {
     setShowMenu(false);
     const result = await onPickImportFile();
-    if (result.kind === "cancelled") return;
-    if (result.kind === "invalid") {
+    if (result.type === ImportResultType.Cancelled) return;
+    if (result.type === ImportResultType.Invalid) {
       Alert.alert(
         "Не удалось импортировать",
         "Выбранный файл повреждён или имеет неверный формат.",
@@ -248,13 +247,13 @@ export function BottomMenu({
 
       <AutoLockDialog
         visible={autoLockDialogIntent !== null}
-        mode={autoLockDialogIntent ?? "enable"}
+        mode={autoLockDialogIntent ?? AutoLockDialogMode.Enable}
         initialAfterMarkSeconds={autoLockAfterMarkSeconds}
         initialAfterUnlockSeconds={autoLockAfterUnlockSeconds}
         onConfirm={(afterMarkSeconds, afterUnlockSeconds) => {
           const intent = autoLockDialogIntent;
           setAutoLockDialogIntent(null);
-          if (intent === "enable") {
+          if (intent === AutoLockDialogMode.Enable) {
             onEnableAutoLock(afterMarkSeconds, afterUnlockSeconds);
           } else {
             onUpdateAutoLockTimes(afterMarkSeconds, afterUnlockSeconds);

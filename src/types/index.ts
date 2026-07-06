@@ -1,27 +1,40 @@
-export type ZoneGroup = 'thighs' | 'shoulders-and-belly';
+export enum ZoneGroup {
+  Thighs = 'thighs',
+  ShouldersAndBelly = 'shoulders-and-belly',
+}
 
-export type ButtonColor =
-  | 'white'
-  | 'maroon'
-  | 'red'
-  | 'dark-orange'
-  | 'orange'
-  | 'dark-yellow'
-  | 'yellow'
-  | 'dark-green'
-  | 'green'
-  | 'black'
-  | 'gray';
+export enum ButtonColor {
+  White = 'white',
+  Maroon = 'maroon',
+  Red = 'red',
+  DarkOrange = 'dark-orange',
+  Orange = 'orange',
+  DarkYellow = 'dark-yellow',
+  Yellow = 'yellow',
+  DarkGreen = 'dark-green',
+  Green = 'green',
+  Black = 'black',
+  Gray = 'gray',
+}
+
+export enum ZoneId {
+  ShoulderRight = 'shoulder-right',
+  ShoulderLeft = 'shoulder-left',
+  BellyRight = 'belly-right',
+  BellyLeft = 'belly-left',
+  ThighRight = 'thigh-right',
+  ThighLeft = 'thigh-left',
+}
 
 export interface Zone {
-  id: string;
+  id: ZoneId;
   label: string;
   group: ZoneGroup;
 }
 
 export interface ButtonDefinition {
   id: string;
-  zoneId: string;
+  zoneId: ZoneId;
 }
 
 // Zone container layout: position + size as fraction of the body image
@@ -46,14 +59,25 @@ export interface StoredButtonState {
 }
 
 // Event in undo history
-export type AppEventType = 'injection' | 'blackout' | 'manual-block' | 'manual-unblock' | 'manual-clear';
+export enum AppEventType {
+  Injection = 'injection',
+  Blackout = 'blackout',
+  ManualBlock = 'manual-block',
+  ManualUnblock = 'manual-unblock',
+  ManualClear = 'manual-clear',
+}
+
+export enum AutoLockDialogMode {
+  Enable = 'enable',
+  Edit = 'edit',
+}
 
 export interface AppEvent {
   id: string;
   timestamp: number;
   type: AppEventType;
   buttonId: string;
-  zoneId: string;
+  zoneId: ZoneId;
   prevButtonState: StoredButtonState;
 }
 

@@ -54,6 +54,14 @@ App.tsx                     — entry point
 
 ---
 
+## Coding conventions
+
+- Use named exports for all components, functions, and modules — no `export default`. Import with `import { Foo } from "./Foo"`.
+- Types that enumerate string constants must be TypeScript `enum`s, not string-literal unions (e.g. `ButtonColor`, `ZoneGroup`, `ZoneId`, `AppEventType`, `AutoLockDialogMode` in `src/types/index.ts`). Reference values as `EnumName.Member`, never as raw string literals.
+- Discriminated-union result types (e.g. `PressResult` in `src/logic/stateMachine.ts`, `ImportResult` in `src/storage/storage.ts`) use `type` as the discriminant field name (not `kind`), backed by its own enum (e.g. `PressResultType`, `ImportResultType`).
+
+---
+
 ## Data model
 
 ```ts

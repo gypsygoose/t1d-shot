@@ -33,17 +33,17 @@ const INJECTION_ZONE_INFO = [
 ] as const;
 
 const COLOR_ORDER: ButtonColor[] = [
-  "white",
-  "maroon",
-  "red",
-  "dark-orange",
-  "orange",
-  "dark-yellow",
-  "yellow",
-  "dark-green",
-  "green",
-  "black",
-  "gray",
+  ButtonColor.White,
+  ButtonColor.Maroon,
+  ButtonColor.Red,
+  ButtonColor.DarkOrange,
+  ButtonColor.Orange,
+  ButtonColor.DarkYellow,
+  ButtonColor.Yellow,
+  ButtonColor.DarkGreen,
+  ButtonColor.Green,
+  ButtonColor.Black,
+  ButtonColor.Gray,
 ];
 
 interface Props {
@@ -85,7 +85,9 @@ export function HelpSheet({ visible, onClose }: Props) {
                 {
                   backgroundColor: COLOR_HEX[c],
                   borderColor:
-                    c === "white" ? "rgba(255,255,255,0.3)" : COLOR_HEX[c],
+                    c === ButtonColor.White
+                      ? "rgba(255,255,255,0.3)"
+                      : COLOR_HEX[c],
                 },
               ]}
             />
