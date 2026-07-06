@@ -1,10 +1,20 @@
 import { ScrollView, Text, View, StyleSheet } from "react-native";
-import { ButtonColor } from "../types";
+import { ButtonColor, ZoneId } from "../types";
 import { COLOR_HEX, COLOR_LABEL } from "../logic/stateMachine";
+import { ZONE_COLORS } from "../data/zones";
 import { BottomSheet } from "./BottomSheet";
+import {
+  MUTED_TEXT_COLOR,
+  PRIMARY_TEXT_COLOR,
+  SECONDARY_TEXT_COLOR,
+  PRIMARY_SECTION_LABEL_COLOR,
+  SECONDARY_SECTION_LABEL_COLOR,
+  DIVIDER_COLOR,
+} from "../constants";
 
 // Injection zone descriptions, taken from the Figma "help" frame
-// (node 26:239, file grYg39698ogy0nEBd88Fup).
+// (node 26:239, file grYg39698ogy0nEBd88Fup). Colors are the same per-group
+// accents as ZONE_COLORS in data/zones.ts (left/right share one accent).
 const INJECTION_ZONE_INFO = [
   {
     id: "shoulders",
@@ -12,7 +22,7 @@ const INJECTION_ZONE_INFO = [
     location: "средняя треть сзади и сбоку",
     description:
       "Умеренное всасывание. Начало действия через 10 минут. Пик действия через 60–90 минут.",
-    color: "#F5D020",
+    color: ZONE_COLORS[ZoneId.ShoulderRight].accent,
   },
   {
     id: "belly",
@@ -20,7 +30,7 @@ const INJECTION_ZONE_INFO = [
     location: "4 см отступ от рёбер и пупка",
     description:
       "Быстрое всасывание. Начало действия через 5 минут. Пик действия через 30–60 минут.",
-    color: "#36D97A",
+    color: ZONE_COLORS[ZoneId.BellyRight].accent,
   },
   {
     id: "thighs",
@@ -28,9 +38,9 @@ const INJECTION_ZONE_INFO = [
     location: "внешняя боковая поверхность",
     description:
       "Медленное всасывание. Для пролонгированного инсулина. Пик действия через 90–120 минут.",
-    color: "#FF8C33",
+    color: ZONE_COLORS[ZoneId.ThighRight].accent,
   },
-] as const;
+];
 
 const COLOR_ORDER: ButtonColor[] = [
   ButtonColor.White,
@@ -84,10 +94,7 @@ export function HelpSheet({ visible, onClose }: Props) {
                 styles.swatch,
                 {
                   backgroundColor: COLOR_HEX[c],
-                  borderColor:
-                    c === ButtonColor.White
-                      ? "rgba(255,255,255,0.3)"
-                      : COLOR_HEX[c],
+                  borderWidth: 0,
                 },
               ]}
             />
@@ -132,17 +139,17 @@ export function HelpSheet({ visible, onClose }: Props) {
         </Text>
         <Text style={styles.hint}>
           <Text style={styles.bold}>Автоблокировка интерфейса</Text> —
-          автоматически включать блокировку через заданное время после
-          отметки укола и после ручной разблокировки. Нажатие на строку
-          открывает настройку задержек.
+          автоматически включать блокировку через заданное время после отметки
+          укола и после ручной разблокировки. Нажатие на строку открывает
+          настройку задержек.
         </Text>
         <Text style={styles.hint}>
-          <Text style={styles.bold}>Экспорт...</Text> — сохранить все данные
-          в файл.
+          <Text style={styles.bold}>Экспорт...</Text> — сохранить все данные в
+          файл.
         </Text>
         <Text style={styles.hint}>
-          <Text style={styles.bold}>Импорт...</Text> — загрузить данные из
-          файла (текущие данные будут заменены).
+          <Text style={styles.bold}>Импорт...</Text> — загрузить данные из файла
+          (текущие данные будут заменены).
         </Text>
         <Text style={styles.hint}>
           <Text style={styles.bold}>Очистить</Text> — удалить всю историю
@@ -158,7 +165,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 11,
     fontWeight: "700",
-    color: "rgba(255,255,255,0.4)",
+    color: PRIMARY_SECTION_LABEL_COLOR,
     marginTop: 20,
     marginBottom: 10,
     textTransform: "uppercase",
@@ -167,7 +174,7 @@ const styles = StyleSheet.create({
   zoneCard: {
     paddingVertical: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(255,255,255,0.08)",
+    borderBottomColor: DIVIDER_COLOR,
     gap: 6,
   },
   zoneHeader: {
@@ -191,11 +198,11 @@ const styles = StyleSheet.create({
   },
   zoneLocation: {
     fontSize: 13,
-    color: "rgba(255,255,255,0.5)",
+    color: MUTED_TEXT_COLOR,
   },
   zoneDescription: {
     fontSize: 12,
-    color: "rgba(255,255,255,0.4)",
+    color: SECONDARY_SECTION_LABEL_COLOR,
     lineHeight: 17,
   },
   colorRow: {
@@ -214,18 +221,18 @@ const styles = StyleSheet.create({
   colorLabel: {
     flex: 1,
     fontSize: 13,
-    color: "rgba(255,255,255,0.75)",
+    color: SECONDARY_TEXT_COLOR,
     lineHeight: 19,
   },
   hint: {
     fontSize: 13,
-    color: "rgba(255,255,255,0.6)",
+    color: SECONDARY_TEXT_COLOR,
     lineHeight: 21,
     marginBottom: 10,
   },
   bold: {
     fontWeight: "700",
-    color: "#FFFFFF",
+    color: PRIMARY_TEXT_COLOR,
   },
   bottomPad: {
     // Extra clearance so the last row isn't hidden behind the bottom menu

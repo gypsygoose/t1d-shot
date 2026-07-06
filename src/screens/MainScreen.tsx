@@ -21,12 +21,14 @@ import { ButtonColor, ZoneGroup } from "../types";
 import {
   BACKGROUND_COLOR,
   BLOCKED_TOAST_MESSAGE,
+  SCREEN_TITLE_COLOR,
   ICON_COLOR,
   IMG_ASPECT,
   INTERFACE_LOCKED_TOAST_DURATION_MS,
   INTERFACE_LOCKED_TOAST_MESSAGE,
   LEFT_SIDE_LABEL,
   RIGHT_SIDE_LABEL,
+  PRIMARY_SECTION_LABEL_COLOR,
   TOAST_DURATION_MS,
 } from "../constants";
 
@@ -239,7 +241,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    color: "rgba(255,255,255,0.26)",
+    color: SCREEN_TITLE_COLOR,
     paddingBottom: 16,
     fontSize: 13,
     fontWeight: "400",
@@ -277,7 +279,7 @@ const styles = StyleSheet.create({
     flexDirection: "row-reverse",
   },
   sideLabel: {
-    color: "rgba(255,255,255,0.4)",
+    color: PRIMARY_SECTION_LABEL_COLOR,
     fontSize: 12,
     fontWeight: "400",
     textTransform: "uppercase",

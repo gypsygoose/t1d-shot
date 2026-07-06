@@ -1,5 +1,13 @@
 import { Text, TouchableOpacity, View, Switch, StyleSheet } from "react-native";
 import { BottomSheet } from "./BottomSheet";
+import {
+  DESTRUCTIVE_COLOR,
+  MUTED_TEXT_COLOR,
+  PRIMARY_TEXT_COLOR,
+  SWITCH_THUMB_COLOR,
+  SWITCH_TRACK_ON_COLOR,
+  SWITCH_TRACK_OFF_COLOR,
+} from "../constants";
 
 interface Props {
   visible: boolean;
@@ -43,8 +51,8 @@ export function MenuSheet({
         <Switch
           value={mirrored}
           onValueChange={onToggleMirrored}
-          trackColor={{ false: "rgba(255,255,255,0.15)", true: "#16A34A" }}
-          thumbColor="#FFFFFF"
+          trackColor={{ false: SWITCH_TRACK_OFF_COLOR, true: SWITCH_TRACK_ON_COLOR }}
+          thumbColor={SWITCH_THUMB_COLOR}
         />
       </View>
 
@@ -65,8 +73,8 @@ export function MenuSheet({
         <Switch
           value={autoLockEnabled}
           onValueChange={onToggleAutoLocked}
-          trackColor={{ false: "rgba(255,255,255,0.15)", true: "#16A34A" }}
-          thumbColor="#FFFFFF"
+          trackColor={{ false: SWITCH_TRACK_OFF_COLOR, true: SWITCH_TRACK_ON_COLOR }}
+          thumbColor={SWITCH_THUMB_COLOR}
         />
       </View>
 
@@ -108,10 +116,10 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#FFFFFF",
+    color: PRIMARY_TEXT_COLOR,
   },
   destructiveLabel: {
-    color: "#DC2626",
+    color: DESTRUCTIVE_COLOR,
   },
   autoLockInfo: {
     flex: 1,
@@ -119,7 +127,7 @@ const styles = StyleSheet.create({
   },
   rowDescription: {
     fontSize: 13,
-    color: "rgba(255,255,255,0.5)",
+    color: MUTED_TEXT_COLOR,
     marginTop: 4,
   },
 });

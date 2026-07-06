@@ -59,6 +59,8 @@ App.tsx                     — entry point
 - Use named exports for all components, functions, and modules — no `export default`. Import with `import { Foo } from "./Foo"`.
 - Types that enumerate string constants must be TypeScript `enum`s, not string-literal unions (e.g. `ButtonColor`, `ZoneGroup`, `ZoneId`, `AppEventType`, `AutoLockDialogMode` in `src/types/index.ts`). Reference values as `EnumName.Member`, never as raw string literals.
 - Discriminated-union result types (e.g. `PressResult` in `src/logic/stateMachine.ts`, `ImportResult` in `src/storage/storage.ts`) use `type` as the discriminant field name (not `kind`), backed by its own enum (e.g. `PressResultType`, `ImportResultType`).
+- No inline color literals (hex/`rgba`) in component styles. A color literal used in 2+ places with the same semantic role (e.g. dialog title text, modal backdrop, hairline border) is a shared constant in `src/constants.ts`. A literal that's meaningful but used in only one place is still a named constant, declared locally in the file/component where it applies (not inlined). Two literals that happen to share a value by coincidence, but mean different things (e.g. a UI accent color vs. an unrelated injection-cycle color in `stateMachine.ts`), are kept as separate constants — never merged just because the value matches.
+- **Keep this file current**: whenever a change affects code style, project structure, or any other app-wide convention (not just a single file's internals), add or update the relevant note in this CLAUDE.md in the same change. Treat an out-of-date CLAUDE.md as a bug.
 
 ---
 

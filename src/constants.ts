@@ -10,5 +10,25 @@ export const DISABLED_ICON_COLOR = "#4A5568";
 export const LEFT_SIDE_LABEL = "левая\nсторона";
 export const RIGHT_SIDE_LABEL = "правая\nсторона";
 
+// Shared surface/text/action colors for dialogs, sheets, and menus (dark theme)
+export const SURFACE_COLOR = "#141824"; // card/sheet/toast background
+export const PRIMARY_TEXT_COLOR = "#FFFFFF"; // title/label/value text on dark surfaces
+export const SECONDARY_TEXT_COLOR = "rgba(255,255,255,0.6)"; // message/info body text
+export const MUTED_TEXT_COLOR = "rgba(255,255,255,0.5)"; // field labels/descriptions
+export const PRIMARY_SECTION_LABEL_COLOR = "rgba(255,255,255,0.4)"; // faint uppercase section titles
+export const SECONDARY_SECTION_LABEL_COLOR = "rgba(255,255,255,0.4)"; // faint body copy under a section heading (same value, distinct role)
+export const CARD_BORDER_COLOR = "rgba(255,255,255,0.1)"; // hairline border on dark surfaces
+export const DIVIDER_COLOR = "rgba(255,255,255,0.08)"; // hairline row/section divider
+export const MODAL_OVERLAY_COLOR = "rgba(0,0,0,0.7)"; // modal backdrop scrim
+export const PRIMARY_ACTION_COLOR = "#2563EB"; // confirm/primary button background
+export const DESTRUCTIVE_COLOR = "#DC2626"; // destructive action background/label
+export const CANCEL_BUTTON_BORDER_COLOR = "rgba(255,255,255,0.2)";
+export const CANCEL_BUTTON_TEXT_COLOR = "rgba(255,255,255,0.7)";
+export const CANCEL_BUTTON_BACKGROUND_COLOR = "rgba(255,255,255,0.06)";
+export const SWITCH_THUMB_COLOR = "#FFFFFF"; // Switch thumb fill (distinct control-role constant, not text)
+export const SWITCH_TRACK_ON_COLOR = "#16A34A"; // Switch "on" track — unrelated to the injection-cycle green in stateMachine.ts's ButtonColor, despite the value match
+export const SWITCH_TRACK_OFF_COLOR = "rgba(255,255,255,0.15)"; // Switch "off" track
+export const SCREEN_TITLE_COLOR = "rgba(255,255,255,0.26)"; // App title text — fainter than PRIMARY_SECTION_LABEL_COLOR since it sits directly on the root background, not a card surface
+
 // Figma body image aspect ratio: 393.46 wide × 621.91 tall
 export const IMG_ASPECT = 393.46 / 621.91;

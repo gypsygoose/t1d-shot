@@ -1,10 +1,13 @@
 {
-  "enabledPlugins": {
-    "expo@claude-plugins-official": true
-  },
   "permissions": {
     "allow": [
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(grep -noE \"#[0-9A-Fa-f]{3,8}\\\\b\" --include=\"*.ts\" --include=\"*.tsx\" -r src App.tsx)",
+      "Bash(grep -noE \"#[0-9a-fA-F]{3,8}\" -r src App.tsx)",
+      "Bash(awk -F: '{print $0}')"
     ]
+  },
+  "enabledPlugins": {
+    "expo@claude-plugins-official": true
   }
 }

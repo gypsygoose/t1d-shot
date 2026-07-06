@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { PRIMARY_TEXT_COLOR, SURFACE_COLOR } from '../constants';
 
 interface Props {
   message: string | null;
 }
 
 const FADE_MS = 200;
+// Slightly more visible than the shared CARD_BORDER_COLOR hairline, since the
+// toast floats over arbitrary content instead of a dedicated dark backdrop.
+const TOAST_BORDER_COLOR = 'rgba(255,255,255,0.12)';
 
 export function Toast({ message }: Props) {
   const [displayedMessage, setDisplayedMessage] = useState<string | null>(null);
@@ -52,15 +56,15 @@ const styles = StyleSheet.create({
   toast: {
     marginTop: 8,
     marginHorizontal: 24,
-    backgroundColor: '#141824',
+    backgroundColor: SURFACE_COLOR,
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255,255,255,0.12)',
+    borderColor: TOAST_BORDER_COLOR,
   },
   text: {
-    color: '#FFFFFF',
+    color: PRIMARY_TEXT_COLOR,
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',

@@ -32,16 +32,12 @@ export function InjectionButton({
   onPress,
   onLongPress,
 }: Props) {
-  const isBlocked = color === ButtonColor.Black || color === ButtonColor.Gray;
-
   const handlePress = useCallback(
     (_: GestureResponderEvent) => {
-      if (!isBlocked) {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      }
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       onPress();
     },
-    [isBlocked, onPress],
+    [onPress],
   );
 
   const handleLongPress = useCallback(

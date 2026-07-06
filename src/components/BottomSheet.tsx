@@ -9,10 +9,17 @@ import {
   Pressable,
   Dimensions,
 } from "react-native";
+import { CARD_BORDER_COLOR, PRIMARY_TEXT_COLOR, SURFACE_COLOR } from "../constants";
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const DISMISS_DISTANCE = 80;
 const DISMISS_VELOCITY = 0.5;
+// Backdrop is intentionally lighter than the modal scrim (MODAL_OVERLAY_COLOR)
+// so content behind a bottom sheet stays partly legible while it's dragged.
+const BACKDROP_COLOR = "rgba(0,0,0,0.6)";
+// Drag handle pill — same value as the cancel-button border elsewhere, but a
+// distinct, unrelated use (filled shape vs. border), so kept local.
+const HANDLE_COLOR = "rgba(255,255,255,0.2)";
 
 interface Props {
   visible: boolean;
@@ -121,24 +128,24 @@ export function BottomSheet({
 const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: BACKDROP_COLOR,
     justifyContent: "flex-end",
   },
   sheet: {
-    backgroundColor: "#141824",
+    backgroundColor: SURFACE_COLOR,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     height: "80%",
     paddingHorizontal: 20,
     paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "rgba(255,255,255,0.1)",
+    borderTopColor: CARD_BORDER_COLOR,
   },
   handle: {
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: HANDLE_COLOR,
     alignSelf: "center",
     marginBottom: 14,
   },
@@ -151,6 +158,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 19,
     fontWeight: "700",
-    color: "#FFFFFF",
+    color: PRIMARY_TEXT_COLOR,
   },
 });

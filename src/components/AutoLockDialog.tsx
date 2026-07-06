@@ -10,6 +10,17 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { AutoLockDialogMode } from "../types";
+import {
+  CANCEL_BUTTON_BORDER_COLOR,
+  CANCEL_BUTTON_TEXT_COLOR,
+  CARD_BORDER_COLOR,
+  MODAL_OVERLAY_COLOR,
+  MUTED_TEXT_COLOR,
+  PRIMARY_ACTION_COLOR,
+  PRIMARY_TEXT_COLOR,
+  SECONDARY_TEXT_COLOR,
+  SURFACE_COLOR,
+} from "../constants";
 
 interface Props {
   visible: boolean;
@@ -27,7 +38,7 @@ const CONFIRM_LABELS: Record<AutoLockDialogMode, string> = {
 
 const MINUTE_OPTIONS = Array.from({ length: 100 }, (_, i) => i);
 const SECOND_OPTIONS = Array.from({ length: 60 }, (_, i) => i);
-const PICKER_ITEM_COLOR = Platform.OS === "android" ? "#FFFFFF" : undefined;
+const PICKER_ITEM_COLOR = Platform.OS === "android" ? PRIMARY_TEXT_COLOR : undefined;
 const MIN_AFTER_UNLOCK_SECONDS = 5;
 
 function splitSeconds(totalSeconds: number): {
@@ -62,7 +73,7 @@ function TimeField({
           itemStyle={styles.pickerItem}
           selectedValue={minutes}
           onValueChange={(value) => onChangeMinutes(Number(value))}
-          dropdownIconColor="#FFFFFF"
+          dropdownIconColor={PRIMARY_TEXT_COLOR}
         >
           {MINUTE_OPTIONS.map((m) => (
             <Picker.Item
@@ -78,7 +89,7 @@ function TimeField({
           itemStyle={styles.pickerItem}
           selectedValue={seconds}
           onValueChange={(value) => onChangeSeconds(Number(value))}
-          dropdownIconColor="#FFFFFF"
+          dropdownIconColor={PRIMARY_TEXT_COLOR}
         >
           {SECOND_OPTIONS.map((s) => (
             <Picker.Item
@@ -205,25 +216,25 @@ export function AutoLockDialog({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.7)",
+    backgroundColor: MODAL_OVERLAY_COLOR,
     alignItems: "center",
     justifyContent: "center",
     padding: 24,
   },
   box: {
-    backgroundColor: "#141824",
+    backgroundColor: SURFACE_COLOR,
     borderRadius: 16,
     padding: 24,
     width: "100%",
     maxWidth: 360,
     maxHeight: "80%",
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(255,255,255,0.1)",
+    borderColor: CARD_BORDER_COLOR,
   },
   title: {
     fontSize: 17,
     fontWeight: "700",
-    color: "#FFFFFF",
+    color: PRIMARY_TEXT_COLOR,
     marginBottom: 8,
   },
   scroll: {
@@ -234,7 +245,7 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 14,
-    color: "rgba(255,255,255,0.6)",
+    color: SECONDARY_TEXT_COLOR,
     lineHeight: 21,
     marginBottom: 20,
   },
@@ -244,7 +255,7 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: "rgba(255,255,255,0.5)",
+    color: MUTED_TEXT_COLOR,
     marginBottom: 8,
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -254,10 +265,10 @@ const styles = StyleSheet.create({
   },
   picker: {
     flex: 1,
-    color: "#FFFFFF",
+    color: PRIMARY_TEXT_COLOR,
   },
   pickerItem: {
-    color: "#FFFFFF",
+    color: PRIMARY_TEXT_COLOR,
     fontSize: 18,
     height: 120,
   },
@@ -270,25 +281,25 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+    borderColor: CANCEL_BUTTON_BORDER_COLOR,
     paddingVertical: 12,
     alignItems: "center",
   },
   cancelLabel: {
     fontSize: 15,
     fontWeight: "600",
-    color: "rgba(255,255,255,0.7)",
+    color: CANCEL_BUTTON_TEXT_COLOR,
   },
   confirmBtn: {
     flex: 1,
     borderRadius: 10,
-    backgroundColor: "#2563EB",
+    backgroundColor: PRIMARY_ACTION_COLOR,
     paddingVertical: 12,
     alignItems: "center",
   },
   confirmLabel: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#FFFFFF",
+    color: PRIMARY_TEXT_COLOR,
   },
 });

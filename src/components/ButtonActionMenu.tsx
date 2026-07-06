@@ -8,6 +8,17 @@ import {
 } from "react-native";
 import { ButtonColor, StoredButtonState } from "../types";
 import { getBlackoutEndAt } from "../logic/stateMachine";
+import {
+  CANCEL_BUTTON_BACKGROUND_COLOR,
+  CANCEL_BUTTON_TEXT_COLOR,
+  CARD_BORDER_COLOR,
+  DESTRUCTIVE_COLOR,
+  MODAL_OVERLAY_COLOR,
+  PRIMARY_TEXT_COLOR,
+  SECONDARY_TEXT_COLOR,
+  PRIMARY_SECTION_LABEL_COLOR,
+  SURFACE_COLOR,
+} from "../constants";
 
 interface Props {
   visible: boolean;
@@ -169,24 +180,24 @@ export function ButtonActionMenu({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.7)",
+    backgroundColor: MODAL_OVERLAY_COLOR,
     alignItems: "center",
     justifyContent: "center",
     padding: 24,
   },
   box: {
-    backgroundColor: "#141824",
+    backgroundColor: SURFACE_COLOR,
     borderRadius: 16,
     padding: 8,
     width: "100%",
     maxWidth: 360,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(255,255,255,0.1)",
+    borderColor: CARD_BORDER_COLOR,
   },
   title: {
     fontSize: 12,
     fontWeight: "700",
-    color: "rgba(255,255,255,0.4)",
+    color: PRIMARY_SECTION_LABEL_COLOR,
     textTransform: "uppercase",
     letterSpacing: 0.6,
     paddingTop: 12,
@@ -201,7 +212,7 @@ const styles = StyleSheet.create({
   infoLine: {
     fontSize: 13,
     fontWeight: "500",
-    color: "rgba(255,255,255,0.6)",
+    color: SECONDARY_TEXT_COLOR,
   },
   row: {
     paddingVertical: 14,
@@ -210,14 +221,14 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#FFFFFF",
+    color: PRIMARY_TEXT_COLOR,
   },
   destructiveLabel: {
-    color: "#DC2626",
+    color: DESTRUCTIVE_COLOR,
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: "rgba(255,255,255,0.1)",
+    backgroundColor: CARD_BORDER_COLOR,
     marginHorizontal: 12,
   },
   gap: {
@@ -227,13 +238,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: CANCEL_BUTTON_BACKGROUND_COLOR,
     marginHorizontal: 4,
     marginBottom: 4,
   },
   cancelLabel: {
     fontSize: 15,
     fontWeight: "600",
-    color: "rgba(255,255,255,0.7)",
+    color: CANCEL_BUTTON_TEXT_COLOR,
   },
 });

@@ -8,6 +8,17 @@ import {
   Platform,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import {
+  CANCEL_BUTTON_BORDER_COLOR,
+  CANCEL_BUTTON_TEXT_COLOR,
+  CARD_BORDER_COLOR,
+  MODAL_OVERLAY_COLOR,
+  MUTED_TEXT_COLOR,
+  PRIMARY_ACTION_COLOR,
+  PRIMARY_TEXT_COLOR,
+  SECONDARY_TEXT_COLOR,
+  SURFACE_COLOR,
+} from "../constants";
 
 interface Props {
   visible: boolean;
@@ -105,36 +116,36 @@ export function MarkDialog({ visible, onConfirm, onCancel }: Props) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.7)",
+    backgroundColor: MODAL_OVERLAY_COLOR,
     alignItems: "center",
     justifyContent: "center",
     padding: 24,
   },
   box: {
-    backgroundColor: "#141824",
+    backgroundColor: SURFACE_COLOR,
     borderRadius: 16,
     padding: 24,
     width: "100%",
     maxWidth: 360,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(255,255,255,0.1)",
+    borderColor: CARD_BORDER_COLOR,
   },
   title: {
     fontSize: 17,
     fontWeight: "700",
-    color: "#FFFFFF",
+    color: PRIMARY_TEXT_COLOR,
     marginBottom: 8,
   },
   message: {
     fontSize: 14,
-    color: "rgba(255,255,255,0.6)",
+    color: SECONDARY_TEXT_COLOR,
     lineHeight: 21,
     marginBottom: 20,
   },
   label: {
     fontSize: 12,
     fontWeight: "600",
-    color: "rgba(255,255,255,0.5)",
+    color: MUTED_TEXT_COLOR,
     marginBottom: 6,
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -145,7 +156,7 @@ const styles = StyleSheet.create({
   },
   preview: {
     fontSize: 13,
-    color: "rgba(255,255,255,0.5)",
+    color: MUTED_TEXT_COLOR,
     marginTop: -8,
     marginBottom: 16,
   },
@@ -158,25 +169,25 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+    borderColor: CANCEL_BUTTON_BORDER_COLOR,
     paddingVertical: 12,
     alignItems: "center",
   },
   cancelLabel: {
     fontSize: 15,
     fontWeight: "600",
-    color: "rgba(255,255,255,0.7)",
+    color: CANCEL_BUTTON_TEXT_COLOR,
   },
   confirmBtn: {
     flex: 1,
     borderRadius: 10,
-    backgroundColor: "#2563EB",
+    backgroundColor: PRIMARY_ACTION_COLOR,
     paddingVertical: 12,
     alignItems: "center",
   },
   confirmLabel: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#FFFFFF",
+    color: PRIMARY_TEXT_COLOR,
   },
 });

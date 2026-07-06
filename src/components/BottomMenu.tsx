@@ -7,7 +7,12 @@ import { MenuSheet } from "./MenuSheet";
 import { AutoLockDialog } from "./AutoLockDialog";
 import { AutoLockDialogMode, ExportedAppData } from "../types";
 import { ImportResult, ImportResultType } from "../storage/storage";
-import { DISABLED_ICON_COLOR, ICON_COLOR } from "../constants";
+import {
+  BACKGROUND_COLOR,
+  DISABLED_ICON_COLOR,
+  DIVIDER_COLOR,
+  ICON_COLOR,
+} from "../constants";
 
 interface Props {
   canUndo: boolean;
@@ -357,9 +362,9 @@ export function BottomMenu({
 const styles = StyleSheet.create({
   bar: {
     flexDirection: "row",
-    backgroundColor: "#080C18",
+    backgroundColor: BACKGROUND_COLOR,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "rgba(255,255,255,0.08)",
+    borderTopColor: DIVIDER_COLOR,
     paddingBottom: 28,
     paddingTop: 4,
   },
