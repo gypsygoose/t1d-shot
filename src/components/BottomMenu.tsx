@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { View, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import Svg, { Path, Rect } from "react-native-svg";
-import ConfirmDialog from "./ConfirmDialog";
-import HelpSheet from "./HelpSheet";
-import MenuSheet from "./MenuSheet";
-import AutoLockDialog from "./AutoLockDialog";
+import { ConfirmDialog } from "./ConfirmDialog";
+import { HelpSheet } from "./HelpSheet";
+import { MenuSheet } from "./MenuSheet";
+import { AutoLockDialog } from "./AutoLockDialog";
 import { ExportedAppData } from "../types";
 import { ImportResult } from "../storage/storage";
 import { DISABLED_ICON_COLOR, ICON_COLOR } from "../constants";
@@ -163,7 +163,7 @@ function MenuIcon() {
   );
 }
 
-export default function BottomMenu({
+export function BottomMenu({
   canUndo,
   onUndo,
   onClear,

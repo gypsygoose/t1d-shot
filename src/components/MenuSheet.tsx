@@ -1,5 +1,5 @@
 import { Text, TouchableOpacity, View, Switch, StyleSheet } from "react-native";
-import BottomSheet from "./BottomSheet";
+import { BottomSheet } from "./BottomSheet";
 
 interface Props {
   visible: boolean;
@@ -22,7 +22,7 @@ function formatDuration(totalSeconds: number): string {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-export default function MenuSheet({
+export function MenuSheet({
   visible,
   onClose,
   mirrored,

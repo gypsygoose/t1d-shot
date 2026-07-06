@@ -93,7 +93,7 @@ function TimeField({
   );
 }
 
-export default function AutoLockDialog({
+export function AutoLockDialog({
   visible,
   mode,
   initialAfterMarkSeconds,

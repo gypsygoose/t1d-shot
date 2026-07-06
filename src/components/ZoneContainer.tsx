@@ -1,5 +1,5 @@
 import { View, StyleSheet, DimensionValue } from "react-native";
-import InjectionButton from "./InjectionButton";
+import { InjectionButton } from "./InjectionButton";
 import {
   ZONE_COLORS,
   ZONE_LAYOUT,
@@ -35,7 +35,7 @@ interface Props {
 // image (same position/size/colours as assets/images/body_icon.svg). The
 // buttons inside are laid out on a flex grid relative to that block, not by
 // global (x, y) coordinates — same row/column counts as the source design.
-export default function ZoneContainer({
+export function ZoneContainer({
   zoneId,
   mirrored,
   getColor,

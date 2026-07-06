@@ -8,7 +8,7 @@ interface Props {
 
 const FADE_MS = 200;
 
-export default function Toast({ message }: Props) {
+export function Toast({ message }: Props) {
   const [displayedMessage, setDisplayedMessage] = useState<string | null>(null);
   const opacity = useRef(new Animated.Value(0)).current;
 

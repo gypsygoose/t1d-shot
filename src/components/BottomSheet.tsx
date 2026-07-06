@@ -21,7 +21,7 @@ interface Props {
   children: ReactNode;
 }
 
-export default function BottomSheet({
+export function BottomSheet({
   visible,
   onClose,
   title,

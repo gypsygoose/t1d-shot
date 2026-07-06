@@ -44,7 +44,7 @@ function formatCountdown(ms: number): string {
   return parts.join(" ");
 }
 
-export default function ButtonActionMenu({
+export function ButtonActionMenu({
   visible,
   zoneLabel,
   color,

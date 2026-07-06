@@ -27,7 +27,7 @@ function formatTime(d: Date): string {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export default function MarkDialog({ visible, onConfirm, onCancel }: Props) {
+export function MarkDialog({ visible, onConfirm, onCancel }: Props) {
   const [date, setDate] = useState(() => new Date());
   // Bumped every time the dialog opens so the native pickers remount with
   // the fresh value — some platforms don't re-sync their internal display

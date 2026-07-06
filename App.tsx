@@ -1,8 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import MainScreen from './src/screens/MainScreen';
+import { MainScreen } from './src/screens/MainScreen';
 
-export default function App() {
+export function App() {
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />

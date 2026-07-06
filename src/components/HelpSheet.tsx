@@ -1,7 +1,7 @@
 import { ScrollView, Text, View, StyleSheet } from "react-native";
 import { ButtonColor } from "../types";
 import { COLOR_HEX, COLOR_LABEL } from "../logic/stateMachine";
-import BottomSheet from "./BottomSheet";
+import { BottomSheet } from "./BottomSheet";
 
 // Injection zone descriptions, taken from the Figma "help" frame
 // (node 26:239, file grYg39698ogy0nEBd88Fup).
@@ -51,7 +51,7 @@ interface Props {
   onClose: () => void;
 }
 
-export default function HelpSheet({ visible, onClose }: Props) {
+export function HelpSheet({ visible, onClose }: Props) {
   return (
     <BottomSheet visible={visible} onClose={onClose} title="Справка">
       <ScrollView showsVerticalScrollIndicator={false}>

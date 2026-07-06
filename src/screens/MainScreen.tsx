@@ -8,12 +8,12 @@ import {
   StatusBar,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import ZoneContainer from "../components/ZoneContainer";
-import BottomMenu from "../components/BottomMenu";
-import ButtonActionMenu from "../components/ButtonActionMenu";
-import MarkDialog from "../components/MarkDialog";
-import ConfirmDialog from "../components/ConfirmDialog";
-import Toast from "../components/Toast";
+import { ZoneContainer } from "../components/ZoneContainer";
+import { BottomMenu } from "../components/BottomMenu";
+import { ButtonActionMenu } from "../components/ButtonActionMenu";
+import { MarkDialog } from "../components/MarkDialog";
+import { ConfirmDialog } from "../components/ConfirmDialog";
+import { Toast } from "../components/Toast";
 import { useAppStore } from "../store/useAppStore";
 import { computeButtonColor } from "../logic/stateMachine";
 import { ZONES, BUTTON_MAP, ZONE_MAP } from "../data/zones";
@@ -29,7 +29,7 @@ import {
   TOAST_DURATION_MS,
 } from "../constants";
 
-export default function MainScreen() {
+export function MainScreen() {
   const [state, actions] = useAppStore();
 
   // Long-pressed button awaiting an action from the menu / follow-up dialogs.

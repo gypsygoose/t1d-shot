@@ -11,7 +11,7 @@ interface Props {
   destructive?: boolean;
 }
 
-export default function ConfirmDialog({
+export function ConfirmDialog({
   visible,
   title,
   message,

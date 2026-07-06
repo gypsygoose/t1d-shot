@@ -24,7 +24,7 @@ interface Props {
   onLongPress: () => void;
 }
 
-export default function InjectionButton({
+export function InjectionButton({
   id,
   color,
   glowColor,
