@@ -3,6 +3,28 @@ import { ButtonColor, StoredButtonState } from "../types";
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
 // ---------------------------------------------------------------------------
+// Calendar-day helpers (local timezone)
+// ---------------------------------------------------------------------------
+
+// Index of the local calendar day containing `ts`, counted from the epoch.
+// Built from local Y/M/D via Date.UTC so it stays an exact integer regardless
+// of DST shifts in the device's timezone.
+function localDayIndex(ts: number): number {
+  const d = new Date(ts);
+
+  d.setHours(0, 0, 0, 0);
+
+  return Number(d) / DAY_MS;
+}
+
+// Number of local-calendar-day boundaries crossed between `from` and `to`.
+// A press at 15:30 counts as day 0 until local midnight, then becomes day 1,
+// regardless of how many hours have actually elapsed.
+function daysBetween(from: number, to: number): number {
+  return localDayIndex(to) - localDayIndex(from);
+}
+
+// ---------------------------------------------------------------------------
 // Color computation
 // ---------------------------------------------------------------------------
 
@@ -70,19 +92,22 @@ export function computeButtonColor(
 
     if (!injectionAfterBlackout) {
       if (now < blackoutEnd) return ButtonColor.Black;
-      const days = Math.floor((now - blackoutEnd) / DAY_MS);
+      const days = daysBetween(blackoutEnd, now);
       return postBlackoutColor(days);
     }
   }
 
   if (state.lastInjectionAt === undefined) return ButtonColor.White;
-  const days = Math.floor((now - state.lastInjectionAt) / DAY_MS);
+  const days = daysBetween(state.lastInjectionAt, now);
   return injectionCycleColor(days);
 }
 
 // Timestamp when the current system blackout (black state) will end, if any.
 export function getBlackoutEndAt(state: StoredButtonState): number | undefined {
-  if (state.blackoutStartedAt === undefined || state.blackoutDurationDays === undefined) {
+  if (
+    state.blackoutStartedAt === undefined ||
+    state.blackoutDurationDays === undefined
+  ) {
     return undefined;
   }
   return state.blackoutStartedAt + state.blackoutDurationDays * DAY_MS;

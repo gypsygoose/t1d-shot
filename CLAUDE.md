@@ -111,6 +111,8 @@ Storage key: `@t1d_shot_v1`
 
 ### Normal injection cycle (days since `lastInjectionAt`)
 
+"Days" are local calendar days, not elapsed 24h periods: the color advances at local midnight (device timezone), so a press at 15:30 becomes day 1 as soon as the clock crosses into the next calendar day, not 24h later. Same rule applies to the post-blackout cycle. See `daysBetween`/`localDayIndex` in `src/logic/stateMachine.ts`.
+
 | Days | Colour |
 |---|---|
 | 0 | Maroon `#7B1D1D` |

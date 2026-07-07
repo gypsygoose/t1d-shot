@@ -27,9 +27,18 @@ describe('computeButtonColor — normal cycle', () => {
     expect(computeButtonColor(s, NOW)).toBe(ButtonColor.Maroon);
   });
 
-  test('maroon within day 0 (same day, 23 h later)', () => {
-    const s = { ...fresh, lastInjectionAt: NOW };
-    expect(computeButtonColor(s, NOW + 23 * 60 * 60 * 1000)).toBe(ButtonColor.Maroon);
+  test('maroon stays until local midnight, regardless of elapsed hours', () => {
+    const pressedAt = new Date(2024, 6, 3, 15, 30).getTime(); // 3 July, 15:30 local
+    const sameEvening = new Date(2024, 6, 3, 23, 59).getTime(); // still 3 July
+    const s = { ...fresh, lastInjectionAt: pressedAt };
+    expect(computeButtonColor(s, sameEvening)).toBe(ButtonColor.Maroon);
+  });
+
+  test('turns red right after local midnight, even before 24 h have elapsed', () => {
+    const pressedAt = new Date(2024, 6, 3, 15, 30).getTime(); // 3 July, 15:30 local
+    const nextMidnight = new Date(2024, 6, 4, 0, 0).getTime(); // 4 July, 00:00 local
+    const s = { ...fresh, lastInjectionAt: pressedAt };
+    expect(computeButtonColor(s, nextMidnight)).toBe(ButtonColor.Red);
   });
 
   test('red on day 1', () => {
