@@ -12,10 +12,10 @@ import {
 import { BUTTONS } from "../data/zones";
 import { APP_NAME } from "../constants";
 
-const STORAGE_KEY = "@t1d_shot_v1";
-const MIRROR_KEY = "@t1d_shot_mirror_v1";
-const INTERFACE_LOCKED_KEY = "@t1d_shot_interface_locked_v1";
-const AUTO_LOCK_KEY = "@t1d_shot_autolock_v1";
+const STORAGE_KEY = "@insulin_shot_tracker_v1";
+const MIRROR_KEY = "@insulin_shot_tracker_mirror_v1";
+const INTERFACE_LOCKED_KEY = "@insulin_shot_tracker_interface_locked_v1";
+const AUTO_LOCK_KEY = "@insulin_shot_tracker_autolock_v1";
 
 // Boolean-as-string encoding used for the mirror/interface-locked flags —
 // AsyncStorage only stores strings.
@@ -23,7 +23,7 @@ const STORED_TRUE = "1";
 const STORED_FALSE = "0";
 
 const JSON_MIME_TYPE = "application/json";
-const EXPORT_FILE_PREFIX = "t1d-shot-";
+const EXPORT_FILE_PREFIX = "insulin-shot-tracker-";
 const IOS_JSON_UTI = "public.json";
 
 export const DEFAULT_AUTO_LOCK_AFTER_MARK_SECONDS = 30;

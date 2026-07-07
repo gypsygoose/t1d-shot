@@ -1,4 +1,4 @@
-# T1D Shot — Project Documentation
+# Insulin Shot Tracker — Project Documentation
 
 ## Overview
 
@@ -103,7 +103,7 @@ interface AppStorage {
 }
 ```
 
-Storage key: `@t1d_shot_v1`
+Storage key: `@insulin_shot_tracker_v1`
 
 ---
 

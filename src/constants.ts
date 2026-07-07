@@ -1,4 +1,4 @@
-export const APP_NAME = "T1D Shot";
+export const APP_NAME = "Insulin Shot Tracker";
 export const BLOCKED_TOAST_MESSAGE =
   "Точка заблокирована и не может быть отмечена";
 export const TOAST_DURATION_MS = 2000;

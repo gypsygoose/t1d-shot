@@ -1,5 +1,5 @@
 {
-  "name": "t1d-shot",
+  "name": "insulin-shot-tracker",
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
@@ -31,6 +31,10 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
+    "prebuild:ios": "expo prebuild -p ios",
+    "prebuild:android": "expo prebuild -p android",
+    "device:ios": "npm run prebuild:ios && npm run ios -- --device",
+    "device:android": "npm run prebuild:android && npm run android -- --device",
     "web": "expo start --web",
     "test": "jest"
   },
