@@ -325,6 +325,11 @@ export function MainScreen() {
 
       <MarkDialog
         visible={markButtonId !== null}
+        minDate={
+          markButtonId
+            ? state.buttonStates[markButtonId]?.lastInjectionAt
+            : undefined
+        }
         onConfirm={(timestamp) => {
           if (markButtonId) {
             const toast = buildMarkToastMessage(

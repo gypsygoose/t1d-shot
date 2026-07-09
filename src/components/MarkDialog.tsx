@@ -6,11 +6,12 @@ import { MARK_LABEL } from "../constants";
 
 interface Props {
   visible: boolean;
+  minDate?: number;
   onConfirm: (timestamp: number) => void;
   onCancel: () => void;
 }
 
-export function MarkDialog({ visible, onConfirm, onCancel }: Props) {
+export function MarkDialog({ visible, minDate, onConfirm, onCancel }: Props) {
   const [date, setDate] = useState(() => new Date());
   // Bumped every time the dialog opens so the native pickers remount with
   // the fresh value — some platforms don't re-sync their internal display
@@ -47,6 +48,7 @@ export function MarkDialog({ visible, onConfirm, onCancel }: Props) {
               setDate(selected);
             }
           }}
+          minimumDate={minDate !== undefined ? new Date(minDate) : undefined}
           maximumDate={new Date()}
           themeVariant="dark"
         />
