@@ -26,6 +26,16 @@ export enum ZoneId {
   ThighLeft = 'thigh-left',
 }
 
+// Left/right zones of the same body part share one accent/glow colour pair
+// (see ZONE_TYPE in data/zones.ts and ThemeColors.zoneColors in
+// theme/palette.ts) — this groups them for that lookup, distinct from
+// ZoneGroup above (which groups by checkmark-sharing behaviour instead).
+export enum ZoneType {
+  Shoulder = 'shoulder',
+  Belly = 'belly',
+  Thigh = 'thigh',
+}
+
 export interface Zone {
   id: ZoneId;
   label: string;

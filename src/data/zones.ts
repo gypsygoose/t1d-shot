@@ -1,13 +1,37 @@
-import { Zone, ButtonDefinition, ZoneLayout, ZoneGroup, ZoneId, ButtonAddress } from "../types";
+import {
+  Zone,
+  ButtonDefinition,
+  ZoneLayout,
+  ZoneGroup,
+  ZoneId,
+  ZoneType,
+  ButtonAddress,
+} from "../types";
 
 // Zones from Figma design (grYg39698ogy0nEBd88Fup, node 26:3)
 // Group label follows patient perspective: "правое" = patient's right = screen LEFT
 
 export const ZONES: Zone[] = [
-  { id: ZoneId.ShoulderRight, label: "Правое плечо", group: ZoneGroup.ShouldersAndBelly },
-  { id: ZoneId.ShoulderLeft, label: "Левое плечо", group: ZoneGroup.ShouldersAndBelly },
-  { id: ZoneId.BellyRight, label: "Живот справа", group: ZoneGroup.ShouldersAndBelly },
-  { id: ZoneId.BellyLeft, label: "Живот слева", group: ZoneGroup.ShouldersAndBelly },
+  {
+    id: ZoneId.ShoulderRight,
+    label: "Правое плечо",
+    group: ZoneGroup.ShouldersAndBelly,
+  },
+  {
+    id: ZoneId.ShoulderLeft,
+    label: "Левое плечо",
+    group: ZoneGroup.ShouldersAndBelly,
+  },
+  {
+    id: ZoneId.BellyRight,
+    label: "Живот справа",
+    group: ZoneGroup.ShouldersAndBelly,
+  },
+  {
+    id: ZoneId.BellyLeft,
+    label: "Живот слева",
+    group: ZoneGroup.ShouldersAndBelly,
+  },
   { id: ZoneId.ThighRight, label: "Правое бедро", group: ZoneGroup.Thighs },
   { id: ZoneId.ThighLeft, label: "Левое бедро", group: ZoneGroup.Thighs },
 ];
@@ -28,17 +52,16 @@ export const ZONE_MIRROR_MAP: Record<ZoneId, ZoneId> = {
   [ZoneId.ThighLeft]: ZoneId.ThighRight,
 };
 
-// Per-zone accent colours, taken from the Figma "with buttons" frame
-// (node 27:744, file grYg39698ogy0nEBd88Fup): `accent` is the zone container
-// fill/border colour, `glow` is the darker shade used for the radial shadow
-// behind each injection button in that zone.
-export const ZONE_COLORS: Record<ZoneId, { accent: string; glow: string }> = {
-  [ZoneId.ShoulderRight]: { accent: "#F5D020", glow: "#C4A800" },
-  [ZoneId.ShoulderLeft]: { accent: "#F5D020", glow: "#C4A800" },
-  [ZoneId.BellyRight]: { accent: "#36D97A", glow: "#22A85E" },
-  [ZoneId.BellyLeft]: { accent: "#36D97A", glow: "#22A85E" },
-  [ZoneId.ThighRight]: { accent: "#FF8C33", glow: "#CC6800" },
-  [ZoneId.ThighLeft]: { accent: "#FF8C33", glow: "#CC6800" },
+// Left/right zones of the same body part share one accent/glow colour pair
+// (theme/palette.ts's ThemeColors.zoneColors, keyed by ZoneType) — this maps
+// each ZoneId to that shared type instead of duplicating the pair per zone.
+export const ZONE_TYPE: Record<ZoneId, ZoneType> = {
+  [ZoneId.ShoulderRight]: ZoneType.Shoulder,
+  [ZoneId.ShoulderLeft]: ZoneType.Shoulder,
+  [ZoneId.BellyRight]: ZoneType.Belly,
+  [ZoneId.BellyLeft]: ZoneType.Belly,
+  [ZoneId.ThighRight]: ZoneType.Thigh,
+  [ZoneId.ThighLeft]: ZoneType.Thigh,
 };
 
 // ---------------------------------------------------------------------------

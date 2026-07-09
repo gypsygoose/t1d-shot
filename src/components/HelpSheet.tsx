@@ -1,11 +1,10 @@
 import { ScrollView, Text, View, StyleSheet } from "react-native";
-import { ButtonColor, ZoneId } from "../types";
+import { ButtonColor, ZoneType } from "../types";
 import {
   activeCycleColors,
   COLOR_HEX,
   colorLabel,
 } from "../logic/stateMachine";
-import { ZONE_COLORS } from "../data/zones";
 import { BottomSheet } from "./common/BottomSheet";
 import { useTheme } from "../theme/ThemeContext";
 import {
@@ -20,33 +19,40 @@ import {
   THEME_ROW_LABEL,
 } from "../constants";
 
-// Injection zone descriptions, taken from the Figma "help" frame
-// (node 26:239, file grYg39698ogy0nEBd88Fup). Colors are the same per-group
-// accents as ZONE_COLORS in data/zones.ts (left/right share one accent).
-const INJECTION_ZONE_INFO = [
+// Injection zone descriptions, taken from the Figma "help" frame (node
+// 26:239, file grYg39698ogy0nEBd88Fup). `type` looks up the accent directly
+// from `colors.zoneColors`, which already resolves to the theme's darker
+// shade in light mode — the plain dark-theme accent reads too faint as
+// text/a badge border on the light theme's white sheet surface (same issue
+// as ZoneContainer's block — see CLAUDE.md's "Zones and buttons").
+interface InjectionZoneInfo {
+  type: ZoneType;
+  label: string;
+  location: string;
+  description: string;
+}
+
+const INJECTION_ZONE_INFO: InjectionZoneInfo[] = [
   {
-    id: "shoulders",
     label: "Плечи",
     location: "средняя треть сзади и сбоку",
     description:
       "Умеренное всасывание. Начало действия через 10 минут. Пик действия через 60–90 минут.",
-    color: ZONE_COLORS[ZoneId.ShoulderRight].accent,
+    type: ZoneType.Shoulder,
   },
   {
-    id: "belly",
     label: "Живот",
     location: "4 см отступ от рёбер и пупка",
     description:
       "Быстрое всасывание. Начало действия через 5 минут. Пик действия через 30–60 минут.",
-    color: ZONE_COLORS[ZoneId.BellyRight].accent,
+    type: ZoneType.Belly,
   },
   {
-    id: "thighs",
     label: "Бёдра",
     location: "внешняя боковая поверхность",
     description:
       "Медленное всасывание. Для пролонгированного инсулина. Пик действия через 90–120 минут.",
-    color: ZONE_COLORS[ZoneId.ThighRight].accent,
+    type: ZoneType.Thigh,
   },
 ];
 
@@ -81,37 +87,41 @@ export function HelpSheet({ visible, onClose, daysToWhite }: Props) {
     <BottomSheet visible={visible} onClose={onClose} title={HELP_SHEET_TITLE}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={sectionTitleStyle}>Зоны введения</Text>
-        {INJECTION_ZONE_INFO.map((z) => (
-          <View
-            key={z.id}
-            style={[styles.zoneCard, { borderBottomColor: colors.divider }]}
-          >
-            <View style={styles.zoneHeader}>
-              <View
+        {INJECTION_ZONE_INFO.map((z) => {
+          const color = colors.zoneColors[z.type].accent;
+          return (
+            <View
+              key={z.type}
+              style={[styles.zoneCard, { borderBottomColor: colors.divider }]}
+            >
+              <View style={styles.zoneHeader}>
+                <View
+                  style={[
+                    styles.zoneBadge,
+                    { backgroundColor: `${color}38`, borderColor: color },
+                  ]}
+                />
+                <Text style={styles.zoneRowText}>
+                  <Text style={[styles.zoneLabel, { color }]}>{z.label}</Text>
+                  <Text
+                    style={[styles.zoneLocation, { color: colors.mutedText }]}
+                  >
+                    {" "}
+                    {z.location}
+                  </Text>
+                </Text>
+              </View>
+              <Text
                 style={[
-                  styles.zoneBadge,
-                  { backgroundColor: `${z.color}38`, borderColor: z.color },
+                  styles.zoneDescription,
+                  { color: colors.secondaryText },
                 ]}
-              />
-              <Text style={styles.zoneRowText}>
-                <Text style={[styles.zoneLabel, { color: z.color }]}>
-                  {z.label}
-                </Text>
-                <Text
-                  style={[styles.zoneLocation, { color: colors.mutedText }]}
-                >
-                  {" "}
-                  {z.location}
-                </Text>
+              >
+                {z.description}
               </Text>
             </View>
-            <Text
-              style={[styles.zoneDescription, { color: colors.secondaryText }]}
-            >
-              {z.description}
-            </Text>
-          </View>
-        ))}
+          );
+        })}
 
         <Text style={sectionTitleStyle}>Цветовая схема</Text>
         {colorOrder(daysToWhite).map((c) => (
@@ -183,14 +193,14 @@ export function HelpSheet({ visible, onClose, daysToWhite }: Props) {
         </Text>
         <Text style={hintStyle}>
           <Text style={boldStyle}>{EXPORT_ROW_LABEL}</Text> — выбрать, что
-          сохранить в файл: отметки точек укола и/или настройки приложения
-          (по отдельности).
+          сохранить в файл: отметки точек укола и/или настройки приложения (по
+          отдельности).
         </Text>
         <Text style={hintStyle}>
           <Text style={boldStyle}>{IMPORT_ROW_LABEL}</Text> — выбрать, что
-          применить из файла: отметки точек укола и/или настройки приложения
-          (по отдельности). Категории, которых нет в файле, недоступны для
-          выбора; остальные текущие данные не затрагиваются.
+          применить из файла: отметки точек укола и/или настройки приложения (по
+          отдельности). Категории, которых нет в файле, недоступны для выбора;
+          остальные текущие данные не затрагиваются.
         </Text>
         <Text style={hintStyle}>
           <Text style={boldStyle}>{CLEAR_LABEL}</Text> — удалить всю историю

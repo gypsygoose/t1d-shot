@@ -1,8 +1,15 @@
+import { ZoneType } from "../types";
+
 // Theme-dependent chrome colors — everything that visually differs between
-// light and dark mode. Domain/status colors (ButtonColor cycle, per-zone
-// accent/glow, toast status colors) are deliberately NOT here: they carry
-// fixed semantic meaning and read fine on either background (see CLAUDE.md's
-// "Toast statuses" / "Button colour state machine" sections).
+// light and dark mode. Other domain/status colors (ButtonColor cycle, toast
+// status colors) are deliberately NOT here: they carry fixed semantic
+// meaning and read fine on either background (see CLAUDE.md's "Toast
+// statuses" / "Button colour state machine" sections). Per-zone accent/glow
+// (zoneColors below) is the one domain color set that IS here: the same hue
+// per ZoneType, but one shade darker in LIGHT_COLORS since the original
+// pair read too faint against the light theme's bright background (used by
+// ZoneContainer's block, InjectionButton's glow halo, and HelpSheet's zone
+// legend — see CLAUDE.md's "Zones and buttons").
 export interface ThemeColors {
   background: string; // root screen / bottom bar background
   icon: string; // bottom-menu icon default fill/stroke
@@ -31,6 +38,10 @@ export interface ThemeColors {
   screenTitle: string; // app title text — sits directly on the root background
   bottomSheetBackdrop: string; // lighter than modalOverlay, content stays legible while dragged
   bottomSheetHandle: string; // sheet drag-handle pill
+  // Per-body-part zone accent/glow (see ZONE_TYPE in data/zones.ts to map a
+  // ZoneId to its ZoneType). `accent` is the zone container fill/border
+  // colour, `glow` is the shade used for InjectionButton's radial glow halo.
+  zoneColors: Record<ZoneType, { accent: string; glow: string }>;
 }
 
 export const DARK_COLORS: ThemeColors = {
@@ -57,6 +68,13 @@ export const DARK_COLORS: ThemeColors = {
   screenTitle: "rgba(255,255,255,0.26)",
   bottomSheetBackdrop: "rgba(0,0,0,0.6)",
   bottomSheetHandle: "rgba(255,255,255,0.2)",
+  zoneColors: {
+    // Taken from the Figma "with buttons" frame (node 27:744, file
+    // grYg39698ogy0nEBd88Fup).
+    [ZoneType.Shoulder]: { accent: "#F5D020", glow: "#C4A800" },
+    [ZoneType.Belly]: { accent: "#36D97A", glow: "#22A85E" },
+    [ZoneType.Thigh]: { accent: "#FF8C33", glow: "#CC6800" },
+  },
 };
 
 export const LIGHT_COLORS: ThemeColors = {
@@ -83,4 +101,13 @@ export const LIGHT_COLORS: ThemeColors = {
   screenTitle: "rgba(15,23,42,0.55)",
   bottomSheetBackdrop: "rgba(0,0,0,0.3)",
   bottomSheetHandle: "rgba(15,23,42,0.2)",
+  zoneColors: {
+    // One shade darker than DARK_COLORS' zoneColors, since that pair reads
+    // too faint against this theme's bright background; accent and glow
+    // share one value here (shoulder/thigh reuse DARK_COLORS' own `glow`,
+    // belly's green is a further manual step darker for legibility).
+    [ZoneType.Shoulder]: { accent: "#C4A800", glow: "#C4A800" },
+    [ZoneType.Belly]: { accent: "#1D8F50", glow: "#1D8F50" },
+    [ZoneType.Thigh]: { accent: "#CC6800", glow: "#CC6800" },
+  },
 };
