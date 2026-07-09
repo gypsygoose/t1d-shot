@@ -1,10 +1,13 @@
 import Svg, { Circle, Path } from "react-native-svg";
-import { ICON_COLOR, ICON_SIZE } from "../../constants";
+import { ICON_SIZE } from "../../constants";
+import { useTheme } from "../../theme/ThemeContext";
 
 const ICON_STROKE_WIDTH = 1;
 
 // Icon shape matching Figma (node-id 26-3, file grYg39698ogy0nEBd88Fup)
 export function HelpIcon() {
+  const { colors } = useTheme();
+  const ICON_COLOR = colors.icon;
   return (
     <Svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 36 36" fill="none">
       <Path

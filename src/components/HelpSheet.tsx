@@ -1,23 +1,23 @@
 import { ScrollView, Text, View, StyleSheet } from "react-native";
 import { ButtonColor, ZoneId } from "../types";
-import { activeCycleColors, COLOR_HEX, colorLabel } from "../logic/stateMachine";
+import {
+  activeCycleColors,
+  COLOR_HEX,
+  colorLabel,
+} from "../logic/stateMachine";
 import { ZONE_COLORS } from "../data/zones";
 import { BottomSheet } from "./common/BottomSheet";
+import { useTheme } from "../theme/ThemeContext";
 import {
   AUTO_LOCK_ROW_LABEL,
   CLEAR_LABEL,
   DAYS_TO_WHITE_ROW_LABEL,
-  DIVIDER_COLOR,
   EXPORT_ROW_LABEL,
   HELP_SHEET_TITLE,
   IMPORT_ROW_LABEL,
   MENU_SHEET_TITLE,
   MIRROR_ROW_LABEL,
-  MUTED_TEXT_COLOR,
-  PRIMARY_TEXT_COLOR,
-  SECONDARY_TEXT_COLOR,
-  PRIMARY_SECTION_LABEL_COLOR,
-  SECONDARY_SECTION_LABEL_COLOR,
+  THEME_ROW_LABEL,
 } from "../constants";
 
 // Injection zone descriptions, taken from the Figma "help" frame
@@ -69,12 +69,23 @@ interface Props {
 }
 
 export function HelpSheet({ visible, onClose, daysToWhite }: Props) {
+  const { colors } = useTheme();
+  const sectionTitleStyle = [
+    styles.sectionTitle,
+    { color: colors.sectionLabel },
+  ];
+  const hintStyle = [styles.hint, { color: colors.secondaryText }];
+  const boldStyle = [styles.bold, { color: colors.primaryText }];
+
   return (
     <BottomSheet visible={visible} onClose={onClose} title={HELP_SHEET_TITLE}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Text style={styles.sectionTitle}>Зоны введения</Text>
+        <Text style={sectionTitleStyle}>Зоны введения</Text>
         {INJECTION_ZONE_INFO.map((z) => (
-          <View key={z.id} style={styles.zoneCard}>
+          <View
+            key={z.id}
+            style={[styles.zoneCard, { borderBottomColor: colors.divider }]}
+          >
             <View style={styles.zoneHeader}>
               <View
                 style={[
@@ -86,14 +97,23 @@ export function HelpSheet({ visible, onClose, daysToWhite }: Props) {
                 <Text style={[styles.zoneLabel, { color: z.color }]}>
                   {z.label}
                 </Text>
-                <Text style={styles.zoneLocation}> {z.location}</Text>
+                <Text
+                  style={[styles.zoneLocation, { color: colors.mutedText }]}
+                >
+                  {" "}
+                  {z.location}
+                </Text>
               </Text>
             </View>
-            <Text style={styles.zoneDescription}>{z.description}</Text>
+            <Text
+              style={[styles.zoneDescription, { color: colors.secondaryText }]}
+            >
+              {z.description}
+            </Text>
           </View>
         ))}
 
-        <Text style={styles.sectionTitle}>Цветовая схема</Text>
+        <Text style={sectionTitleStyle}>Цветовая схема</Text>
         {colorOrder(daysToWhite).map((c) => (
           <View key={c} style={styles.colorRow}>
             <View
@@ -105,66 +125,72 @@ export function HelpSheet({ visible, onClose, daysToWhite }: Props) {
                 },
               ]}
             />
-            <Text style={styles.colorLabel}>{colorLabel(c, daysToWhite)}</Text>
+            <Text style={[styles.colorLabel, { color: colors.secondaryText }]}>
+              {colorLabel(c, daysToWhite)}
+            </Text>
           </View>
         ))}
 
-        <Text style={styles.sectionTitle}>Управление</Text>
-        <Text style={styles.hint}>
-          <Text style={styles.bold}>Нажатие</Text> — зафиксировать укол.
+        <Text style={sectionTitleStyle}>Управление</Text>
+        <Text style={hintStyle}>
+          <Text style={boldStyle}>Нажатие</Text> — зафиксировать укол.
         </Text>
-        <Text style={styles.hint}>
-          <Text style={styles.bold}>Долгое нажатие</Text> (~1 с) — вызвать меню
+        <Text style={hintStyle}>
+          <Text style={boldStyle}>Долгое нажатие</Text> (~1 с) — вызвать меню
           для места укола.
         </Text>
-        <Text style={styles.hint}>
-          <Text style={styles.bold}>✓ Галочка</Text> — последнее использованное
+        <Text style={hintStyle}>
+          <Text style={boldStyle}>✓ Галочка</Text> — последнее использованное
           место в группе.
         </Text>
 
-        <Text style={styles.sectionTitle}>Нижняя панель</Text>
-        <Text style={styles.hint}>
-          <Text style={styles.bold}>Отменить</Text> — отменить последнее
-          действие (укол, блокировку или разблокировку места).
+        <Text style={sectionTitleStyle}>Нижняя панель</Text>
+        <Text style={hintStyle}>
+          <Text style={boldStyle}>Отменить</Text> — отменить последнее действие
+          (укол, блокировку или разблокировку места).
         </Text>
-        <Text style={styles.hint}>
-          <Text style={styles.bold}>{MENU_SHEET_TITLE}</Text> — открыть меню
+        <Text style={hintStyle}>
+          <Text style={boldStyle}>{MENU_SHEET_TITLE}</Text> — открыть меню
           настроек и данных.
         </Text>
-        <Text style={styles.hint}>
-          <Text style={styles.bold}>{HELP_SHEET_TITLE}</Text> — открыть этот
+        <Text style={hintStyle}>
+          <Text style={boldStyle}>{HELP_SHEET_TITLE}</Text> — открыть этот
           экран.
         </Text>
-        <Text style={styles.hint}>
-          <Text style={styles.bold}>Замок</Text> — заблокировать или
+        <Text style={hintStyle}>
+          <Text style={boldStyle}>Замок</Text> — заблокировать или
           разблокировать интерфейс, чтобы избежать случайных нажатий.
         </Text>
 
-        <Text style={styles.sectionTitle}>Пункты меню</Text>
-        <Text style={styles.hint}>
-          <Text style={styles.bold}>{MIRROR_ROW_LABEL}</Text> — отразить силуэт
+        <Text style={sectionTitleStyle}>Пункты меню</Text>
+        <Text style={hintStyle}>
+          <Text style={boldStyle}>{MIRROR_ROW_LABEL}</Text> — отразить силуэт
           тела по горизонтали.
         </Text>
-        <Text style={styles.hint}>
-          <Text style={styles.bold}>{AUTO_LOCK_ROW_LABEL}</Text> — автоматически
+        <Text style={hintStyle}>
+          <Text style={boldStyle}>{AUTO_LOCK_ROW_LABEL}</Text> — автоматически
           включать блокировку через заданное время после отметки укола и после
           ручной разблокировки. Нажатие на строку открывает настройку задержек.
         </Text>
-        <Text style={styles.hint}>
-          <Text style={styles.bold}>{DAYS_TO_WHITE_ROW_LABEL}</Text> — через
-          сколько дней место укола снова считается полностью свободным
-          (белым). Уменьшение значения сжимает цветовую схему в этот срок.
+        <Text style={hintStyle}>
+          <Text style={boldStyle}>{DAYS_TO_WHITE_ROW_LABEL}</Text> — через
+          сколько дней место укола снова считается полностью свободным (белым).
+          Уменьшение значения сжимает цветовую схему в этот срок.
         </Text>
-        <Text style={styles.hint}>
-          <Text style={styles.bold}>{EXPORT_ROW_LABEL}</Text> — сохранить все
+        <Text style={hintStyle}>
+          <Text style={boldStyle}>{THEME_ROW_LABEL}</Text> — выбрать светлую,
+          тёмную или системную тему оформления приложения.
+        </Text>
+        <Text style={hintStyle}>
+          <Text style={boldStyle}>{EXPORT_ROW_LABEL}</Text> — сохранить все
           данные в файл.
         </Text>
-        <Text style={styles.hint}>
-          <Text style={styles.bold}>{IMPORT_ROW_LABEL}</Text> — загрузить данные
+        <Text style={hintStyle}>
+          <Text style={boldStyle}>{IMPORT_ROW_LABEL}</Text> — загрузить данные
           из файла (текущие данные будут заменены).
         </Text>
-        <Text style={styles.hint}>
-          <Text style={styles.bold}>{CLEAR_LABEL}</Text> — удалить всю историю
+        <Text style={hintStyle}>
+          <Text style={boldStyle}>{CLEAR_LABEL}</Text> — удалить всю историю
           инъекций без возможности восстановления.
         </Text>
         <View style={styles.bottomPad} />
@@ -177,7 +203,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 11,
     fontWeight: "700",
-    color: PRIMARY_SECTION_LABEL_COLOR,
     marginTop: 20,
     marginBottom: 10,
     textTransform: "uppercase",
@@ -186,7 +211,6 @@ const styles = StyleSheet.create({
   zoneCard: {
     paddingVertical: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: DIVIDER_COLOR,
     gap: 6,
   },
   zoneHeader: {
@@ -210,11 +234,9 @@ const styles = StyleSheet.create({
   },
   zoneLocation: {
     fontSize: 13,
-    color: MUTED_TEXT_COLOR,
   },
   zoneDescription: {
     fontSize: 12,
-    color: SECONDARY_SECTION_LABEL_COLOR,
     lineHeight: 17,
   },
   colorRow: {
@@ -233,18 +255,15 @@ const styles = StyleSheet.create({
   colorLabel: {
     flex: 1,
     fontSize: 13,
-    color: SECONDARY_TEXT_COLOR,
     lineHeight: 19,
   },
   hint: {
     fontSize: 13,
-    color: SECONDARY_TEXT_COLOR,
     lineHeight: 21,
     marginBottom: 10,
   },
   bold: {
     fontWeight: "700",
-    color: PRIMARY_TEXT_COLOR,
   },
   bottomPad: {
     // Extra clearance so the last row isn't hidden behind the bottom menu

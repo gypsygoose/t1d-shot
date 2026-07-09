@@ -1,9 +1,11 @@
 import Svg, { Path } from "react-native-svg";
-import { DISABLED_ICON_COLOR, ICON_COLOR, ICON_SIZE } from "../../constants";
+import { ICON_SIZE } from "../../constants";
+import { useTheme } from "../../theme/ThemeContext";
 
 // Icon shape matching Figma (node-id 26-3, file grYg39698ogy0nEBd88Fup)
 export function UndoIcon({ disabled }: { disabled: boolean }) {
-  const c = disabled ? DISABLED_ICON_COLOR : ICON_COLOR;
+  const { colors } = useTheme();
+  const c = disabled ? colors.iconDisabled : colors.icon;
   return (
     <Svg
       width={ICON_SIZE}

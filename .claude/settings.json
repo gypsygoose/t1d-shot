@@ -6,7 +6,9 @@
       "Bash(grep -noE \"#[0-9a-fA-F]{3,8}\" -r src App.tsx)",
       "Bash(awk -F: '{print $0}')",
       "Bash(git mv *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(idb describe *)",
+      "Bash(idb ui *)"
     ]
   },
   "enabledPlugins": {

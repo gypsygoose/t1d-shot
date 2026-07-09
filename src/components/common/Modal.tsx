@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Modal as RNModal, View, Pressable, StyleSheet } from "react-native";
-import { MODAL_OVERLAY_COLOR } from "../../constants";
+import { useTheme } from "../../theme/ThemeContext";
 
 interface Props {
   visible: boolean;
@@ -9,6 +9,8 @@ interface Props {
 }
 
 export function Modal({ visible, onClose, children }: Props) {
+  const { colors } = useTheme();
+
   return (
     <RNModal
       visible={visible}
@@ -16,7 +18,7 @@ export function Modal({ visible, onClose, children }: Props) {
       animationType="fade"
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
+      <View style={[styles.overlay, { backgroundColor: colors.modalOverlay }]}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         {children}
       </View>
@@ -27,7 +29,6 @@ export function Modal({ visible, onClose, children }: Props) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: MODAL_OVERLAY_COLOR,
     alignItems: "center",
     justifyContent: "center",
     padding: 24,

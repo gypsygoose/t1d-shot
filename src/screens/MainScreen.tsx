@@ -15,6 +15,7 @@ import { MarkDialog } from "../components/MarkDialog";
 import { ConfirmDialog } from "../components/common/ConfirmDialog";
 import { ToastEntry, ToastStack } from "../components/common/ToastStack";
 import { useAppStore } from "../store/useAppStore";
+import { useTheme } from "../theme/ThemeContext";
 import {
   computeButtonColor,
   onPress,
@@ -24,6 +25,7 @@ import { ZONES, BUTTON_MAP, ZONE_MAP, BUTTON_ADDRESS } from "../data/zones";
 import {
   ButtonColor,
   StoredButtonState,
+  ThemeMode,
   ToastStatus,
   ZoneGroup,
 } from "../types";
@@ -31,11 +33,8 @@ import { formatDateTime, pluralDays } from "../format";
 import {
   APP_NAME,
   AUTO_LOCK_FIRED_TOAST_MESSAGE,
-  BACKGROUND_COLOR,
   BLOCKED_TOAST_MESSAGE,
   CLEAR_LABEL,
-  SCREEN_TITLE_COLOR,
-  ICON_COLOR,
   IMG_ASPECT,
   INTERFACE_LOCK_DISABLED_TOAST_MESSAGE,
   INTERFACE_LOCK_ENABLED_TOAST_MESSAGE,
@@ -48,7 +47,6 @@ import {
   MAX_STACKED_TOASTS,
   POINT_CLEARED_TOAST_PREFIX,
   RIGHT_SIDE_LABEL,
-  PRIMARY_SECTION_LABEL_COLOR,
   TOAST_DURATION_MS,
 } from "../constants";
 
@@ -130,6 +128,11 @@ export function MainScreen() {
     ),
   );
 
+  // ThemeProvider is mounted in App.tsx, above MainScreen, so it's read
+  // through context here like any other descendant.
+  const { resolvedScheme, colors, mode: themeMode, setMode: onSetThemeMode } =
+    useTheme();
+
   const handlePress = useCallback(
     (id: string) => {
       const color = computeButtonColor(
@@ -185,22 +188,34 @@ export function MainScreen() {
 
   if (!state.isLoaded) {
     return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color={ICON_COLOR} />
+      <View style={[styles.loading, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.icon} />
       </View>
     );
   }
 
   return (
-    <View style={styles.root}>
-      <StatusBar barStyle="light-content" backgroundColor={BACKGROUND_COLOR} />
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
+      <StatusBar
+        barStyle={
+          resolvedScheme === ThemeMode.Light
+            ? "dark-content"
+            : "light-content"
+        }
+        backgroundColor={colors.background}
+      />
 
       <ToastStack toasts={toasts} onDismiss={dismissToast} />
 
       {/* Header */}
-      <SafeAreaView style={styles.headerSafe} edges={["top"]}>
+      <SafeAreaView
+        style={[styles.headerSafe, { backgroundColor: colors.background }]}
+        edges={["top"]}
+      >
         <View style={styles.header}>
-          <Text style={styles.title}>{APP_NAME}</Text>
+          <Text style={[styles.title, { color: colors.screenTitle }]}>
+            {APP_NAME}
+          </Text>
         </View>
       </SafeAreaView>
 
@@ -219,8 +234,12 @@ export function MainScreen() {
               state.mirrored && styles.sideLabelsMirrored,
             ]}
           >
-            <Text style={styles.sideLabel}>{RIGHT_SIDE_LABEL}</Text>
-            <Text style={styles.sideLabel}>{LEFT_SIDE_LABEL}</Text>
+            <Text style={[styles.sideLabel, { color: colors.sectionLabel }]}>
+              {RIGHT_SIDE_LABEL}
+            </Text>
+            <Text style={[styles.sideLabel, { color: colors.sectionLabel }]}>
+              {LEFT_SIDE_LABEL}
+            </Text>
           </View>
 
           {ZONES.map((zone) => (
@@ -272,9 +291,14 @@ export function MainScreen() {
         onUpdateAutoLockTimes={actions.updateAutoLockTimes}
         daysToWhite={state.daysToWhite}
         onSetDaysToWhite={actions.setDaysToWhite}
-        onExport={actions.exportData}
+        themeMode={themeMode}
+        onSetThemeMode={onSetThemeMode}
+        onExport={() => actions.exportData(themeMode)}
         onPickImportFile={actions.pickImportFile}
-        onApplyImport={actions.applyImport}
+        onApplyImport={(data) => {
+          actions.applyImport(data);
+          onSetThemeMode(data.themeMode);
+        }}
         onNotify={showToast}
       />
 
@@ -374,24 +398,19 @@ export function MainScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: BACKGROUND_COLOR,
   },
   loading: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: BACKGROUND_COLOR,
   },
-  headerSafe: {
-    backgroundColor: BACKGROUND_COLOR,
-  },
+  headerSafe: {},
   header: {
     paddingTop: 12,
     paddingBottom: 12,
     alignItems: "center",
   },
   title: {
-    color: SCREEN_TITLE_COLOR,
     paddingBottom: 16,
     fontSize: 13,
     fontWeight: "400",
@@ -429,7 +448,6 @@ const styles = StyleSheet.create({
     flexDirection: "row-reverse",
   },
   sideLabel: {
-    color: PRIMARY_SECTION_LABEL_COLOR,
     fontSize: 12,
     fontWeight: "400",
     textTransform: "uppercase",

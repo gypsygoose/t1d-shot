@@ -30,6 +30,9 @@ src/
 ├── logic/
 │   ├── stateMachine.ts     — pure functions: color computation, press handling
 │   └── stateMachine.test.ts
+├── theme/
+│   ├── palette.ts          — ThemeColors interface + DARK_COLORS/LIGHT_COLORS palettes (app chrome only)
+│   └── ThemeContext.tsx    — ThemeProvider/useTheme() (owns + persists ThemeMode, resolves it against OS scheme → colors)
 ├── storage/storage.ts      — AsyncStorage load/save/clear
 ├── store/useAppStore.ts    — React hook: combines storage + state machine
 ├── components/
@@ -38,6 +41,7 @@ src/
 │   ├── BottomMenu.tsx      — Undo / Menu / Help / Lock bar
 │   ├── AutoLockDialog.tsx  — edit auto-lock delays (opened from MenuSheet)
 │   ├── DaysToWhiteDialog.tsx — edit the "days to white" setting (opened from MenuSheet)
+│   ├── ThemeDialog.tsx     — edit the theme setting (Light/Dark/System, opened from MenuSheet)
 │   ├── icons/              — one file per icon component (e.g. UndoIcon.tsx, MenuIcon.tsx)
 │   └── common/             — generic, domain-agnostic UI primitives, reusable outside this app
 │       ├── Modal.tsx       — full-screen overlay + backdrop
@@ -49,7 +53,7 @@ src/
 │       ├── TimeField.tsx   — minutes/seconds picker pair (used by AutoLockDialog)
 │       └── NumberPickerField.tsx — single labeled numeric picker (used by DaysToWhiteDialog)
 └── screens/MainScreen.tsx  — root screen composing all components
-App.tsx                     — entry point
+App.tsx                     — entry point (mounts ThemeProvider above MainScreen)
 ```
 
 ---
@@ -70,13 +74,13 @@ App.tsx                     — entry point
 
 - Use named exports for all components, functions, and modules — no `export default`. Import with `import { Foo } from "./Foo"`.
 - Every component (including small presentational helpers like icons or a single form field extracted from a screen) lives in its own file named after the component. Do not define a second component — even an unexported local one only used within the file — alongside another component in the same file. Icon components go in `src/components/icons/`. Generic, domain-agnostic UI primitives with no knowledge of app types (`Modal`, `Dialog`, `ConfirmDialog`, `ContextMenu`, `BottomSheet`, `Toast`, `TimeField`, `NumberPickerField`) go in `src/components/common/`; components that reference app domain types (e.g. `ButtonColor`, `ZoneId`, `AutoLockDialogMode`) or compose the app's screens stay directly under `src/components/`.
-- Types that enumerate string constants must be TypeScript `enum`s, not string-literal unions (e.g. `ButtonColor`, `ZoneGroup`, `ZoneId`, `AppEventType`, `AutoLockDialogMode`, `ToastStatus` in `src/types/index.ts`). Reference values as `EnumName.Member`, never as raw string literals.
+- Types that enumerate string constants must be TypeScript `enum`s, not string-literal unions (e.g. `ButtonColor`, `ZoneGroup`, `ZoneId`, `AppEventType`, `AutoLockDialogMode`, `ToastStatus`, `ThemeMode` in `src/types/index.ts`). Reference values as `EnumName.Member`, never as raw string literals.
 - Discriminated-union result types (e.g. `PressResult` in `src/logic/stateMachine.ts`, `ImportResult` in `src/storage/storage.ts`) use `type` as the discriminant field name (not `kind`), backed by its own enum (e.g. `PressResultType`, `ImportResultType`).
-- No inline color literals (hex/`rgba`) in component styles. A color literal used in 2+ places with the same semantic role (e.g. dialog title text, modal backdrop, hairline border) is a shared constant in `src/constants.ts`. A literal that's meaningful but used in only one place is still a named constant, declared locally in the file/component where it applies (not inlined). Two literals that happen to share a value by coincidence, but mean different things (e.g. a UI accent color vs. an unrelated injection-cycle color in `stateMachine.ts`), are kept as separate constants — never merged just because the value matches.
+- No inline color literals (hex/`rgba`) in component styles. Chrome colors (surfaces, text, borders, icons, switches — anything that should flip between light/dark) are fields on `ThemeColors` (`src/theme/palette.ts`), read via `const { colors } = useTheme()` (`src/theme/ThemeContext.tsx`), never imported as flat constants. Colors that are deliberately theme-invariant (the `ButtonColor` cycle in `stateMachine.ts`, `ZONE_COLORS` in `data/zones.ts`, toast status colors) stay as plain constants in their own file/`src/constants.ts`, since they carry fixed semantic meaning independent of app chrome. A color literal used in 2+ places with the same semantic role is a shared constant (a `ThemeColors` field, or `src/constants.ts` if theme-invariant); one used in only one place is still a named constant, declared locally in the file/component where it applies (not inlined). Two literals that happen to share a value by coincidence, but mean different things (e.g. a UI accent color vs. an unrelated injection-cycle color in `stateMachine.ts`), are kept as separate constants — never merged just because the value matches.
 - The same rule applies to non-color literals: no unnamed "magic" numbers (durations, thresholds, sizes) or magic strings (UI labels, storage keys, MIME types, format patterns) in component/logic code. A value reused in 2+ places for the same reason is a shared constant in `src/constants.ts` (or a shared helper in `src/format.ts` for repeated formatting logic, e.g. `pad2`, `splitSeconds`, `SECONDS_PER_MINUTE`); a single-use but deliberate value is still a named local constant in the file where it applies. Ordinary one-off layout numbers (an arbitrary `padding`/`fontSize`/`borderRadius` with no cross-cutting meaning) and one-off prose don't need this — only values that encode an actual decision. Coincidental value matches with unrelated meaning are kept as separate constants, same as colors.
 - **Keep this file current**: whenever a change affects code style, project structure, or any other app-wide convention (not just a single file's internals), add or update the relevant note in this CLAUDE.md in the same change. Treat an out-of-date CLAUDE.md as a bug.
 - **Keep README.md current too**: whenever a change affects the project description, features, setup/scripts, or structure, update README.md in the same change, not just CLAUDE.md.
-- **Every new menu setting must round-trip through storage and export/import**, following the pattern set by `mirrored`/`autoLock*`/`daysToWhite`: its own AsyncStorage key + `load.../save...` pair in `src/storage/storage.ts`, a field on `ExportedAppData` in `src/types/index.ts` with a matching optional-type check in `isValidAppStorage`, a default fallback in `pickImportFile`, inclusion in `useAppStore`'s `exportData`/`applyImport`, and a row label constant in `src/constants.ts` documented in HelpSheet's "Пункты меню" section.
+- **Every new menu setting must round-trip through storage and export/import**, following the pattern set by `mirrored`/`autoLock*`/`daysToWhite`: its own AsyncStorage key + `load.../save...` pair in `src/storage/storage.ts`, a field on `ExportedAppData` in `src/types/index.ts` with a matching optional-type check in `isValidAppStorage`, a default fallback in `pickImportFile`, inclusion in `useAppStore`'s `exportData`/`applyImport`, and a row label constant in `src/constants.ts` documented in HelpSheet's "Пункты меню" section. `themeMode` follows the same storage/export/import contract but, uniquely, isn't held in `useAppStore`'s state — see "Theme" below for why.
 
 ---
 
@@ -116,10 +120,21 @@ interface ExportedAppData extends AppStorage {
   autoLockAfterMarkSeconds: number;
   autoLockAfterUnlockSeconds: number;
   daysToWhite: number;  // 1–8, default 8 — see "Button colour state machine" below
+  themeMode: ThemeMode; // Light/Dark/System, default System — see "Theme" below
 }
 ```
 
-Storage keys: `@insulin_shot_tracker_v1` (buttonStates/events), plus one key per setting (mirror, interface-locked, auto-lock, `daysToWhite`) — see `src/storage/storage.ts`.
+Storage keys: `@insulin_shot_tracker_v1` (buttonStates/events), plus one key per setting (mirror, interface-locked, auto-lock, `daysToWhite`, `themeMode`) — see `src/storage/storage.ts`.
+
+---
+
+## Theme
+
+The app supports light, dark, and system-matched themes via the **"Тема"** row in the menu (`ThemeDialog.tsx`, opened from `MenuSheet`), backed by the `ThemeMode` enum (`Light`/`Dark`/`System`) in `src/types/index.ts`. It's persisted with its own AsyncStorage key (`load.../saveThemeMode` in `src/storage/storage.ts`) and round-trips through export/import as `ExportedAppData.themeMode`, defaulting to `ThemeMode.System`.
+
+Unlike every other menu setting, `themeMode` is **not** held in `useAppStore`'s state — it's owned end to end by `ThemeProvider` (`src/theme/ThemeContext.tsx`), since `<ThemeProvider>` is mounted in `App.tsx`, above `MainScreen` (and therefore above the `useAppStore()` call that lives inside it). `src/theme/palette.ts` defines the `ThemeColors` interface plus `DARK_COLORS`/`LIGHT_COLORS` — every chrome color (surfaces, text, borders, dividers, icons, switches, the bottom bar, dialogs/sheets/menus, the status bar). `ThemeProvider` loads the persisted `ThemeMode` on mount, resolves it against the live OS appearance (via React Native's `useColorScheme()`) into a `resolvedScheme` (`Light`/`Dark`) and the matching `ThemeColors`, and exposes `{ mode, resolvedScheme, colors, setMode }` through context — consumed anywhere in the tree, including `MainScreen` itself, with `const { colors } = useTheme();`. `MainScreen` reads `mode`/`setMode` (aliased to `themeMode`/`onSetThemeMode`) to pass down to `BottomMenu`, and threads `themeMode` into `useAppStore().exportData(themeMode)` and calls `setMode(data.themeMode)` after `applyImport(data)`, since `useAppStore` itself no longer tracks or persists this setting.
+
+Domain/status colors are deliberately **not** theme-dependent and stay as plain constants: the injection-cycle `ButtonColor` palette (`COLOR_HEX` in `stateMachine.ts`), the per-zone `accent`/`glow` colors (`ZONE_COLORS` in `data/zones.ts`), and the toast status colors (`TOAST_*_COLOR`/`TOAST_*_BACKGROUND_COLOR`/`TOAST_TEXT_COLOR` in `constants.ts`) all carry fixed semantic meaning (day count, zone identity, message severity) and are self-contained saturated colors that read fine on either background. `body.png` is likewise reused unchanged in both themes (it's a solid-filled illustration, not linework that depends on the surface behind it).
 
 ---
 

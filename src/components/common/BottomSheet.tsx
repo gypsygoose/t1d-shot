@@ -9,7 +9,7 @@ import {
   Pressable,
   Dimensions,
 } from "react-native";
-import { CARD_BORDER_COLOR, PRIMARY_TEXT_COLOR, SURFACE_COLOR } from "../../constants";
+import { useTheme } from "../../theme/ThemeContext";
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const DISMISS_DISTANCE = 80;
@@ -19,12 +19,6 @@ const SHEET_CLOSE_MS = 200;
 // Minimum vertical drag before treating a touch as a sheet-drag gesture
 // rather than a tap on the content underneath.
 const VERTICAL_MOVE_THRESHOLD = 2;
-// Backdrop is intentionally lighter than the modal scrim (MODAL_OVERLAY_COLOR)
-// so content behind a bottom sheet stays partly legible while it's dragged.
-const BACKDROP_COLOR = "rgba(0,0,0,0.6)";
-// Drag handle pill — same value as the cancel-button border elsewhere, but a
-// distinct, unrelated use (filled shape vs. border), so kept local.
-const HANDLE_COLOR = "rgba(255,255,255,0.2)";
 
 interface Props {
   visible: boolean;
@@ -39,6 +33,7 @@ export function BottomSheet({
   title,
   children,
 }: Props) {
+  const { colors } = useTheme();
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   // Kept mounted for the duration of the dismiss animation, then unmounted
   // entirely so the (otherwise full-screen) overlay stops intercepting
@@ -111,15 +106,31 @@ export function BottomSheet({
   if (!mounted) return null;
 
   return (
-    <Animated.View style={[styles.overlay, { opacity: overlayOpacity }]}>
+    <Animated.View
+      style={[
+        styles.overlay,
+        { opacity: overlayOpacity, backgroundColor: colors.bottomSheetBackdrop },
+      ]}
+    >
       <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
 
-      <Animated.View style={[styles.sheet, { transform: [{ translateY }] }]}>
+      <Animated.View
+        style={[
+          styles.sheet,
+          {
+            transform: [{ translateY }],
+            backgroundColor: colors.surface,
+            borderTopColor: colors.cardBorder,
+          },
+        ]}
+      >
         <View {...panResponder.panHandlers}>
-          <View style={styles.handle} />
+          <View style={[styles.handle, { backgroundColor: colors.bottomSheetHandle }]} />
           {title ? (
             <View style={styles.header}>
-              <Text style={styles.title}>{title}</Text>
+              <Text style={[styles.title, { color: colors.primaryText }]}>
+                {title}
+              </Text>
             </View>
           ) : null}
         </View>
@@ -133,24 +144,20 @@ export function BottomSheet({
 const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: BACKDROP_COLOR,
     justifyContent: "flex-end",
   },
   sheet: {
-    backgroundColor: SURFACE_COLOR,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     height: "80%",
     paddingHorizontal: 20,
     paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: CARD_BORDER_COLOR,
   },
   handle: {
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: HANDLE_COLOR,
     alignSelf: "center",
     marginBottom: 14,
   },
@@ -163,6 +170,5 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 19,
     fontWeight: "700",
-    color: PRIMARY_TEXT_COLOR,
   },
 });

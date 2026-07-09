@@ -1,9 +1,6 @@
 import { View, Text, StyleSheet, Platform } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { MUTED_TEXT_COLOR, PRIMARY_TEXT_COLOR } from "../../constants";
-
-const PICKER_ITEM_COLOR =
-  Platform.OS === "android" ? PRIMARY_TEXT_COLOR : undefined;
+import { useTheme } from "../../theme/ThemeContext";
 
 interface Props {
   label: string;
@@ -20,22 +17,25 @@ export function NumberPickerField({
   formatOption = (value) => `${value}`,
   onChange,
 }: Props) {
+  const { colors } = useTheme();
+  const pickerItemColor = Platform.OS === "android" ? colors.primaryText : undefined;
+
   return (
     <View style={styles.field}>
-      <Text style={styles.fieldLabel}>{label}</Text>
+      <Text style={[styles.fieldLabel, { color: colors.mutedText }]}>{label}</Text>
       <Picker
-        style={styles.picker}
-        itemStyle={styles.pickerItem}
+        style={[styles.picker, { color: colors.primaryText }]}
+        itemStyle={[styles.pickerItem, { color: colors.primaryText }]}
         selectedValue={value}
         onValueChange={(v) => onChange(Number(v))}
-        dropdownIconColor={PRIMARY_TEXT_COLOR}
+        dropdownIconColor={colors.primaryText}
       >
         {options.map((n) => (
           <Picker.Item
             key={n}
             label={formatOption(n)}
             value={n}
-            color={PICKER_ITEM_COLOR}
+            color={pickerItemColor}
           />
         ))}
       </Picker>
@@ -50,16 +50,12 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: MUTED_TEXT_COLOR,
     marginBottom: 8,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
-  picker: {
-    color: PRIMARY_TEXT_COLOR,
-  },
+  picker: {},
   pickerItem: {
-    color: PRIMARY_TEXT_COLOR,
     fontSize: 18,
     height: 120,
   },

@@ -78,6 +78,14 @@ export enum AutoLockDialogMode {
   Edit = 'edit',
 }
 
+// App chrome theme — System resolves to the OS appearance at render time
+// (see src/theme/ThemeContext.tsx); Light/Dark pin a specific palette.
+export enum ThemeMode {
+  Light = 'light',
+  Dark = 'dark',
+  System = 'system',
+}
+
 // Toast severity — drives the toast's accent color and leading icon (see
 // Toast.tsx / src/components/icons/Toast*Icon.tsx).
 export enum ToastStatus {
@@ -110,4 +118,5 @@ export interface ExportedAppData extends AppStorage {
   autoLockAfterMarkSeconds: number;
   autoLockAfterUnlockSeconds: number;
   daysToWhite: number;
+  themeMode: ThemeMode;
 }

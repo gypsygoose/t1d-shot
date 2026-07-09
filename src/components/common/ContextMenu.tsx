@@ -1,17 +1,8 @@
 import { Fragment } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Modal } from "./Modal";
-import {
-  CANCEL_BUTTON_BACKGROUND_COLOR,
-  CANCEL_BUTTON_TEXT_COLOR,
-  CANCEL_LABEL,
-  CARD_BORDER_COLOR,
-  DESTRUCTIVE_COLOR,
-  PRIMARY_TEXT_COLOR,
-  SECONDARY_TEXT_COLOR,
-  PRIMARY_SECTION_LABEL_COLOR,
-  SURFACE_COLOR,
-} from "../../constants";
+import { useTheme } from "../../theme/ThemeContext";
+import { CANCEL_LABEL } from "../../constants";
 
 export interface ContextMenuItem {
   key: string;
@@ -40,26 +31,45 @@ export function ContextMenu({
   cancelLabel = CANCEL_LABEL,
 }: Props) {
   const hasInfo = !!infoLines && infoLines.length > 0;
+  const { colors } = useTheme();
 
   return (
     <Modal visible={visible} onClose={onCancel}>
-      <View style={styles.box}>
+      <View
+        style={[
+          styles.box,
+          { backgroundColor: colors.surface, borderColor: colors.cardBorder },
+        ]}
+      >
         <View style={styles.header}>
-          <Text style={styles.title}>{title}</Text>
-          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+          <Text style={[styles.title, { color: colors.sectionLabel }]}>
+            {title}
+          </Text>
+          {subtitle ? (
+            <Text style={[styles.subtitle, { color: colors.sectionLabel }]}>
+              {subtitle}
+            </Text>
+          ) : null}
         </View>
 
         {hasInfo ? (
           <View style={styles.infoBlock}>
             {infoLines!.map((line, i) => (
-              <Text key={i} style={styles.infoLine}>
+              <Text
+                key={i}
+                style={[styles.infoLine, { color: colors.secondaryText }]}
+              >
                 {line}
               </Text>
             ))}
           </View>
         ) : null}
 
-        {hasInfo ? <View style={styles.divider} /> : null}
+        {hasInfo ? (
+          <View
+            style={[styles.divider, { backgroundColor: colors.cardBorder }]}
+          />
+        ) : null}
 
         {items.map((item, i) => (
           <Fragment key={item.key}>
@@ -71,24 +81,36 @@ export function ContextMenu({
               <Text
                 style={[
                   styles.rowLabel,
-                  item.destructive && styles.destructiveLabel,
+                  { color: colors.primaryText },
+                  item.destructive && { color: colors.destructive },
                 ]}
               >
                 {item.label}
               </Text>
             </TouchableOpacity>
-            {i < items.length - 1 ? <View style={styles.divider} /> : null}
+            {i < items.length - 1 ? (
+              <View
+                style={[styles.divider, { backgroundColor: colors.cardBorder }]}
+              />
+            ) : null}
           </Fragment>
         ))}
 
         <View style={styles.gap} />
 
         <TouchableOpacity
-          style={styles.cancelBtn}
+          style={[
+            styles.cancelBtn,
+            { backgroundColor: colors.cancelButtonBackground },
+          ]}
           onPress={onCancel}
           activeOpacity={0.8}
         >
-          <Text style={styles.cancelLabel}>{cancelLabel}</Text>
+          <Text
+            style={[styles.cancelLabel, { color: colors.cancelButtonText }]}
+          >
+            {cancelLabel}
+          </Text>
         </TouchableOpacity>
       </View>
     </Modal>
@@ -97,13 +119,11 @@ export function ContextMenu({
 
 const styles = StyleSheet.create({
   box: {
-    backgroundColor: SURFACE_COLOR,
     borderRadius: 16,
     padding: 8,
     width: "100%",
     maxWidth: 360,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: CARD_BORDER_COLOR,
   },
   header: {
     paddingTop: 12,
@@ -114,14 +134,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 12,
     fontWeight: "700",
-    color: PRIMARY_SECTION_LABEL_COLOR,
     textTransform: "uppercase",
     letterSpacing: 0.6,
   },
   subtitle: {
     fontSize: 11,
     fontWeight: "700",
-    color: PRIMARY_SECTION_LABEL_COLOR,
   },
   infoBlock: {
     paddingHorizontal: 12,
@@ -131,7 +149,6 @@ const styles = StyleSheet.create({
   infoLine: {
     fontSize: 13,
     fontWeight: "500",
-    color: SECONDARY_TEXT_COLOR,
   },
   row: {
     paddingVertical: 14,
@@ -140,14 +157,9 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontSize: 16,
     fontWeight: "600",
-    color: PRIMARY_TEXT_COLOR,
-  },
-  destructiveLabel: {
-    color: DESTRUCTIVE_COLOR,
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: CARD_BORDER_COLOR,
     marginHorizontal: 12,
   },
   gap: {
@@ -157,13 +169,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: "center",
-    backgroundColor: CANCEL_BUTTON_BACKGROUND_COLOR,
     marginHorizontal: 4,
     marginBottom: 4,
   },
   cancelLabel: {
     fontSize: 15,
     fontWeight: "600",
-    color: CANCEL_BUTTON_TEXT_COLOR,
   },
 });

@@ -1,17 +1,8 @@
 import { ReactNode } from "react";
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import { Modal } from "./Modal";
-import {
-  CANCEL_BUTTON_BORDER_COLOR,
-  CANCEL_BUTTON_TEXT_COLOR,
-  CANCEL_LABEL,
-  CARD_BORDER_COLOR,
-  DESTRUCTIVE_COLOR,
-  PRIMARY_ACTION_COLOR,
-  PRIMARY_TEXT_COLOR,
-  SECONDARY_TEXT_COLOR,
-  SURFACE_COLOR,
-} from "../../constants";
+import { useTheme } from "../../theme/ThemeContext";
+import { CANCEL_LABEL } from "../../constants";
 
 interface Props {
   visible: boolean;
@@ -40,17 +31,29 @@ export function Dialog({
   destructive = false,
   scrollable = false,
 }: Props) {
+  const { colors } = useTheme();
+
   const body = (
     <>
-      {message ? <Text style={styles.message}>{message}</Text> : null}
+      {message ? (
+        <Text style={[styles.message, { color: colors.secondaryText }]}>
+          {message}
+        </Text>
+      ) : null}
       {children}
     </>
   );
 
   return (
     <Modal visible={visible} onClose={onCancel}>
-      <View style={[styles.box, scrollable && styles.boxScrollable]}>
-        <Text style={styles.title}>{title}</Text>
+      <View
+        style={[
+          styles.box,
+          scrollable && styles.boxScrollable,
+          { backgroundColor: colors.surface, borderColor: colors.cardBorder },
+        ]}
+      >
+        <Text style={[styles.title, { color: colors.primaryText }]}>{title}</Text>
 
         {scrollable ? (
           <ScrollView
@@ -66,18 +69,26 @@ export function Dialog({
 
         <View style={styles.actions}>
           <TouchableOpacity
-            style={styles.cancelBtn}
+            style={[styles.cancelBtn, { borderColor: colors.cancelButtonBorder }]}
             onPress={onCancel}
             activeOpacity={0.8}
           >
-            <Text style={styles.cancelLabel}>{cancelLabel}</Text>
+            <Text style={[styles.cancelLabel, { color: colors.cancelButtonText }]}>
+              {cancelLabel}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.confirmBtn, destructive && styles.destructiveBtn]}
+            style={[
+              styles.confirmBtn,
+              { backgroundColor: colors.primaryAction },
+              destructive && { backgroundColor: colors.destructive },
+            ]}
             onPress={onConfirm}
             activeOpacity={0.8}
           >
-            <Text style={styles.confirmLabel}>{confirmLabel}</Text>
+            <Text style={[styles.confirmLabel, { color: colors.actionLabel }]}>
+              {confirmLabel}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -87,13 +98,11 @@ export function Dialog({
 
 const styles = StyleSheet.create({
   box: {
-    backgroundColor: SURFACE_COLOR,
     borderRadius: 16,
     padding: 24,
     width: "100%",
     maxWidth: 360,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: CARD_BORDER_COLOR,
   },
   boxScrollable: {
     maxHeight: "80%",
@@ -101,7 +110,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 17,
     fontWeight: "700",
-    color: PRIMARY_TEXT_COLOR,
     marginBottom: 8,
   },
   scroll: {
@@ -112,7 +120,6 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 14,
-    color: SECONDARY_TEXT_COLOR,
     lineHeight: 21,
     marginBottom: 20,
   },
@@ -125,28 +132,21 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: CANCEL_BUTTON_BORDER_COLOR,
     paddingVertical: 12,
     alignItems: "center",
   },
   cancelLabel: {
     fontSize: 15,
     fontWeight: "600",
-    color: CANCEL_BUTTON_TEXT_COLOR,
   },
   confirmBtn: {
     flex: 1,
     borderRadius: 10,
-    backgroundColor: PRIMARY_ACTION_COLOR,
     paddingVertical: 12,
     alignItems: "center",
   },
   confirmLabel: {
     fontSize: 15,
     fontWeight: "600",
-    color: PRIMARY_TEXT_COLOR,
-  },
-  destructiveBtn: {
-    backgroundColor: DESTRUCTIVE_COLOR,
   },
 });

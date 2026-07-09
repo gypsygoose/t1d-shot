@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
-import { PRIMARY_TEXT_COLOR } from '../../constants';
+import { TOAST_TEXT_COLOR } from '../../constants';
 import { ToastStatus } from '../../types';
 import { ToastInfoIcon } from '../icons/ToastInfoIcon';
 import { ToastWarnIcon } from '../icons/ToastWarnIcon';
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   },
   text: {
     flex: 1,
-    color: PRIMARY_TEXT_COLOR,
+    color: TOAST_TEXT_COLOR,
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'left',

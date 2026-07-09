@@ -2,31 +2,32 @@ import { useState } from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { ConfirmDialog } from "./common/ConfirmDialog";
 import { HelpSheet } from "./HelpSheet";
-import { MenuSheet } from "./MenuSheet";
+import { MenuSheet, THEME_MODE_LABEL } from "./MenuSheet";
 import { AutoLockDialog } from "./AutoLockDialog";
 import { DaysToWhiteDialog } from "./DaysToWhiteDialog";
+import { ThemeDialog } from "./ThemeDialog";
 import { UndoIcon } from "./icons/UndoIcon";
 import { HelpIcon } from "./icons/HelpIcon";
 import { LockClosedIcon } from "./icons/LockClosedIcon";
 import { LockOpenIcon } from "./icons/LockOpenIcon";
 import { MenuIcon } from "./icons/MenuIcon";
-import { AutoLockDialogMode, ExportedAppData, ToastStatus } from "../types";
+import { AutoLockDialogMode, ExportedAppData, ThemeMode, ToastStatus } from "../types";
 import { ImportResult, ImportResultType } from "../storage/storage";
+import { useTheme } from "../theme/ThemeContext";
 import {
   AUTO_LOCK_DISABLED_TOAST_MESSAGE,
   AUTO_LOCK_ENABLED_TOAST_MESSAGE,
   AUTO_LOCK_UPDATED_TOAST_MESSAGE,
-  BACKGROUND_COLOR,
   CANCEL_LABEL,
   CLEAR_ALL_TOAST_MESSAGE,
   CLEAR_LABEL,
   DAYS_TO_WHITE_ROW_LABEL,
-  DIVIDER_COLOR,
   EXPORT_SUCCESS_TOAST_MESSAGE,
   IMPORT_FAILURE_TOAST_MESSAGE,
   IMPORT_SUCCESS_TOAST_MESSAGE,
   MIRROR_DISABLED_TOAST_MESSAGE,
   MIRROR_ENABLED_TOAST_MESSAGE,
+  THEME_UPDATED_TOAST_MESSAGE_PREFIX,
   UNDO_TOAST_MESSAGE,
 } from "../constants";
 
@@ -52,6 +53,8 @@ interface Props {
   ) => void;
   daysToWhite: number;
   onSetDaysToWhite: (days: number) => void;
+  themeMode: ThemeMode;
+  onSetThemeMode: (mode: ThemeMode) => void;
   onExport: () => Promise<void>;
   onPickImportFile: () => Promise<ImportResult>;
   onApplyImport: (data: ExportedAppData) => void;
@@ -74,11 +77,14 @@ export function BottomMenu({
   onUpdateAutoLockTimes,
   daysToWhite,
   onSetDaysToWhite,
+  themeMode,
+  onSetThemeMode,
   onExport,
   onPickImportFile,
   onApplyImport,
   onNotify,
 }: Props) {
+  const { colors } = useTheme();
   const [showUndo, setShowUndo] = useState(false);
   const [showClear, setShowClear] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
@@ -86,6 +92,7 @@ export function BottomMenu({
   const [autoLockDialogIntent, setAutoLockDialogIntent] =
     useState<AutoLockDialogMode | null>(null);
   const [showDaysToWhiteDialog, setShowDaysToWhiteDialog] = useState(false);
+  const [showThemeDialog, setShowThemeDialog] = useState(false);
   const [pendingImport, setPendingImport] = useState<ExportedAppData | null>(
     null,
   );
@@ -108,6 +115,11 @@ export function BottomMenu({
   const handleEditDaysToWhite = () => {
     setShowMenu(false);
     setShowDaysToWhiteDialog(true);
+  };
+
+  const handleEditTheme = () => {
+    setShowMenu(false);
+    setShowThemeDialog(true);
   };
 
   const handleImport = async () => {
@@ -148,6 +160,8 @@ export function BottomMenu({
         onEditAutoLockSettings={handleEditAutoLockSettings}
         daysToWhite={daysToWhite}
         onEditDaysToWhite={handleEditDaysToWhite}
+        themeMode={themeMode}
+        onEditTheme={handleEditTheme}
         onImport={handleImport}
         onExport={async () => {
           setShowMenu(false);
@@ -190,7 +204,23 @@ export function BottomMenu({
         onCancel={() => setShowDaysToWhiteDialog(false)}
       />
 
-      <View style={styles.bar}>
+      <ThemeDialog
+        visible={showThemeDialog}
+        initialThemeMode={themeMode}
+        onConfirm={(mode) => {
+          setShowThemeDialog(false);
+          onSetThemeMode(mode);
+          onNotify(
+            `${THEME_UPDATED_TOAST_MESSAGE_PREFIX}: ${THEME_MODE_LABEL[mode]}`,
+            ToastStatus.Success,
+          );
+        }}
+        onCancel={() => setShowThemeDialog(false)}
+      />
+
+      <View
+        style={[styles.bar, { backgroundColor: colors.background, borderTopColor: colors.divider }]}
+      >
         <TouchableOpacity
           style={[styles.btn, !canUndo && styles.btnDisabled]}
           onPress={() => {
@@ -290,9 +320,7 @@ export function BottomMenu({
 const styles = StyleSheet.create({
   bar: {
     flexDirection: "row",
-    backgroundColor: BACKGROUND_COLOR,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: DIVIDER_COLOR,
     paddingBottom: 28,
     paddingTop: 4,
   },

@@ -15,6 +15,7 @@ Tap a button on the body diagram to log an injection at that spot. The button's 
 - Configurable "days to white" delay (1–8 days) to match your own rotation schedule
 - Automatic "blackout" cooldown when a site is reused too early, with duration based on how recently it was used
 - Manual site lock (long-press) to mark a spot as temporarily unavailable
+- Light, dark, or system-matched theme, switchable from the menu (defaults to following the OS appearance)
 - Undo, injection history, and import/export of your data — all stored locally on-device, no account or backend required
 
 ## Getting started
@@ -42,6 +43,7 @@ src/
 ├── format.ts               — shared formatting helpers
 ├── data/zones.ts           — zone + button definitions with (x,y) positions
 ├── logic/stateMachine.ts   — pure functions: color computation, press handling
+├── theme/                  — light/dark theme palettes + ThemeProvider/useTheme
 ├── storage/storage.ts      — AsyncStorage load/save/clear
 ├── store/useAppStore.ts    — React hook combining storage + state machine
 ├── components/             — app screens and components

@@ -1,21 +1,21 @@
 import { Text, TouchableOpacity, View, Switch, StyleSheet } from "react-native";
 import { BottomSheet } from "./common/BottomSheet";
+import { useTheme } from "../theme/ThemeContext";
+import { ThemeMode } from "../types";
 import {
   AFTER_MARK_LABEL,
   AFTER_UNLOCK_LABEL,
   AUTO_LOCK_ROW_LABEL,
   CLEAR_LABEL,
   DAYS_TO_WHITE_ROW_LABEL,
-  DESTRUCTIVE_COLOR,
   EXPORT_ROW_LABEL,
   IMPORT_ROW_LABEL,
   MENU_SHEET_TITLE,
   MIRROR_ROW_LABEL,
-  MUTED_TEXT_COLOR,
-  PRIMARY_TEXT_COLOR,
-  SWITCH_THUMB_COLOR,
-  SWITCH_TRACK_ON_COLOR,
-  SWITCH_TRACK_OFF_COLOR,
+  THEME_DARK_LABEL,
+  THEME_LIGHT_LABEL,
+  THEME_ROW_LABEL,
+  THEME_SYSTEM_LABEL,
 } from "../constants";
 import { pad2, pluralDays, splitSeconds } from "../format";
 
@@ -31,10 +31,19 @@ interface Props {
   onEditAutoLockSettings: () => void;
   daysToWhite: number;
   onEditDaysToWhite: () => void;
+  themeMode: ThemeMode;
+  onEditTheme: () => void;
   onImport: () => void;
   onExport: () => void;
   onClear: () => void;
 }
+
+// Shared with ThemeDialog.tsx, which offers the same three options.
+export const THEME_MODE_LABEL: Record<ThemeMode, string> = {
+  [ThemeMode.Light]: THEME_LIGHT_LABEL,
+  [ThemeMode.Dark]: THEME_DARK_LABEL,
+  [ThemeMode.System]: THEME_SYSTEM_LABEL,
+};
 
 function formatDuration(totalSeconds: number): string {
   const { minutes, seconds } = splitSeconds(totalSeconds);
@@ -53,19 +62,25 @@ export function MenuSheet({
   onEditAutoLockSettings,
   daysToWhite,
   onEditDaysToWhite,
+  themeMode,
+  onEditTheme,
   onImport,
   onExport,
   onClear,
 }: Props) {
+  const { colors } = useTheme();
+
   return (
     <BottomSheet visible={visible} onClose={onClose} title={MENU_SHEET_TITLE}>
       <View style={styles.row}>
-        <Text style={styles.rowLabel}>{MIRROR_ROW_LABEL}</Text>
+        <Text style={[styles.rowLabel, { color: colors.primaryText }]}>
+          {MIRROR_ROW_LABEL}
+        </Text>
         <Switch
           value={mirrored}
           onValueChange={onToggleMirrored}
-          trackColor={{ false: SWITCH_TRACK_OFF_COLOR, true: SWITCH_TRACK_ON_COLOR }}
-          thumbColor={SWITCH_THUMB_COLOR}
+          trackColor={{ false: colors.switchTrackOff, true: colors.switchTrackOn }}
+          thumbColor={colors.switchThumb}
         />
       </View>
 
@@ -75,19 +90,21 @@ export function MenuSheet({
           onPress={onEditAutoLockSettings}
           activeOpacity={0.7}
         >
-          <Text style={styles.rowLabel}>{AUTO_LOCK_ROW_LABEL}</Text>
-          <Text style={styles.rowDescription}>
+          <Text style={[styles.rowLabel, { color: colors.primaryText }]}>
+            {AUTO_LOCK_ROW_LABEL}
+          </Text>
+          <Text style={[styles.rowDescription, { color: colors.mutedText }]}>
             {AFTER_MARK_LABEL} — {formatDuration(autoLockAfterMarkSeconds)}
           </Text>
-          <Text style={styles.rowDescription}>
+          <Text style={[styles.rowDescription, { color: colors.mutedText }]}>
             {AFTER_UNLOCK_LABEL} — {formatDuration(autoLockAfterUnlockSeconds)}
           </Text>
         </TouchableOpacity>
         <Switch
           value={autoLockEnabled}
           onValueChange={onToggleAutoLocked}
-          trackColor={{ false: SWITCH_TRACK_OFF_COLOR, true: SWITCH_TRACK_ON_COLOR }}
-          thumbColor={SWITCH_THUMB_COLOR}
+          trackColor={{ false: colors.switchTrackOff, true: colors.switchTrackOn }}
+          thumbColor={colors.switchThumb}
         />
       </View>
 
@@ -96,9 +113,20 @@ export function MenuSheet({
         onPress={onEditDaysToWhite}
         activeOpacity={0.7}
       >
-        <Text style={styles.rowLabel}>{DAYS_TO_WHITE_ROW_LABEL}</Text>
-        <Text style={styles.rowValue}>
+        <Text style={[styles.rowLabel, { color: colors.primaryText }]}>
+          {DAYS_TO_WHITE_ROW_LABEL}
+        </Text>
+        <Text style={[styles.rowValue, { color: colors.mutedText }]}>
           {daysToWhite} {pluralDays(daysToWhite)}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.row} onPress={onEditTheme} activeOpacity={0.7}>
+        <Text style={[styles.rowLabel, { color: colors.primaryText }]}>
+          {THEME_ROW_LABEL}
+        </Text>
+        <Text style={[styles.rowValue, { color: colors.mutedText }]}>
+          {THEME_MODE_LABEL[themeMode]}
         </Text>
       </TouchableOpacity>
 
@@ -107,7 +135,9 @@ export function MenuSheet({
         onPress={onExport}
         activeOpacity={0.7}
       >
-        <Text style={styles.rowLabel}>{EXPORT_ROW_LABEL}</Text>
+        <Text style={[styles.rowLabel, { color: colors.primaryText }]}>
+          {EXPORT_ROW_LABEL}
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -115,7 +145,9 @@ export function MenuSheet({
         onPress={onImport}
         activeOpacity={0.7}
       >
-        <Text style={styles.rowLabel}>{IMPORT_ROW_LABEL}</Text>
+        <Text style={[styles.rowLabel, { color: colors.primaryText }]}>
+          {IMPORT_ROW_LABEL}
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -123,7 +155,9 @@ export function MenuSheet({
         onPress={onClear}
         activeOpacity={0.7}
       >
-        <Text style={[styles.rowLabel, styles.destructiveLabel]}>{CLEAR_LABEL}</Text>
+        <Text style={[styles.rowLabel, { color: colors.destructive }]}>
+          {CLEAR_LABEL}
+        </Text>
       </TouchableOpacity>
     </BottomSheet>
   );
@@ -140,14 +174,9 @@ const styles = StyleSheet.create({
   rowLabel: {
     fontSize: 16,
     fontWeight: "600",
-    color: PRIMARY_TEXT_COLOR,
-  },
-  destructiveLabel: {
-    color: DESTRUCTIVE_COLOR,
   },
   rowValue: {
     fontSize: 15,
-    color: MUTED_TEXT_COLOR,
   },
   autoLockInfo: {
     flex: 1,
@@ -155,7 +184,6 @@ const styles = StyleSheet.create({
   },
   rowDescription: {
     fontSize: 13,
-    color: MUTED_TEXT_COLOR,
     marginTop: 4,
   },
 });

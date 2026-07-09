@@ -8,6 +8,7 @@ import {
   AppStorage,
   ExportedAppData,
   StoredButtonState,
+  ThemeMode,
 } from "../types";
 import { BUTTONS } from "../data/zones";
 import {
@@ -22,6 +23,7 @@ const MIRROR_KEY = "@insulin_shot_tracker_mirror_v1";
 const INTERFACE_LOCKED_KEY = "@insulin_shot_tracker_interface_locked_v1";
 const AUTO_LOCK_KEY = "@insulin_shot_tracker_autolock_v1";
 const DAYS_TO_WHITE_KEY = "@insulin_shot_tracker_days_to_white_v1";
+const THEME_MODE_KEY = "@insulin_shot_tracker_theme_mode_v1";
 
 // Boolean-as-string encoding used for the mirror/interface-locked flags —
 // AsyncStorage only stores strings.
@@ -151,6 +153,22 @@ export async function saveDaysToWhite(days: number): Promise<void> {
   await AsyncStorage.setItem(DAYS_TO_WHITE_KEY, String(clampDaysToWhite(days)));
 }
 
+const THEME_MODES: ThemeMode[] = Object.values(ThemeMode);
+
+export async function loadThemeMode(): Promise<ThemeMode> {
+  try {
+    const raw = await AsyncStorage.getItem(THEME_MODE_KEY);
+    if (raw && THEME_MODES.includes(raw as ThemeMode)) return raw as ThemeMode;
+    return ThemeMode.System;
+  } catch {
+    return ThemeMode.System;
+  }
+}
+
+export async function saveThemeMode(mode: ThemeMode): Promise<void> {
+  await AsyncStorage.setItem(THEME_MODE_KEY, mode);
+}
+
 // ---------------------------------------------------------------------------
 // Export / import full app state to/from a JSON file
 // ---------------------------------------------------------------------------
@@ -227,6 +245,11 @@ function isValidAppStorage(data: unknown): data is ExportedAppData {
     typeof candidate.daysToWhite !== "number"
   )
     return false;
+  if (
+    candidate.themeMode !== undefined &&
+    !THEME_MODES.includes(candidate.themeMode)
+  )
+    return false;
   return true;
 }
 
@@ -289,6 +312,7 @@ export async function pickImportFile(): Promise<ImportResult> {
         daysToWhite: clampDaysToWhite(
           parsed.daysToWhite ?? DEFAULT_DAYS_TO_WHITE,
         ),
+        themeMode: parsed.themeMode ?? ThemeMode.System,
       },
     };
   } catch {

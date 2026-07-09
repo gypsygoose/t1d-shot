@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { AppStorage, AppEvent, AppEventType, ExportedAppData, StoredButtonState, ZoneGroup } from '../types';
+import { AppStorage, AppEvent, AppEventType, ExportedAppData, StoredButtonState, ThemeMode, ZoneGroup } from '../types';
 import {
   loadStorage,
   saveStorage,
@@ -67,7 +67,7 @@ export interface AppActions {
   disableAutoLock(): void;
   updateAutoLockTimes(afterMarkSeconds: number, afterUnlockSeconds: number): void;
   setDaysToWhite(days: number): void;
-  exportData(): Promise<void>;
+  exportData(themeMode: ThemeMode): Promise<void>;
   pickImportFile(): Promise<ImportResult>;
   applyImport(data: ExportedAppData): void;
 }
@@ -515,7 +515,10 @@ export function useAppStore(
     saveDaysToWhite(clamped);
   }, []);
 
-  const exportData = useCallback(async () => {
+  // themeMode is passed in rather than read from state — it's owned by
+  // ThemeProvider (mounted in App.tsx, above this hook's caller), not by
+  // this store. See src/theme/ThemeContext.tsx.
+  const exportData = useCallback(async (themeMode: ThemeMode) => {
     await exportStorageToFile({
       buttonStates: state.buttonStates,
       events: state.events,
@@ -524,6 +527,7 @@ export function useAppStore(
       autoLockAfterMarkSeconds: state.autoLockAfterMarkSeconds,
       autoLockAfterUnlockSeconds: state.autoLockAfterUnlockSeconds,
       daysToWhite: state.daysToWhite,
+      themeMode,
     });
   }, [
     state.buttonStates,
@@ -535,6 +539,8 @@ export function useAppStore(
     state.daysToWhite,
   ]);
 
+  // Doesn't persist data.themeMode — the caller applies it via
+  // ThemeProvider's setMode, which owns that setting's storage key.
   const applyImport = useCallback((data: ExportedAppData) => {
     setState((prev) => {
       const deadline =
@@ -548,7 +554,8 @@ export function useAppStore(
         deadline,
       });
       saveDaysToWhite(data.daysToWhite);
-      return { ...prev, ...data, autoLockDeadline: deadline };
+      const { themeMode: _themeMode, ...storageData } = data;
+      return { ...prev, ...storageData, autoLockDeadline: deadline };
     });
     importStorage(data);
   }, []);

@@ -1,11 +1,9 @@
 import { View, Text, StyleSheet, Platform } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { MUTED_TEXT_COLOR, PRIMARY_TEXT_COLOR } from "../../constants";
+import { useTheme } from "../../theme/ThemeContext";
 
 const MINUTE_OPTIONS = Array.from({ length: 100 }, (_, i) => i);
 const SECOND_OPTIONS = Array.from({ length: 60 }, (_, i) => i);
-const PICKER_ITEM_COLOR =
-  Platform.OS === "android" ? PRIMARY_TEXT_COLOR : undefined;
 
 interface Props {
   label: string;
@@ -22,39 +20,42 @@ export function TimeField({
   onChangeMinutes,
   onChangeSeconds,
 }: Props) {
+  const { colors } = useTheme();
+  const pickerItemColor = Platform.OS === "android" ? colors.primaryText : undefined;
+
   return (
     <View style={styles.field}>
-      <Text style={styles.fieldLabel}>{label}</Text>
+      <Text style={[styles.fieldLabel, { color: colors.mutedText }]}>{label}</Text>
       <View style={styles.pickerRow}>
         <Picker
-          style={styles.picker}
-          itemStyle={styles.pickerItem}
+          style={[styles.picker, { color: colors.primaryText }]}
+          itemStyle={[styles.pickerItem, { color: colors.primaryText }]}
           selectedValue={minutes}
           onValueChange={(value) => onChangeMinutes(Number(value))}
-          dropdownIconColor={PRIMARY_TEXT_COLOR}
+          dropdownIconColor={colors.primaryText}
         >
           {MINUTE_OPTIONS.map((m) => (
             <Picker.Item
               key={m}
               label={`${m} мин`}
               value={m}
-              color={PICKER_ITEM_COLOR}
+              color={pickerItemColor}
             />
           ))}
         </Picker>
         <Picker
-          style={styles.picker}
-          itemStyle={styles.pickerItem}
+          style={[styles.picker, { color: colors.primaryText }]}
+          itemStyle={[styles.pickerItem, { color: colors.primaryText }]}
           selectedValue={seconds}
           onValueChange={(value) => onChangeSeconds(Number(value))}
-          dropdownIconColor={PRIMARY_TEXT_COLOR}
+          dropdownIconColor={colors.primaryText}
         >
           {SECOND_OPTIONS.map((s) => (
             <Picker.Item
               key={s}
               label={`${s} сек`}
               value={s}
-              color={PICKER_ITEM_COLOR}
+              color={pickerItemColor}
             />
           ))}
         </Picker>
@@ -70,7 +71,6 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: MUTED_TEXT_COLOR,
     marginBottom: 8,
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -80,10 +80,8 @@ const styles = StyleSheet.create({
   },
   picker: {
     flex: 1,
-    color: PRIMARY_TEXT_COLOR,
   },
   pickerItem: {
-    color: PRIMARY_TEXT_COLOR,
     fontSize: 18,
     height: 120,
   },
