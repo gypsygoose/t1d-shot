@@ -13,6 +13,8 @@ import {
   StoredAutoLock,
   DEFAULT_AUTO_LOCK_AFTER_MARK_SECONDS,
   DEFAULT_AUTO_LOCK_AFTER_UNLOCK_SECONDS,
+  loadDaysToWhite,
+  saveDaysToWhite,
   exportStorageToFile,
   pickImportFile as pickImportFileFromDisk,
   importStorage,
@@ -20,7 +22,12 @@ import {
 } from '../storage/storage';
 import { onPress, PressResultType } from '../logic/stateMachine';
 import { BUTTON_MAP, ZONE_MAP } from '../data/zones';
-import { SECOND_MS } from '../constants';
+import {
+  SECOND_MS,
+  DEFAULT_DAYS_TO_WHITE,
+  MIN_DAYS_TO_WHITE,
+  MAX_DAYS_TO_WHITE,
+} from '../constants';
 
 // Debounce delay before persisting a state change to AsyncStorage.
 const SAVE_DEBOUNCE_MS = 300;
@@ -43,6 +50,7 @@ export interface AppState extends AppStorage {
   // Timestamp at which the interface should auto-lock next, or null if no
   // auto-lock is currently pending (e.g. already locked, or disabled).
   autoLockDeadline: number | null;
+  daysToWhite: number;
 }
 
 export interface AppActions {
@@ -58,6 +66,7 @@ export interface AppActions {
   enableAutoLock(afterMarkSeconds: number, afterUnlockSeconds: number): void;
   disableAutoLock(): void;
   updateAutoLockTimes(afterMarkSeconds: number, afterUnlockSeconds: number): void;
+  setDaysToWhite(days: number): void;
   exportData(): Promise<void>;
   pickImportFile(): Promise<ImportResult>;
   applyImport(data: ExportedAppData): void;
@@ -110,6 +119,7 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
     autoLockAfterMarkSeconds: DEFAULT_AUTO_LOCK_AFTER_MARK_SECONDS,
     autoLockAfterUnlockSeconds: DEFAULT_AUTO_LOCK_AFTER_UNLOCK_SECONDS,
     autoLockDeadline: null,
+    daysToWhite: DEFAULT_DAYS_TO_WHITE,
   });
   const saveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -122,7 +132,8 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
       loadMirrored(),
       loadInterfaceLocked(),
       loadAutoLock(),
-    ]).then(([stored, mirrored, storedInterfaceLocked, autoLock]) => {
+      loadDaysToWhite(),
+    ]).then(([stored, mirrored, storedInterfaceLocked, autoLock, daysToWhite]) => {
       const now = Date.now();
       let interfaceLocked = storedInterfaceLocked;
       let deadline = autoLock.deadline;
@@ -152,6 +163,7 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
         autoLockAfterMarkSeconds: autoLock.afterMarkSeconds,
         autoLockAfterUnlockSeconds: autoLock.afterUnlockSeconds,
         autoLockDeadline: deadline,
+        daysToWhite,
         isLoaded: true,
       }));
     });
@@ -214,7 +226,7 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
       if (!btn) return prev;
 
       const currentBtnState = prev.buttonStates[buttonId];
-      const result = onPress(currentBtnState, now);
+      const result = onPress(currentBtnState, now, prev.daysToWhite);
       if (result.type === PressResultType.Blocked) return prev;
 
       const event: AppEvent = {
@@ -326,7 +338,7 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
       if (!btn) return prev;
 
       const currentBtnState = prev.buttonStates[buttonId];
-      const result = onPress(currentBtnState, timestamp);
+      const result = onPress(currentBtnState, timestamp, prev.daysToWhite);
       if (result.type === PressResultType.Blocked) return prev;
 
       const event: AppEvent = {
@@ -487,6 +499,12 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
     [],
   );
 
+  const setDaysToWhite = useCallback((days: number) => {
+    const clamped = Math.min(MAX_DAYS_TO_WHITE, Math.max(MIN_DAYS_TO_WHITE, days));
+    setState((prev) => ({ ...prev, daysToWhite: clamped }));
+    saveDaysToWhite(clamped);
+  }, []);
+
   const exportData = useCallback(async () => {
     await exportStorageToFile({
       buttonStates: state.buttonStates,
@@ -495,6 +513,7 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
       autoLockEnabled: state.autoLockEnabled,
       autoLockAfterMarkSeconds: state.autoLockAfterMarkSeconds,
       autoLockAfterUnlockSeconds: state.autoLockAfterUnlockSeconds,
+      daysToWhite: state.daysToWhite,
     });
   }, [
     state.buttonStates,
@@ -503,6 +522,7 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
     state.autoLockEnabled,
     state.autoLockAfterMarkSeconds,
     state.autoLockAfterUnlockSeconds,
+    state.daysToWhite,
   ]);
 
   const applyImport = useCallback((data: ExportedAppData) => {
@@ -517,6 +537,7 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
         afterUnlockSeconds: data.autoLockAfterUnlockSeconds,
         deadline,
       });
+      saveDaysToWhite(data.daysToWhite);
       return { ...prev, ...data, autoLockDeadline: deadline };
     });
     importStorage(data);
@@ -539,6 +560,7 @@ export function useAppStore(): [AppState & { lastInGroup: Record<ZoneGroup, stri
       enableAutoLock,
       disableAutoLock,
       updateAutoLockTimes,
+      setDaysToWhite,
       exportData,
       pickImportFile: pickImportFileFromDisk,
       applyImport,

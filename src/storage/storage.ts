@@ -10,12 +10,18 @@ import {
   StoredButtonState,
 } from "../types";
 import { BUTTONS } from "../data/zones";
-import { APP_NAME } from "../constants";
+import {
+  APP_NAME,
+  DEFAULT_DAYS_TO_WHITE,
+  MAX_DAYS_TO_WHITE,
+  MIN_DAYS_TO_WHITE,
+} from "../constants";
 
 const STORAGE_KEY = "@insulin_shot_tracker_v1";
 const MIRROR_KEY = "@insulin_shot_tracker_mirror_v1";
 const INTERFACE_LOCKED_KEY = "@insulin_shot_tracker_interface_locked_v1";
 const AUTO_LOCK_KEY = "@insulin_shot_tracker_autolock_v1";
+const DAYS_TO_WHITE_KEY = "@insulin_shot_tracker_days_to_white_v1";
 
 // Boolean-as-string encoding used for the mirror/interface-locked flags —
 // AsyncStorage only stores strings.
@@ -127,6 +133,24 @@ export async function saveAutoLock(data: StoredAutoLock): Promise<void> {
   await AsyncStorage.setItem(AUTO_LOCK_KEY, JSON.stringify(data));
 }
 
+function clampDaysToWhite(days: number): number {
+  return Math.min(MAX_DAYS_TO_WHITE, Math.max(MIN_DAYS_TO_WHITE, days));
+}
+
+export async function loadDaysToWhite(): Promise<number> {
+  try {
+    const raw = await AsyncStorage.getItem(DAYS_TO_WHITE_KEY);
+    if (!raw) return DEFAULT_DAYS_TO_WHITE;
+    return clampDaysToWhite(Number(raw));
+  } catch {
+    return DEFAULT_DAYS_TO_WHITE;
+  }
+}
+
+export async function saveDaysToWhite(days: number): Promise<void> {
+  await AsyncStorage.setItem(DAYS_TO_WHITE_KEY, String(clampDaysToWhite(days)));
+}
+
 // ---------------------------------------------------------------------------
 // Export / import full app state to/from a JSON file
 // ---------------------------------------------------------------------------
@@ -198,6 +222,11 @@ function isValidAppStorage(data: unknown): data is ExportedAppData {
     typeof candidate.autoLockAfterUnlockSeconds !== "number"
   )
     return false;
+  if (
+    candidate.daysToWhite !== undefined &&
+    typeof candidate.daysToWhite !== "number"
+  )
+    return false;
   return true;
 }
 
@@ -257,6 +286,9 @@ export async function pickImportFile(): Promise<ImportResult> {
         autoLockAfterUnlockSeconds:
           parsed.autoLockAfterUnlockSeconds ??
           DEFAULT_AUTO_LOCK_AFTER_UNLOCK_SECONDS,
+        daysToWhite: clampDaysToWhite(
+          parsed.daysToWhite ?? DEFAULT_DAYS_TO_WHITE,
+        ),
       },
     };
   } catch {

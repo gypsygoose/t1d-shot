@@ -5,6 +5,7 @@ import {
   AFTER_UNLOCK_LABEL,
   AUTO_LOCK_ROW_LABEL,
   CLEAR_LABEL,
+  DAYS_TO_WHITE_ROW_LABEL,
   DESTRUCTIVE_COLOR,
   EXPORT_ROW_LABEL,
   IMPORT_ROW_LABEL,
@@ -16,7 +17,7 @@ import {
   SWITCH_TRACK_ON_COLOR,
   SWITCH_TRACK_OFF_COLOR,
 } from "../constants";
-import { pad2, splitSeconds } from "../format";
+import { pad2, pluralDays, splitSeconds } from "../format";
 
 interface Props {
   visible: boolean;
@@ -28,6 +29,8 @@ interface Props {
   autoLockAfterUnlockSeconds: number;
   onToggleAutoLocked: (value: boolean) => void;
   onEditAutoLockSettings: () => void;
+  daysToWhite: number;
+  onEditDaysToWhite: () => void;
   onImport: () => void;
   onExport: () => void;
   onClear: () => void;
@@ -48,6 +51,8 @@ export function MenuSheet({
   autoLockAfterUnlockSeconds,
   onToggleAutoLocked,
   onEditAutoLockSettings,
+  daysToWhite,
+  onEditDaysToWhite,
   onImport,
   onExport,
   onClear,
@@ -85,6 +90,17 @@ export function MenuSheet({
           thumbColor={SWITCH_THUMB_COLOR}
         />
       </View>
+
+      <TouchableOpacity
+        style={styles.row}
+        onPress={onEditDaysToWhite}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.rowLabel}>{DAYS_TO_WHITE_ROW_LABEL}</Text>
+        <Text style={styles.rowValue}>
+          {daysToWhite} {pluralDays(daysToWhite)}
+        </Text>
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.row}
@@ -128,6 +144,10 @@ const styles = StyleSheet.create({
   },
   destructiveLabel: {
     color: DESTRUCTIVE_COLOR,
+  },
+  rowValue: {
+    fontSize: 15,
+    color: MUTED_TEXT_COLOR,
   },
   autoLockInfo: {
     flex: 1,

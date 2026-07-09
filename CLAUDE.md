@@ -2,7 +2,7 @@
 
 ## Overview
 
-Mobile app for people with diabetes who take insulin injections to track insulin injection sites and enforce maximum rotation to prevent lipodystrophy. Users tap a button to log an injection; the button changes colour over 8 days to show when the site is safe to reuse.
+Mobile app for people with diabetes who take insulin injections to track insulin injection sites and enforce maximum rotation to prevent lipodystrophy. Users tap a button to log an injection; the button changes colour over a configurable number of days (1–8, default 8) to show when the site is safe to reuse.
 
 **Platform:** iOS / Android — Expo Managed Workflow, TypeScript, React Native.
 
@@ -35,6 +35,8 @@ src/
 ├── components/
 │   ├── InjectionButton.tsx — single injection point button
 │   ├── BottomMenu.tsx      — Undo / Menu / Help / Lock bar
+│   ├── AutoLockDialog.tsx  — edit auto-lock delays (opened from MenuSheet)
+│   ├── DaysToWhiteDialog.tsx — edit the "days to white" setting (opened from MenuSheet)
 │   ├── icons/              — one file per icon component (e.g. UndoIcon.tsx, MenuIcon.tsx)
 │   └── common/             — generic, domain-agnostic UI primitives, reusable outside this app
 │       ├── Modal.tsx       — full-screen overlay + backdrop
@@ -43,7 +45,8 @@ src/
 │       ├── ConfirmDialog.tsx — title/message confirm wrapper (built on Dialog)
 │       ├── BottomSheet.tsx — swipe-to-dismiss bottom sheet
 │       ├── Toast.tsx       — transient message banner
-│       └── TimeField.tsx   — minutes/seconds picker pair (used by AutoLockDialog)
+│       ├── TimeField.tsx   — minutes/seconds picker pair (used by AutoLockDialog)
+│       └── NumberPickerField.tsx — single labeled numeric picker (used by DaysToWhiteDialog)
 └── screens/MainScreen.tsx  — root screen composing all components
 App.tsx                     — entry point
 ```
@@ -65,13 +68,14 @@ App.tsx                     — entry point
 ## Coding conventions
 
 - Use named exports for all components, functions, and modules — no `export default`. Import with `import { Foo } from "./Foo"`.
-- Every component (including small presentational helpers like icons or a single form field extracted from a screen) lives in its own file named after the component. Do not define a second component — even an unexported local one only used within the file — alongside another component in the same file. Icon components go in `src/components/icons/`. Generic, domain-agnostic UI primitives with no knowledge of app types (`Modal`, `Dialog`, `ConfirmDialog`, `ContextMenu`, `BottomSheet`, `Toast`, `TimeField`) go in `src/components/common/`; components that reference app domain types (e.g. `ButtonColor`, `ZoneId`, `AutoLockDialogMode`) or compose the app's screens stay directly under `src/components/`.
+- Every component (including small presentational helpers like icons or a single form field extracted from a screen) lives in its own file named after the component. Do not define a second component — even an unexported local one only used within the file — alongside another component in the same file. Icon components go in `src/components/icons/`. Generic, domain-agnostic UI primitives with no knowledge of app types (`Modal`, `Dialog`, `ConfirmDialog`, `ContextMenu`, `BottomSheet`, `Toast`, `TimeField`, `NumberPickerField`) go in `src/components/common/`; components that reference app domain types (e.g. `ButtonColor`, `ZoneId`, `AutoLockDialogMode`) or compose the app's screens stay directly under `src/components/`.
 - Types that enumerate string constants must be TypeScript `enum`s, not string-literal unions (e.g. `ButtonColor`, `ZoneGroup`, `ZoneId`, `AppEventType`, `AutoLockDialogMode` in `src/types/index.ts`). Reference values as `EnumName.Member`, never as raw string literals.
 - Discriminated-union result types (e.g. `PressResult` in `src/logic/stateMachine.ts`, `ImportResult` in `src/storage/storage.ts`) use `type` as the discriminant field name (not `kind`), backed by its own enum (e.g. `PressResultType`, `ImportResultType`).
 - No inline color literals (hex/`rgba`) in component styles. A color literal used in 2+ places with the same semantic role (e.g. dialog title text, modal backdrop, hairline border) is a shared constant in `src/constants.ts`. A literal that's meaningful but used in only one place is still a named constant, declared locally in the file/component where it applies (not inlined). Two literals that happen to share a value by coincidence, but mean different things (e.g. a UI accent color vs. an unrelated injection-cycle color in `stateMachine.ts`), are kept as separate constants — never merged just because the value matches.
 - The same rule applies to non-color literals: no unnamed "magic" numbers (durations, thresholds, sizes) or magic strings (UI labels, storage keys, MIME types, format patterns) in component/logic code. A value reused in 2+ places for the same reason is a shared constant in `src/constants.ts` (or a shared helper in `src/format.ts` for repeated formatting logic, e.g. `pad2`, `splitSeconds`, `SECONDS_PER_MINUTE`); a single-use but deliberate value is still a named local constant in the file where it applies. Ordinary one-off layout numbers (an arbitrary `padding`/`fontSize`/`borderRadius` with no cross-cutting meaning) and one-off prose don't need this — only values that encode an actual decision. Coincidental value matches with unrelated meaning are kept as separate constants, same as colors.
 - **Keep this file current**: whenever a change affects code style, project structure, or any other app-wide convention (not just a single file's internals), add or update the relevant note in this CLAUDE.md in the same change. Treat an out-of-date CLAUDE.md as a bug.
 - **Keep README.md current too**: whenever a change affects the project description, features, setup/scripts, or structure, update README.md in the same change, not just CLAUDE.md.
+- **Every new menu setting must round-trip through storage and export/import**, following the pattern set by `mirrored`/`autoLock*`/`daysToWhite`: its own AsyncStorage key + `load.../save...` pair in `src/storage/storage.ts`, a field on `ExportedAppData` in `src/types/index.ts` with a matching optional-type check in `isValidAppStorage`, a default fallback in `pickImportFile`, inclusion in `useAppStore`'s `exportData`/`applyImport`, and a row label constant in `src/constants.ts` documented in HelpSheet's "Пункты меню" section.
 
 ---
 
@@ -102,17 +106,41 @@ interface AppStorage {
   buttonStates: Record<string, StoredButtonState>;
   events: AppEvent[];
 }
+
+// ExportedAppData — AppStorage plus settings that live in their own
+// AsyncStorage keys, written out as one JSON file by export/import.
+interface ExportedAppData extends AppStorage {
+  mirrored: boolean;
+  autoLockEnabled: boolean;
+  autoLockAfterMarkSeconds: number;
+  autoLockAfterUnlockSeconds: number;
+  daysToWhite: number;  // 1–8, default 8 — see "Button colour state machine" below
+}
 ```
 
-Storage key: `@insulin_shot_tracker_v1`
+Storage keys: `@insulin_shot_tracker_v1` (buttonStates/events), plus one key per setting (mirror, interface-locked, auto-lock, `daysToWhite`) — see `src/storage/storage.ts`.
 
 ---
 
 ## Button colour state machine
 
+### Days-to-white setting
+
+The number of days it takes an injection point to reach White (fully free) is configurable via the **"Дней до восстановления точки"** row in the menu (`DaysToWhiteDialog.tsx`), range 1–8, default 8 (`MIN_DAYS_TO_WHITE`/`MAX_DAYS_TO_WHITE`/`DEFAULT_DAYS_TO_WHITE` in `src/constants.ts`). It's persisted like `mirrored`/auto-lock (its own AsyncStorage key, round-trips through export/import as `ExportedAppData.daysToWhite`) and threaded into `computeButtonColor`/`onPress` as a third argument (defaults to 8 when omitted, e.g. in older call sites/tests).
+
+At the default of 8, every color below is used, one per day. Lowering the setting compresses the cycle by dropping colors, in this fixed order (first dropped → last dropped): **dark yellow → dark orange → dark green → orange → red → green → yellow**. Maroon (day 0) is never dropped; White is always reached on day `daysToWhite`. See `activeCycleColors`/`COLOR_REMOVAL_ORDER` in `src/logic/stateMachine.ts`. Examples:
+
+- 7: orange on day 3, yellow on day 4, green on day 6, white on day 7 (dark yellow dropped)
+- 6: red on day 1, orange on day 2, yellow on day 3, green on day 5, white on day 6 (dark yellow, dark orange dropped)
+- 1: white on day 1 (only maroon remains)
+
+Blackout durations (below) stay keyed by color identity regardless of the setting — a color's blackout duration doesn't change just because other colors were dropped from the cycle.
+
 ### Normal injection cycle (days since `lastInjectionAt`)
 
 "Days" are local calendar days, not elapsed 24h periods: the color advances at local midnight (device timezone), so a press at 15:30 becomes day 1 as soon as the clock crosses into the next calendar day, not 24h later. Same rule applies to the post-blackout cycle. See `daysBetween`/`localDayIndex` in `src/logic/stateMachine.ts`.
+
+Full (default, daysToWhite = 8) cycle:
 
 | Days | Colour |
 |---|---|
@@ -134,7 +162,7 @@ Storage key: `@insulin_shot_tracker_v1`
 | Dark orange / Orange | 2 days |
 | Dark yellow / Yellow | 1 day |
 
-After blackout: post-blackout cycle starts at **Red** (maroon is skipped), counting from `blackoutStartedAt + blackoutDurationDays * DAY_MS`.
+After blackout: post-blackout cycle starts at **Red** (maroon is skipped), counting from `blackoutStartedAt + blackoutDurationDays * DAY_MS`. The post-blackout cycle is subject to the same daysToWhite-driven compression as the normal cycle (with Maroon excluded, since it never appears post-blackout).
 
 Dark-green / Green re-press → treated as white (restart cycle from maroon, no blackout).
 

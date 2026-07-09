@@ -60,7 +60,11 @@ export function MainScreen() {
 
   const handlePress = useCallback(
     (id: string) => {
-      const color = computeButtonColor(state.buttonStates[id], state.now);
+      const color = computeButtonColor(
+        state.buttonStates[id],
+        state.now,
+        state.daysToWhite,
+      );
 
       if (color === ButtonColor.Gray || color === ButtonColor.Black) {
         showToast(BLOCKED_TOAST_MESSAGE, TOAST_DURATION_MS);
@@ -77,7 +81,14 @@ export function MainScreen() {
 
       actions.pressButton(id);
     },
-    [actions, state.buttonStates, state.now, state.interfaceLocked, showToast],
+    [
+      actions,
+      state.buttonStates,
+      state.now,
+      state.daysToWhite,
+      state.interfaceLocked,
+      showToast,
+    ],
   );
   const handleLongPress = useCallback((id: string) => setMenuButtonId(id), []);
 
@@ -88,7 +99,7 @@ export function MainScreen() {
     ? state.buttonStates[menuButtonId]
     : undefined;
   const menuButtonColor = menuButtonState
-    ? computeButtonColor(menuButtonState, state.now)
+    ? computeButtonColor(menuButtonState, state.now, state.daysToWhite)
     : undefined;
 
   if (!state.isLoaded) {
@@ -137,7 +148,11 @@ export function MainScreen() {
               zoneId={zone.id}
               mirrored={state.mirrored}
               getColor={(buttonId) =>
-                computeButtonColor(state.buttonStates[buttonId], state.now)
+                computeButtonColor(
+                  state.buttonStates[buttonId],
+                  state.now,
+                  state.daysToWhite,
+                )
               }
               isCheckmarked={(buttonId) =>
                 state.lastInGroup[ZoneGroup.Thighs] === buttonId ||
@@ -167,6 +182,8 @@ export function MainScreen() {
         onEnableAutoLock={actions.enableAutoLock}
         onDisableAutoLock={actions.disableAutoLock}
         onUpdateAutoLockTimes={actions.updateAutoLockTimes}
+        daysToWhite={state.daysToWhite}
+        onSetDaysToWhite={actions.setDaysToWhite}
         onExport={actions.exportData}
         onPickImportFile={actions.pickImportFile}
         onApplyImport={actions.applyImport}

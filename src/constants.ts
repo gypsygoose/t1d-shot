@@ -16,16 +16,23 @@ export const RIGHT_SIDE_LABEL = "правая\nсторона";
 export const SECOND_MS = 1000;
 export const MINUTES_PER_DAY = 24 * 60;
 
+// Configurable "days to white" setting range — see MenuSheet's row for it.
+export const MIN_DAYS_TO_WHITE = 1;
+export const MAX_DAYS_TO_WHITE = 8;
+export const DEFAULT_DAYS_TO_WHITE = MAX_DAYS_TO_WHITE;
+
 // Action labels shared across dialogs/menus/sheets — a single source of
 // truth so e.g. HelpSheet's documentation of a row can't drift from the
 // row's actual label.
 export const CANCEL_LABEL = "Отмена";
+export const SAVE_LABEL = "Сохранить";
 export const CLEAR_LABEL = "Очистить";
 export const MARK_LABEL = "Отметить";
 export const AFTER_MARK_LABEL = "После отметки";
 export const AFTER_UNLOCK_LABEL = "После разблокировки";
 export const MIRROR_ROW_LABEL = "Зеркальное отображение";
 export const AUTO_LOCK_ROW_LABEL = "Автоблокировка интерфейса";
+export const DAYS_TO_WHITE_ROW_LABEL = "Дней до восстановления точки";
 export const EXPORT_ROW_LABEL = "Экспорт...";
 export const IMPORT_ROW_LABEL = "Импорт...";
 export const MENU_SHEET_TITLE = "Меню";

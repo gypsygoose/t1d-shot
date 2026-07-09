@@ -1,11 +1,12 @@
 import { ScrollView, Text, View, StyleSheet } from "react-native";
 import { ButtonColor, ZoneId } from "../types";
-import { COLOR_HEX, COLOR_LABEL } from "../logic/stateMachine";
+import { activeCycleColors, COLOR_HEX, colorLabel } from "../logic/stateMachine";
 import { ZONE_COLORS } from "../data/zones";
 import { BottomSheet } from "./common/BottomSheet";
 import {
   AUTO_LOCK_ROW_LABEL,
   CLEAR_LABEL,
+  DAYS_TO_WHITE_ROW_LABEL,
   DIVIDER_COLOR,
   EXPORT_ROW_LABEL,
   HELP_SHEET_TITLE,
@@ -49,26 +50,25 @@ const INJECTION_ZONE_INFO = [
   },
 ];
 
-const COLOR_ORDER: ButtonColor[] = [
-  ButtonColor.White,
-  ButtonColor.Maroon,
-  ButtonColor.Red,
-  ButtonColor.DarkOrange,
-  ButtonColor.Orange,
-  ButtonColor.DarkYellow,
-  ButtonColor.Yellow,
-  ButtonColor.DarkGreen,
-  ButtonColor.Green,
-  ButtonColor.Black,
-  ButtonColor.Gray,
-];
+// Color scheme rows shown in order: white (free), the active injection
+// cycle (fewer entries when daysToWhite is reduced), then the two block
+// states.
+function colorOrder(daysToWhite: number): ButtonColor[] {
+  return [
+    ButtonColor.White,
+    ...activeCycleColors(daysToWhite),
+    ButtonColor.Black,
+    ButtonColor.Gray,
+  ];
+}
 
 interface Props {
   visible: boolean;
   onClose: () => void;
+  daysToWhite: number;
 }
 
-export function HelpSheet({ visible, onClose }: Props) {
+export function HelpSheet({ visible, onClose, daysToWhite }: Props) {
   return (
     <BottomSheet visible={visible} onClose={onClose} title={HELP_SHEET_TITLE}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -94,7 +94,7 @@ export function HelpSheet({ visible, onClose }: Props) {
         ))}
 
         <Text style={styles.sectionTitle}>Цветовая схема</Text>
-        {COLOR_ORDER.map((c) => (
+        {colorOrder(daysToWhite).map((c) => (
           <View key={c} style={styles.colorRow}>
             <View
               style={[
@@ -105,7 +105,7 @@ export function HelpSheet({ visible, onClose }: Props) {
                 },
               ]}
             />
-            <Text style={styles.colorLabel}>{COLOR_LABEL[c]}</Text>
+            <Text style={styles.colorLabel}>{colorLabel(c, daysToWhite)}</Text>
           </View>
         ))}
 
@@ -149,6 +149,11 @@ export function HelpSheet({ visible, onClose }: Props) {
           <Text style={styles.bold}>{AUTO_LOCK_ROW_LABEL}</Text> — автоматически
           включать блокировку через заданное время после отметки укола и после
           ручной разблокировки. Нажатие на строку открывает настройку задержек.
+        </Text>
+        <Text style={styles.hint}>
+          <Text style={styles.bold}>{DAYS_TO_WHITE_ROW_LABEL}</Text> — через
+          сколько дней место укола снова считается полностью свободным
+          (белым). Уменьшение значения сжимает цветовую схему в этот срок.
         </Text>
         <Text style={styles.hint}>
           <Text style={styles.bold}>{EXPORT_ROW_LABEL}</Text> — сохранить все

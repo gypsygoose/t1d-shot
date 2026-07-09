@@ -94,4 +94,5 @@ export interface ExportedAppData extends AppStorage {
   autoLockEnabled: boolean;
   autoLockAfterMarkSeconds: number;
   autoLockAfterUnlockSeconds: number;
+  daysToWhite: number;
 }

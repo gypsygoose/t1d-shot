@@ -2,7 +2,7 @@
 
 A mobile app for people with diabetes who take insulin injections, to track injection sites and enforce site rotation, helping prevent lipodystrophy.
 
-Tap a button on the body diagram to log an injection at that spot. The button's color cycles over 8 days to show how recently that site was used, so you always know which sites are safe to reuse.
+Tap a button on the body diagram to log an injection at that spot. The button's color cycles over a configurable number of days (1–8, default 8) to show how recently that site was used, so you always know which sites are safe to reuse.
 
 **Platform:** iOS / Android — built with Expo (managed workflow), TypeScript, and React Native.
 
@@ -10,6 +10,7 @@ Tap a button on the body diagram to log an injection at that spot. The button's 
 
 - Interactive body diagram with 30 injection points across 6 zones (shoulders, belly, thighs)
 - Color-coded rotation cycle (maroon → red → orange → yellow → green → white) based on local calendar days since last injection
+- Configurable "days to white" delay (1–8 days) to match your own rotation schedule
 - Automatic "blackout" cooldown when a site is reused too early, with duration based on how recently it was used
 - Manual site lock (long-press) to mark a spot as temporarily unavailable
 - Undo, injection history, and import/export of your data — all stored locally on-device, no account or backend required

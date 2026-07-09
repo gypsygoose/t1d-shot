@@ -4,6 +4,7 @@ import { ConfirmDialog } from "./common/ConfirmDialog";
 import { HelpSheet } from "./HelpSheet";
 import { MenuSheet } from "./MenuSheet";
 import { AutoLockDialog } from "./AutoLockDialog";
+import { DaysToWhiteDialog } from "./DaysToWhiteDialog";
 import { UndoIcon } from "./icons/UndoIcon";
 import { HelpIcon } from "./icons/HelpIcon";
 import { LockClosedIcon } from "./icons/LockClosedIcon";
@@ -38,6 +39,8 @@ interface Props {
     afterMarkSeconds: number,
     afterUnlockSeconds: number,
   ) => void;
+  daysToWhite: number;
+  onSetDaysToWhite: (days: number) => void;
   onExport: () => Promise<void>;
   onPickImportFile: () => Promise<ImportResult>;
   onApplyImport: (data: ExportedAppData) => void;
@@ -57,6 +60,8 @@ export function BottomMenu({
   onEnableAutoLock,
   onDisableAutoLock,
   onUpdateAutoLockTimes,
+  daysToWhite,
+  onSetDaysToWhite,
   onExport,
   onPickImportFile,
   onApplyImport,
@@ -67,6 +72,7 @@ export function BottomMenu({
   const [showMenu, setShowMenu] = useState(false);
   const [autoLockDialogIntent, setAutoLockDialogIntent] =
     useState<AutoLockDialogMode | null>(null);
+  const [showDaysToWhiteDialog, setShowDaysToWhiteDialog] = useState(false);
   const [pendingImport, setPendingImport] = useState<ExportedAppData | null>(
     null,
   );
@@ -83,6 +89,11 @@ export function BottomMenu({
   const handleEditAutoLockSettings = () => {
     setShowMenu(false);
     setAutoLockDialogIntent(AutoLockDialogMode.Edit);
+  };
+
+  const handleEditDaysToWhite = () => {
+    setShowMenu(false);
+    setShowDaysToWhiteDialog(true);
   };
 
   const handleImport = async () => {
@@ -103,7 +114,11 @@ export function BottomMenu({
     <>
       {/* Rendered before the bar so the bar paints on top and stays
           visible/tappable while the help/menu sheet is open. */}
-      <HelpSheet visible={showHelp} onClose={() => setShowHelp(false)} />
+      <HelpSheet
+        visible={showHelp}
+        onClose={() => setShowHelp(false)}
+        daysToWhite={daysToWhite}
+      />
       <MenuSheet
         visible={showMenu}
         onClose={() => setShowMenu(false)}
@@ -114,6 +129,8 @@ export function BottomMenu({
         autoLockAfterUnlockSeconds={autoLockAfterUnlockSeconds}
         onToggleAutoLocked={handleToggleAutoLock}
         onEditAutoLockSettings={handleEditAutoLockSettings}
+        daysToWhite={daysToWhite}
+        onEditDaysToWhite={handleEditDaysToWhite}
         onImport={handleImport}
         onExport={() => {
           setShowMenu(false);
@@ -140,6 +157,16 @@ export function BottomMenu({
           }
         }}
         onCancel={() => setAutoLockDialogIntent(null)}
+      />
+
+      <DaysToWhiteDialog
+        visible={showDaysToWhiteDialog}
+        initialDays={daysToWhite}
+        onConfirm={(days) => {
+          setShowDaysToWhiteDialog(false);
+          onSetDaysToWhite(days);
+        }}
+        onCancel={() => setShowDaysToWhiteDialog(false)}
       />
 
       <View style={styles.bar}>

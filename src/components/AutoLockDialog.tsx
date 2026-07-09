@@ -6,6 +6,7 @@ import {
   AFTER_MARK_LABEL,
   AFTER_UNLOCK_LABEL,
   AUTO_LOCK_ROW_LABEL,
+  SAVE_LABEL,
 } from "../constants";
 import { SECONDS_PER_MINUTE, splitSeconds } from "../format";
 
@@ -20,7 +21,7 @@ interface Props {
 
 const CONFIRM_LABELS: Record<AutoLockDialogMode, string> = {
   [AutoLockDialogMode.Enable]: "Включить",
-  [AutoLockDialogMode.Edit]: "Сохранить",
+  [AutoLockDialogMode.Edit]: SAVE_LABEL,
 };
 
 const MIN_AFTER_UNLOCK_SECONDS = 5;

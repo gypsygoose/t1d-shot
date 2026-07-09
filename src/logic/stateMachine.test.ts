@@ -3,10 +3,13 @@ import {
   onPress,
   toggleManualBlock,
   blackoutDurationFor,
+  activeCycleColors,
+  colorLabel,
   PressResultType,
   DAY_MS,
 } from './stateMachine';
 import { ButtonColor, StoredButtonState } from '../types';
+import { pluralDays } from '../format';
 
 const DAY = DAY_MS;
 const NOW = 1000000000000; // fixed reference timestamp
@@ -273,5 +276,177 @@ describe('toggleManualBlock', () => {
     expect(result.isManuallyBlocked).toBe(false);
     // cycle is intact
     expect(computeButtonColor(result, NOW)).toBe(ButtonColor.DarkOrange);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Configurable daysToWhite
+// ---------------------------------------------------------------------------
+
+function colorOnDay(daysSince: number, daysToWhite: number): ButtonColor {
+  const s = { ...fresh, lastInjectionAt: NOW - daysSince * DAY };
+  return computeButtonColor(s, NOW, daysToWhite);
+}
+
+describe('activeCycleColors', () => {
+  test('daysToWhite 8 (default) keeps the full 8-color cycle', () => {
+    expect(activeCycleColors(8)).toEqual([
+      ButtonColor.Maroon,
+      ButtonColor.Red,
+      ButtonColor.DarkOrange,
+      ButtonColor.Orange,
+      ButtonColor.DarkYellow,
+      ButtonColor.Yellow,
+      ButtonColor.DarkGreen,
+      ButtonColor.Green,
+    ]);
+  });
+
+  test('daysToWhite 7 drops dark-yellow', () => {
+    expect(activeCycleColors(7)).toEqual([
+      ButtonColor.Maroon,
+      ButtonColor.Red,
+      ButtonColor.DarkOrange,
+      ButtonColor.Orange,
+      ButtonColor.Yellow,
+      ButtonColor.DarkGreen,
+      ButtonColor.Green,
+    ]);
+  });
+
+  test('daysToWhite 6 drops dark-yellow and dark-orange', () => {
+    expect(activeCycleColors(6)).toEqual([
+      ButtonColor.Maroon,
+      ButtonColor.Red,
+      ButtonColor.Orange,
+      ButtonColor.Yellow,
+      ButtonColor.DarkGreen,
+      ButtonColor.Green,
+    ]);
+  });
+
+  test('daysToWhite 1 keeps only maroon', () => {
+    expect(activeCycleColors(1)).toEqual([ButtonColor.Maroon]);
+  });
+});
+
+describe('computeButtonColor — configurable daysToWhite', () => {
+  test('daysToWhite 8 (default) matches unmodified behavior', () => {
+    expect(colorOnDay(0, 8)).toBe(ButtonColor.Maroon);
+    expect(colorOnDay(3, 8)).toBe(ButtonColor.Orange);
+    expect(colorOnDay(7, 8)).toBe(ButtonColor.Green);
+    expect(colorOnDay(8, 8)).toBe(ButtonColor.White);
+  });
+
+  test('daysToWhite 7 — orange on day 3, yellow on day 4, green on day 6, white on day 7', () => {
+    expect(colorOnDay(3, 7)).toBe(ButtonColor.Orange);
+    expect(colorOnDay(4, 7)).toBe(ButtonColor.Yellow);
+    expect(colorOnDay(6, 7)).toBe(ButtonColor.Green);
+    expect(colorOnDay(7, 7)).toBe(ButtonColor.White);
+  });
+
+  test('daysToWhite 6 — red on day 1, orange on day 2, yellow on day 3, green on day 5, white on day 6', () => {
+    expect(colorOnDay(1, 6)).toBe(ButtonColor.Red);
+    expect(colorOnDay(2, 6)).toBe(ButtonColor.Orange);
+    expect(colorOnDay(3, 6)).toBe(ButtonColor.Yellow);
+    expect(colorOnDay(5, 6)).toBe(ButtonColor.Green);
+    expect(colorOnDay(6, 6)).toBe(ButtonColor.White);
+  });
+
+  test('daysToWhite 1 — white on day 1', () => {
+    expect(colorOnDay(0, 1)).toBe(ButtonColor.Maroon);
+    expect(colorOnDay(1, 1)).toBe(ButtonColor.White);
+  });
+
+  test('calling without a third argument defaults to 8', () => {
+    const s = { ...fresh, lastInjectionAt: NOW - 3 * DAY };
+    expect(computeButtonColor(s, NOW)).toBe(ButtonColor.Orange);
+  });
+
+  test('post-blackout cycle also compresses with daysToWhite', () => {
+    const s: StoredButtonState = {
+      ...fresh,
+      blackoutStartedAt: NOW - 4 * DAY,
+      blackoutDurationDays: 4,
+    };
+    // daysToWhite 6 → active cycle minus maroon: red, orange, yellow, dark-green, green
+    expect(computeButtonColor(s, NOW, 6)).toBe(ButtonColor.Red);
+    expect(computeButtonColor(s, NOW + DAY, 6)).toBe(ButtonColor.Orange);
+    expect(computeButtonColor(s, NOW + 4 * DAY, 6)).toBe(ButtonColor.Green);
+    expect(computeButtonColor(s, NOW + 5 * DAY, 6)).toBe(ButtonColor.White);
+  });
+
+  test('post-blackout is immediately white when daysToWhite is 1 (no colors besides maroon)', () => {
+    const s: StoredButtonState = {
+      ...fresh,
+      blackoutStartedAt: NOW - 4 * DAY,
+      blackoutDurationDays: 4,
+    };
+    expect(computeButtonColor(s, NOW, 1)).toBe(ButtonColor.White);
+  });
+});
+
+describe('onPress — respects daysToWhite', () => {
+  test('injection on orange button that is now green under a reduced cycle', () => {
+    // Under daysToWhite 6, day 5 is green (was yellow under the default 8-cycle)
+    const s = { ...fresh, lastInjectionAt: NOW - 5 * DAY };
+    const result = onPress(s, NOW, 6);
+    expect(result.type).toBe(PressResultType.Injection);
+  });
+
+  test('blackout duration is unaffected by daysToWhite (still keyed by color)', () => {
+    // Under daysToWhite 6, day 1 is red → still a 4-day blackout
+    const s = { ...fresh, lastInjectionAt: NOW - DAY };
+    const result = onPress(s, NOW, 6);
+    expect(result.type).toBe(PressResultType.Blackout);
+    if (result.type === PressResultType.Blackout) {
+      expect(result.newState.blackoutDurationDays).toBe(4);
+    }
+  });
+});
+
+describe('colorLabel', () => {
+  test('matches the original static text at daysToWhite 8', () => {
+    expect(colorLabel(ButtonColor.Maroon, 8)).toBe('Только что (день 0)');
+    expect(colorLabel(ButtonColor.Red, 8)).toBe('1 день');
+    expect(colorLabel(ButtonColor.DarkOrange, 8)).toBe('2 дня');
+    expect(colorLabel(ButtonColor.Green, 8)).toBe('7 дней');
+    expect(colorLabel(ButtonColor.White, 8)).toBe(
+      'Свободно (не использовалось 8+ дней)',
+    );
+  });
+
+  test('reflects a reduced daysToWhite', () => {
+    expect(colorLabel(ButtonColor.Orange, 7)).toBe('3 дня');
+    expect(colorLabel(ButtonColor.Green, 7)).toBe('6 дней');
+    expect(colorLabel(ButtonColor.White, 7)).toBe(
+      'Свободно (не использовалось 7+ дней)',
+    );
+  });
+
+  test('block-state labels are unaffected by daysToWhite', () => {
+    expect(colorLabel(ButtonColor.Black, 5)).toBe(
+      'Заблокировано системой из-за частого использования',
+    );
+    expect(colorLabel(ButtonColor.Gray, 5)).toBe(
+      'Заблокировано вручную (травма/синяк)',
+    );
+  });
+});
+
+describe('pluralDays', () => {
+  test.each([
+    [1, 'день'],
+    [2, 'дня'],
+    [3, 'дня'],
+    [4, 'дня'],
+    [5, 'дней'],
+    [6, 'дней'],
+    [7, 'дней'],
+    [8, 'дней'],
+    [11, 'дней'],
+    [21, 'день'],
+  ])('%i → %s', (n, expected) => {
+    expect(pluralDays(n)).toBe(expected);
   });
 });
