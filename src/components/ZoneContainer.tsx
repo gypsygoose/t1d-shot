@@ -10,7 +10,7 @@ import { ButtonColor, ZoneId } from "../types";
 
 // Combined fill/stroke opacity baked into the colour (matches the
 // fill-opacity 0.22 / stroke-opacity 0.88, both under a 0.78 group opacity,
-// from the Figma "with buttons" frame / assets/images/body_icon.svg).
+// from the Figma "with buttons" frame, node 27:744, file grYg39698ogy0nEBd88Fup).
 const FILL_ALPHA = "2C"; // ~17%
 const BORDER_ALPHA = "AF"; // ~69%
 
@@ -32,9 +32,9 @@ interface Props {
 }
 
 // A zone is an absolutely positioned block matching its region on the body
-// image (same position/size/colours as assets/images/body_icon.svg). The
-// buttons inside are laid out on a flex grid relative to that block, not by
-// global (x, y) coordinates — same row/column counts as the source design.
+// image (same position/size/colours as the source Figma design). The buttons
+// inside are laid out on a flex grid relative to that block, not by global
+// (x, y) coordinates — same row/column counts as the source design.
 export function ZoneContainer({
   zoneId,
   mirrored,

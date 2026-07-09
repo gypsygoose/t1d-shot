@@ -44,9 +44,9 @@ export const ZONE_COLORS: Record<ZoneId, { accent: string; glow: string }> = {
 // ---------------------------------------------------------------------------
 // Zone container layout — bounding box of each zone as a fraction (0..1) of
 // the body image container (393.46×621.91), derived from the zone rectangles
-// in the Figma "with buttons" frame (node 27:744, file grYg39698ogy0nEBd88Fup)
-// / assets/images/body_icon.svg. Each zone renders as an absolutely
-// positioned block matching this box; `rows`/`cols` describe the button grid
+// in the Figma "with buttons" frame (node 27:744, file grYg39698ogy0nEBd88Fup).
+// Each zone renders as an absolutely positioned block matching this box;
+// `rows`/`cols` describe the button grid
 // laid out *inside* that block (buttons are positioned relative to their own
 // zone container, not by global coordinates).
 // ---------------------------------------------------------------------------
