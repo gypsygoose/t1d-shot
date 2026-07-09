@@ -1,4 +1,4 @@
-import { Zone, ButtonDefinition, ZoneLayout, ZoneGroup, ZoneId } from "../types";
+import { Zone, ButtonDefinition, ZoneLayout, ZoneGroup, ZoneId, ButtonAddress } from "../types";
 
 // Zones from Figma design (grYg39698ogy0nEBd88Fup, node 26:3)
 // Group label follows patient perspective: "правое" = patient's right = screen LEFT
@@ -179,4 +179,28 @@ export const BUTTONS_BY_ZONE: Record<ZoneId, ButtonDefinition[]> = ZONES.reduce(
     return acc;
   },
   {} as Record<ZoneId, ButtonDefinition[]>,
+);
+
+// Body-relative "address" of each button, independent of mirror mode
+// (mirroring only changes on-screen left/right, never the point's own
+// address): `row` counts top-to-bottom within its zone (1 = topmost), and
+// `column` counts outward from the body's own vertical midline (1 = closest
+// to center), regardless of which screen half the zone falls on.
+const BODY_MIDLINE_X = 0.5;
+
+export const BUTTON_ADDRESS: Record<string, ButtonAddress> = ZONES.reduce(
+  (acc, zone) => {
+    const layout = ZONE_LAYOUT[zone.id];
+    const zoneIsLeftOfMidline = layout.x + layout.width / 2 < BODY_MIDLINE_X;
+    BUTTONS_BY_ZONE[zone.id].forEach((button, index) => {
+      const row = Math.floor(index / layout.cols) + 1;
+      const col = index % layout.cols;
+      acc[button.id] = {
+        row,
+        column: zoneIsLeftOfMidline ? layout.cols - col : col + 1,
+      };
+    });
+    return acc;
+  },
+  {} as Record<string, ButtonAddress>,
 );

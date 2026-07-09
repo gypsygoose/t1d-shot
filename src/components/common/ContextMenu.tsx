@@ -23,6 +23,7 @@ export interface ContextMenuItem {
 interface Props {
   visible: boolean;
   title: string;
+  subtitle?: string;
   infoLines?: string[];
   items: ContextMenuItem[];
   onCancel: () => void;
@@ -32,6 +33,7 @@ interface Props {
 export function ContextMenu({
   visible,
   title,
+  subtitle,
   infoLines,
   items,
   onCancel,
@@ -42,7 +44,10 @@ export function ContextMenu({
   return (
     <Modal visible={visible} onClose={onCancel}>
       <View style={styles.box}>
-        <Text style={styles.title}>{title}</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>{title}</Text>
+          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+        </View>
 
         {hasInfo ? (
           <View style={styles.infoBlock}>
@@ -100,15 +105,23 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: CARD_BORDER_COLOR,
   },
+  header: {
+    paddingTop: 12,
+    paddingBottom: 10,
+    paddingHorizontal: 12,
+    gap: 2,
+  },
   title: {
     fontSize: 12,
     fontWeight: "700",
     color: PRIMARY_SECTION_LABEL_COLOR,
     textTransform: "uppercase",
     letterSpacing: 0.6,
-    paddingTop: 12,
-    paddingBottom: 10,
-    paddingHorizontal: 12,
+  },
+  subtitle: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: PRIMARY_SECTION_LABEL_COLOR,
   },
   infoBlock: {
     paddingHorizontal: 12,

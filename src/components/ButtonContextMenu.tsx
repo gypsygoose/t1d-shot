@@ -1,11 +1,13 @@
 import { ButtonColor, StoredButtonState } from "../types";
 import { getBlackoutEndAt } from "../logic/stateMachine";
 import { ContextMenu, ContextMenuItem } from "./common/ContextMenu";
+import { BUTTON_ADDRESS } from "../data/zones";
 import { CLEAR_LABEL, MARK_LABEL, MINUTES_PER_DAY } from "../constants";
 import { pad2 } from "../format";
 
 interface Props {
   visible: boolean;
+  buttonId?: string;
   zoneLabel?: string;
   color?: ButtonColor;
   buttonState?: StoredButtonState;
@@ -37,6 +39,7 @@ function formatCountdown(ms: number): string {
 
 export function ButtonContextMenu({
   visible,
+  buttonId,
   zoneLabel,
   color,
   buttonState,
@@ -50,6 +53,7 @@ export function ButtonContextMenu({
   const isGray = color === ButtonColor.Gray;
   const isBlack = color === ButtonColor.Black;
   const blackoutEndAt = buttonState ? getBlackoutEndAt(buttonState) : undefined;
+  const address = buttonId ? BUTTON_ADDRESS[buttonId] : undefined;
 
   const infoLines: string[] = [];
   if (buttonState?.lastInjectionAt !== undefined) {
@@ -76,12 +80,22 @@ export function ButtonContextMenu({
     items.push({ key: "block", label: "Заблокировать", onPress: onBlock });
     items.push({ key: "mark", label: MARK_LABEL, onPress: onMark });
   }
-  items.push({ key: "clear", label: CLEAR_LABEL, onPress: onClear, destructive: true });
+  items.push({
+    key: "clear",
+    label: CLEAR_LABEL,
+    onPress: onClear,
+    destructive: true,
+  });
 
   return (
     <ContextMenu
       visible={visible}
       title={zoneLabel ? `Точка · ${zoneLabel}` : "Действия с точкой"}
+      subtitle={
+        address
+          ? `РЯД ${address.row}, МЕСТО ${address.column} (от центра тела)`
+          : undefined
+      }
       infoLines={infoLines}
       items={items}
       onCancel={onCancel}

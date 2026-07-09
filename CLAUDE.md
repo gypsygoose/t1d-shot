@@ -34,6 +34,7 @@ src/
 ├── store/useAppStore.ts    — React hook: combines storage + state machine
 ├── components/
 │   ├── InjectionButton.tsx — single injection point button
+│   ├── ButtonContextMenu.tsx — long-press menu for a single point (address, history, actions)
 │   ├── BottomMenu.tsx      — Undo / Menu / Help / Lock bar
 │   ├── AutoLockDialog.tsx  — edit auto-lock delays (opened from MenuSheet)
 │   ├── DaysToWhiteDialog.tsx — edit the "days to white" setting (opened from MenuSheet)
@@ -192,6 +193,10 @@ Long-press (~800 ms) → toggle `isManuallyBlocked`. Gray overrides all colours 
 | `belly-left` | Живот слева | shoulders-and-belly | 9 (3×3 grid) | `#36D97A` | `#22A85E` |
 | `thigh-right` | Правое бедро | thighs | 6 (2×3 grid) | `#FF8C33` | `#CC6800` |
 | `thigh-left` | Левое бедро | thighs | 6 (2×3 grid) | `#FF8C33` | `#CC6800` |
+
+### Point address
+
+Each button has a body-relative address — `row` (1-indexed, top to bottom within its zone) and `column` (1-indexed, counted outward from the body's own vertical midline, 1 = closest to center) — shown in `ButtonContextMenu` (long-press menu). Computed once at module load as `BUTTON_ADDRESS` in `src/data/zones.ts` from each zone's `ZONE_LAYOUT`/`BUTTONS_BY_ZONE` (row-major flat-array index → row/raw column, then the column is flipped to count from center depending on whether the zone's canonical, unmirrored position falls left or right of the body midline `x = 0.5`). The address is fixed to the point's own anatomy and does **not** change when mirror mode is toggled — mirroring only changes which screen half a zone renders on, never the point's row/center-relative position.
 
 ### Group indicators
 

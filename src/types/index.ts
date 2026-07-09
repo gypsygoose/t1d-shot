@@ -48,6 +48,12 @@ export interface ZoneLayout {
   cols: number;
 }
 
+// Body-relative "address" of a button — see BUTTON_ADDRESS in data/zones.ts.
+export interface ButtonAddress {
+  row: number;
+  column: number;
+}
+
 // Persisted per-button state
 export interface StoredButtonState {
   buttonId: string;

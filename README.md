@@ -9,6 +9,7 @@ Tap a button on the body diagram to log an injection at that spot. The button's 
 ## Features
 
 - Interactive body diagram with 30 injection points across 6 zones (shoulders, belly, thighs)
+- Long-press a point to see its body-relative address (row from top, position in the row from the body's center) alongside its history and actions
 - Color-coded rotation cycle (maroon → red → orange → yellow → green → white) based on local calendar days since last injection
 - Configurable "days to white" delay (1–8 days) to match your own rotation schedule
 - Automatic "blackout" cooldown when a site is reused too early, with duration based on how recently it was used

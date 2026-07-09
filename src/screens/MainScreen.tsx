@@ -192,6 +192,7 @@ export function MainScreen() {
       {/* Long-press menu for a single button */}
       <ButtonContextMenu
         visible={menuButtonId !== null}
+        buttonId={menuButtonId ?? undefined}
         zoneLabel={menuZoneLabel}
         color={menuButtonColor}
         buttonState={menuButtonState}
