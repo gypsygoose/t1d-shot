@@ -61,6 +61,11 @@ function buildPointAddressSuffix(buttonId: string): string | null {
   return `${zone.label}, ряд ${address.row}, место ${address.column} от центра тела`;
 }
 
+interface MarkToastMessage {
+  message: string;
+  status: ToastStatus;
+}
+
 // Toast shown after a point is marked (tap or the context menu's "Отметить"
 // dialog), confirming which point it was via its body-relative address, plus
 // the marked time if it's backdated and a note if the mark triggered a
@@ -71,7 +76,7 @@ function buildMarkToastMessage(
   buttonState: StoredButtonState,
   timestamp: number,
   daysToWhite: number,
-): { message: string; status: ToastStatus } | null {
+): MarkToastMessage | null {
   const addressSuffix = buildPointAddressSuffix(buttonId);
   if (!addressSuffix) return null;
 

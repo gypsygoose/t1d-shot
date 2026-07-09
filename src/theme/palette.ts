@@ -41,7 +41,12 @@ export interface ThemeColors {
   // Per-body-part zone accent/glow (see ZONE_TYPE in data/zones.ts to map a
   // ZoneId to its ZoneType). `accent` is the zone container fill/border
   // colour, `glow` is the shade used for InjectionButton's radial glow halo.
-  zoneColors: Record<ZoneType, { accent: string; glow: string }>;
+  zoneColors: Record<ZoneType, ZoneColorPair>;
+}
+
+export interface ZoneColorPair {
+  accent: string;
+  glow: string;
 }
 
 export const DARK_COLORS: ThemeColors = {

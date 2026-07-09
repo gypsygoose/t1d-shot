@@ -87,11 +87,11 @@ export function HelpSheet({ visible, onClose, daysToWhite }: Props) {
     <BottomSheet visible={visible} onClose={onClose} title={HELP_SHEET_TITLE}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={sectionTitleStyle}>Зоны введения</Text>
-        {INJECTION_ZONE_INFO.map((z) => {
-          const color = colors.zoneColors[z.type].accent;
+        {INJECTION_ZONE_INFO.map((zone) => {
+          const color = colors.zoneColors[zone.type].accent;
           return (
             <View
-              key={z.type}
+              key={zone.type}
               style={[styles.zoneCard, { borderBottomColor: colors.divider }]}
             >
               <View style={styles.zoneHeader}>
@@ -102,12 +102,14 @@ export function HelpSheet({ visible, onClose, daysToWhite }: Props) {
                   ]}
                 />
                 <Text style={styles.zoneRowText}>
-                  <Text style={[styles.zoneLabel, { color }]}>{z.label}</Text>
+                  <Text style={[styles.zoneLabel, { color }]}>
+                    {zone.label}
+                  </Text>
                   <Text
                     style={[styles.zoneLocation, { color: colors.mutedText }]}
                   >
                     {" "}
-                    {z.location}
+                    {zone.location}
                   </Text>
                 </Text>
               </View>
@@ -117,26 +119,26 @@ export function HelpSheet({ visible, onClose, daysToWhite }: Props) {
                   { color: colors.secondaryText },
                 ]}
               >
-                {z.description}
+                {zone.description}
               </Text>
             </View>
           );
         })}
 
         <Text style={sectionTitleStyle}>Цветовая схема</Text>
-        {colorOrder(daysToWhite).map((c) => (
-          <View key={c} style={styles.colorRow}>
+        {colorOrder(daysToWhite).map((color) => (
+          <View key={color} style={styles.colorRow}>
             <View
               style={[
                 styles.swatch,
                 {
-                  backgroundColor: COLOR_HEX[c],
+                  backgroundColor: COLOR_HEX[color],
                   borderWidth: 0,
                 },
               ]}
             />
             <Text style={[styles.colorLabel, { color: colors.secondaryText }]}>
-              {colorLabel(c, daysToWhite)}
+              {colorLabel(color, daysToWhite)}
             </Text>
           </View>
         ))}
