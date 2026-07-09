@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -13,7 +13,7 @@ import { BottomMenu } from "../components/BottomMenu";
 import { ButtonContextMenu } from "../components/ButtonContextMenu";
 import { MarkDialog } from "../components/MarkDialog";
 import { ConfirmDialog } from "../components/common/ConfirmDialog";
-import { Toast } from "../components/common/Toast";
+import { ToastEntry, ToastStack } from "../components/common/ToastStack";
 import { useAppStore } from "../store/useAppStore";
 import {
   computeButtonColor,
@@ -21,7 +21,12 @@ import {
   PressResultType,
 } from "../logic/stateMachine";
 import { ZONES, BUTTON_MAP, ZONE_MAP, BUTTON_ADDRESS } from "../data/zones";
-import { ButtonColor, StoredButtonState, ToastStatus, ZoneGroup } from "../types";
+import {
+  ButtonColor,
+  StoredButtonState,
+  ToastStatus,
+  ZoneGroup,
+} from "../types";
 import { formatDateTime, pluralDays } from "../format";
 import {
   APP_NAME,
@@ -40,6 +45,7 @@ import {
   MANUAL_BLOCK_TOAST_PREFIX,
   MANUAL_UNBLOCK_TOAST_PREFIX,
   MARK_BACKDATED_THRESHOLD_MS,
+  MAX_STACKED_TOASTS,
   POINT_CLEARED_TOAST_PREFIX,
   RIGHT_SIDE_LABEL,
   PRIMARY_SECTION_LABEL_COLOR,
@@ -77,7 +83,7 @@ function buildMarkToastMessage(
   const result = onPress(buttonState, timestamp, daysToWhite);
   if (result.type === PressResultType.Blackout) {
     const days = result.newState.blackoutDurationDays!;
-    message += `\nТочка заблокирована системой на ${days} ${pluralDays(days)}.`;
+    message += `\nТочка заблокирована системой на ${days} ${pluralDays(days)}`;
     status = ToastStatus.Warn;
   }
 
@@ -93,27 +99,29 @@ export function MainScreen() {
   const [menuButtonId, setMenuButtonId] = useState<string | null>(null);
   const [markButtonId, setMarkButtonId] = useState<string | null>(null);
   const [clearButtonId, setClearButtonId] = useState<string | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [toastStatus, setToastStatus] = useState<ToastStatus>(ToastStatus.Info);
-  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-    };
-  }, []);
+  const [toasts, setToasts] = useState<ToastEntry[]>([]);
+  const nextToastIdRef = useRef(0);
 
   const showToast = useCallback(
-    (message: string, status: ToastStatus, duration: number = TOAST_DURATION_MS) => {
-      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-      setToastMessage(message);
-      setToastStatus(status);
-      toastTimerRef.current = setTimeout(() => {
-        setToastMessage(null);
-      }, duration);
+    (
+      message: string,
+      status: ToastStatus,
+      duration: number = TOAST_DURATION_MS,
+    ) => {
+      const id = `toast-${nextToastIdRef.current++}`;
+      setToasts((prev) =>
+        [{ id, message, status, duration }, ...prev].slice(
+          0,
+          MAX_STACKED_TOASTS,
+        ),
+      );
     },
     [],
   );
+
+  const dismissToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
 
   const [state, actions] = useAppStore(
     useCallback(
@@ -187,7 +195,7 @@ export function MainScreen() {
     <View style={styles.root}>
       <StatusBar barStyle="light-content" backgroundColor={BACKGROUND_COLOR} />
 
-      <Toast message={toastMessage} status={toastStatus} />
+      <ToastStack toasts={toasts} onDismiss={dismissToast} />
 
       {/* Header */}
       <SafeAreaView style={styles.headerSafe} edges={["top"]}>

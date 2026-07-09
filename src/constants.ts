@@ -2,6 +2,9 @@ export const APP_NAME = "Insulin Shot Tracker";
 export const BLOCKED_TOAST_MESSAGE =
   "Точка заблокирована и не может быть отмечена";
 export const TOAST_DURATION_MS = 4000;
+// Newest toasts push older ones down; once the stack holds this many, the
+// oldest is dropped to make room instead of growing further.
+export const MAX_STACKED_TOASTS = 3;
 export const INTERFACE_LOCKED_TOAST_MESSAGE =
   "Интерфейс залокирован. Чтобы отметить точку укола, разблокируйте интерфейс в нижнем меню либо отметьте через всплывающее меню точки (долгое нажатие).";
 export const INTERFACE_LOCKED_TOAST_DURATION_MS = 4000;

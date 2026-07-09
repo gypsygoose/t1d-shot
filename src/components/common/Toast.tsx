@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { PRIMARY_TEXT_COLOR } from '../../constants';
 import { ToastStatus } from '../../types';
 import { ToastInfoIcon } from '../icons/ToastInfoIcon';
@@ -18,9 +17,15 @@ import {
   TOAST_ERROR_BACKGROUND_COLOR,
 } from '../../constants';
 
+// A single toast bubble. Fades itself in on mount and, after `duration`,
+// fades out and calls `onDismiss` — the caller (ToastStack) owns the list
+// this is rendered into, so removal only happens once the exit animation
+// finishes.
 interface Props {
-  message: string | null;
+  message: string;
   status: ToastStatus;
+  duration: number;
+  onDismiss: () => void;
 }
 
 const FADE_MS = 200;
@@ -46,65 +51,51 @@ const STATUS_BACKGROUND_COLOR: Record<ToastStatus, string> = {
   [ToastStatus.Error]: TOAST_ERROR_BACKGROUND_COLOR,
 };
 
-export function Toast({ message, status }: Props) {
-  const [displayedMessage, setDisplayedMessage] = useState<string | null>(null);
-  // Frozen alongside displayedMessage so the icon/color don't flip to the
-  // next toast's status mid fade-out of the current one.
-  const [displayedStatus, setDisplayedStatus] = useState<ToastStatus>(status);
+export function Toast({ message, status, duration, onDismiss }: Props) {
   const opacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (message) {
-      setDisplayedMessage(message);
-      setDisplayedStatus(status);
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: FADE_MS,
-        useNativeDriver: true,
-      }).start();
-    } else {
+    Animated.timing(opacity, {
+      toValue: 1,
+      duration: FADE_MS,
+      useNativeDriver: true,
+    }).start();
+
+    const timer = setTimeout(() => {
       Animated.timing(opacity, {
         toValue: 0,
         duration: FADE_MS,
         useNativeDriver: true,
-      }).start(() => setDisplayedMessage(null));
-    }
-  }, [message, status, opacity]);
+      }).start(onDismiss);
+    }, duration);
 
-  if (!displayedMessage) return null;
+    return () => clearTimeout(timer);
+    // Runs once per mount: message/status/duration are fixed for this
+    // entry's lifetime (ToastStack keys each one by a stable id).
+  }, []);
 
-  const Icon = STATUS_ICON[displayedStatus];
+  const Icon = STATUS_ICON[status];
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']} pointerEvents="none">
-      <Animated.View
-        style={[
-          styles.toast,
-          {
-            opacity,
-            backgroundColor: STATUS_BACKGROUND_COLOR[displayedStatus],
-            borderColor: STATUS_BORDER_COLOR[displayedStatus],
-          },
-        ]}
-      >
-        <View style={styles.icon}>
-          <Icon />
-        </View>
-        <Animated.Text style={styles.text}>{displayedMessage}</Animated.Text>
-      </Animated.View>
-    </SafeAreaView>
+    <Animated.View
+      style={[
+        styles.toast,
+        {
+          opacity,
+          backgroundColor: STATUS_BACKGROUND_COLOR[status],
+          borderColor: STATUS_BORDER_COLOR[status],
+        },
+      ]}
+    >
+      <View style={styles.icon}>
+        <Icon />
+      </View>
+      <Animated.Text style={styles.text}>{message}</Animated.Text>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    zIndex: 100,
-  },
   toast: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -192,6 +192,8 @@ Every toast (`src/components/common/Toast.tsx`) carries a `ToastStatus` (`src/ty
 
 `MainScreen`'s `showToast` (message, status, optional duration — defaults to `TOAST_DURATION_MS`) covers point-level actions (mark/block/clear, both driven off the shared `buildPointAddressSuffix` helper) and the interface lock toggle. `BottomMenu` receives it as an `onNotify` prop for actions it owns end-to-end (undo, clear all, export, import success/failure, and every `MenuSheet`/`AutoLockDialog`/`DaysToWhiteDialog` setting change), since those confirm/cancel flows live entirely inside that component. `useAppStore` itself takes an optional `onAutoLockFired` callback (read through a ref so passing a fresh closure each render doesn't retrigger the countdown effect), invoked only when the auto-lock countdown elapses on its own — not when the user locks the interface manually, which the caller already notifies itself.
 
+Toasts stack: each new one renders above older ones (`ToastStack`, `src/components/common/ToastStack.tsx`, rendering a `ToastEntry[]` newest-first) instead of replacing them, and each entry (`Toast`, `src/components/common/Toast.tsx`) fades itself in/out and self-dismisses after its own `duration`. `MainScreen` caps the stack at `MAX_STACKED_TOASTS` (`src/constants.ts`), dropping the oldest entry once a new one would exceed it.
+
 **Every completed user action must show a toast.** When adding a new one (a new point action, a new menu setting, anything that completes an operation), don't pick its message/status unilaterally — propose the toast text and the suggested `ToastStatus` and let the user confirm that status, pick a different one, or decline the toast entirely before wiring it in.
 
 ---
