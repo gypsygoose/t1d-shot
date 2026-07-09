@@ -15,9 +15,14 @@ import { MarkDialog } from "../components/MarkDialog";
 import { ConfirmDialog } from "../components/common/ConfirmDialog";
 import { Toast } from "../components/common/Toast";
 import { useAppStore } from "../store/useAppStore";
-import { computeButtonColor } from "../logic/stateMachine";
-import { ZONES, BUTTON_MAP, ZONE_MAP } from "../data/zones";
-import { ButtonColor, ZoneGroup } from "../types";
+import {
+  computeButtonColor,
+  onPress,
+  PressResultType,
+} from "../logic/stateMachine";
+import { ZONES, BUTTON_MAP, ZONE_MAP, BUTTON_ADDRESS } from "../data/zones";
+import { ButtonColor, StoredButtonState, ZoneGroup } from "../types";
+import { formatDateTime, pluralDays } from "../format";
 import {
   APP_NAME,
   BACKGROUND_COLOR,
@@ -29,10 +34,41 @@ import {
   INTERFACE_LOCKED_TOAST_DURATION_MS,
   INTERFACE_LOCKED_TOAST_MESSAGE,
   LEFT_SIDE_LABEL,
+  MARK_BACKDATED_THRESHOLD_MS,
   RIGHT_SIDE_LABEL,
   PRIMARY_SECTION_LABEL_COLOR,
   TOAST_DURATION_MS,
 } from "../constants";
+
+// Toast shown after a point is marked (tap or the context menu's "Отметить"
+// dialog), confirming which point it was via its body-relative address, plus
+// the marked time if it's backdated and a note if the mark triggered a
+// system blackout (site reused too early).
+function buildMarkToastMessage(
+  buttonId: string,
+  buttonState: StoredButtonState,
+  timestamp: number,
+  daysToWhite: number,
+): string | null {
+  const btn = BUTTON_MAP[buttonId];
+  const zone = btn ? ZONE_MAP[btn.zoneId] : undefined;
+  const address = BUTTON_ADDRESS[buttonId];
+  if (!zone || !address) return null;
+
+  let message = `Точка отмечена: ${zone.label}, ряд ${address.row}, место ${address.column} от центра тела`;
+
+  const result = onPress(buttonState, timestamp, daysToWhite);
+  if (result.type === PressResultType.Blackout) {
+    const days = result.newState.blackoutDurationDays!;
+    message += `\nТочка заблокирована системой на ${days} ${pluralDays(days)}.`;
+  }
+
+  if (Date.now() - timestamp > MARK_BACKDATED_THRESHOLD_MS) {
+    message += `\nВремя отметки: ${formatDateTime(timestamp)}`;
+  }
+
+  return message;
+}
 
 export function MainScreen() {
   const [state, actions] = useAppStore();
@@ -79,7 +115,15 @@ export function MainScreen() {
         return;
       }
 
+      const timestamp = Date.now();
       actions.pressButton(id);
+      const message = buildMarkToastMessage(
+        id,
+        state.buttonStates[id],
+        timestamp,
+        state.daysToWhite,
+      );
+      if (message) showToast(message, TOAST_DURATION_MS);
     },
     [
       actions,
@@ -219,7 +263,16 @@ export function MainScreen() {
       <MarkDialog
         visible={markButtonId !== null}
         onConfirm={(timestamp) => {
-          if (markButtonId) actions.markButtonAt(markButtonId, timestamp);
+          if (markButtonId) {
+            const message = buildMarkToastMessage(
+              markButtonId,
+              state.buttonStates[markButtonId],
+              timestamp,
+              state.daysToWhite,
+            );
+            actions.markButtonAt(markButtonId, timestamp);
+            if (message) showToast(message, TOAST_DURATION_MS);
+          }
           setMarkButtonId(null);
         }}
         onCancel={() => setMarkButtonId(null)}

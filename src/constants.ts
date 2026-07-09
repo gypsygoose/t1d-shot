@@ -1,7 +1,7 @@
 export const APP_NAME = "Insulin Shot Tracker";
 export const BLOCKED_TOAST_MESSAGE =
   "Точка заблокирована и не может быть отмечена";
-export const TOAST_DURATION_MS = 2000;
+export const TOAST_DURATION_MS = 4000;
 export const INTERFACE_LOCKED_TOAST_MESSAGE =
   "Интерфейс залокирован. Чтобы отметить точку укола, разблокируйте интерфейс в нижнем меню либо отметьте через всплывающее меню точки (долгое нажатие).";
 export const INTERFACE_LOCKED_TOAST_DURATION_MS = 4000;
@@ -15,6 +15,12 @@ export const RIGHT_SIDE_LABEL = "правая\nсторона";
 // Generic time-unit constants, not tied to any one feature.
 export const SECOND_MS = 1000;
 export const MINUTES_PER_DAY = 24 * 60;
+
+// How far a MarkDialog timestamp must sit in the past (relative to confirm
+// time) before the mark-confirmation toast calls it out as backdated and
+// shows the date/time — accounts for time spent interacting with the date
+// picker itself, so leaving the default "now" value doesn't count.
+export const MARK_BACKDATED_THRESHOLD_MS = 2 * 60 * 1000;
 
 // Configurable "days to white" setting range — see MenuSheet's row for it.
 export const MIN_DAYS_TO_WHITE = 1;

@@ -3,7 +3,7 @@ import { getBlackoutEndAt } from "../logic/stateMachine";
 import { ContextMenu, ContextMenuItem } from "./common/ContextMenu";
 import { BUTTON_ADDRESS } from "../data/zones";
 import { CLEAR_LABEL, MARK_LABEL, MINUTES_PER_DAY } from "../constants";
-import { pad2 } from "../format";
+import { formatDateTime } from "../format";
 
 interface Props {
   visible: boolean;
@@ -17,11 +17,6 @@ interface Props {
   onMark: () => void;
   onClear: () => void;
   onCancel: () => void;
-}
-
-function formatDateTime(timestamp: number): string {
-  const d = new Date(timestamp);
-  return `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)}.${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 }
 
 function formatCountdown(ms: number): string {

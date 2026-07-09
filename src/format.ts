@@ -4,6 +4,11 @@ export function pad2(n: number): string {
   return n.toString().padStart(2, "0");
 }
 
+export function formatDateTime(timestamp: number): string {
+  const d = new Date(timestamp);
+  return `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)}.${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+
 // Russian pluralization for "день/дня/дней" (day/days), e.g. 1 → "день",
 // 2 → "дня", 5 → "дней".
 export function pluralDays(n: number): string {
