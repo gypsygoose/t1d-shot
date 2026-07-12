@@ -13,6 +13,10 @@ export const ICON_SIZE = 22; // bottom-menu icon width/height (src/components/ic
 export const SECOND_MS = 1000;
 export const MINUTES_PER_DAY = 24 * 60;
 
+// Upper bound on AppEvent history (undo log) — once exceeded, the oldest
+// event is dropped to make room for the new one instead of growing further.
+export const MAX_STORED_EVENTS = 50;
+
 // How far a MarkDialog timestamp must sit in the past (relative to confirm
 // time) before the mark-confirmation toast calls it out as backdated and
 // shows the date/time — accounts for time spent interacting with the date

@@ -1,3 +1,4 @@
+export { appendEvent } from "./appendEvent";
 export { formatDateTime } from "./formatDateTime";
 export { lastPressedByGroup } from "./lastPressedByGroup";
 export { pad2 } from "./pad2";

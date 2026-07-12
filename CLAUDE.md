@@ -34,7 +34,7 @@ src/
 │   ├── autoLock.ts         — AutoLockDialogMode
 │   └── index.ts            — barrel re-export of the above
 ├── constants.ts            — shared non-text UI constants (durations, thresholds, sizes, theme-invariant status colors) — user-facing text lives in src/i18n/ instead
-├── utils/                  — root-level shared helper functions, one per file, used from more than one otherwise-unrelated place (pad2.ts, formatDateTime.ts, splitSeconds.ts, uuid.ts, lastPressedByGroup.ts, partitionPointStatesByBlock.ts, partitionEventsByBlock.ts) + index.ts (barrel) — see "Helper function / hook placement" below
+├── utils/                  — root-level shared helper functions, one per file, used from more than one otherwise-unrelated place (pad2.ts, formatDateTime.ts, splitSeconds.ts, uuid.ts, lastPressedByGroup.ts, partitionPointStatesByBlock.ts, partitionEventsByBlock.ts, resetPointStates.ts, appendEvent.ts — the last caps the AppEvent history at MAX_STORED_EVENTS, see the AppEvent comment above) + index.ts (barrel) — see "Helper function / hook placement" below
 ├── hooks/                  — root-level shared React hooks, one per file (useAppStore.ts: combines storage + state machine) + index.ts (barrel) — see "Helper function / hook placement" below
 ├── data/                   — zones.ts (zone metadata: ZONES/ZONE_MAP/ZONE_MIRROR_MAP/ZONE_TYPE/ZONE_TYPE_ZONE_IDS (both ZoneIds sharing a ZoneType, right then left), plus ZONE_LABEL_KEY/ZONE_TYPE_LABEL_KEY: translation keys for each zone's/zone-type's label, typed `Record<ZoneId|ZoneType, TranslationKey>` — `TranslationKey` imported from `../i18n/types` directly, not the `../i18n` barrel, since that barrel re-exports `./hooks` → `LanguageContext.tsx` → `StorageService` → `data/`, which would make a `data/` → `../i18n` barrel import circular. Point positions/counts are no longer static: `DEFAULT_ZONE_POINT_COUNTS` is the starting `ZonePointCounts` value, `DEFAULT_ENABLED_ZONES` is the starting `EnabledZones` value (every zone enabled), and `buildZoneData(zonePointCounts, enabledZones)` computes the per-`ZoneId` `ZoneLayout`/points/point-map/point-address fresh from the current settings — see "Zones and points" below) + index.ts (barrel, `export * from './zones'`)
 ├── logic/
@@ -157,7 +157,11 @@ interface StoredPointState {
   isManuallyBlocked: boolean;     // gray (user-locked) state
 }
 
-// AppEvent — undo history entry
+// AppEvent — undo history entry. Capped at MAX_STORED_EVENTS (50,
+// src/constants.ts): useAppStore's pressPoint/blockPoint/unblockPoint/
+// markPointAt/clearPoint all append via the shared src/utils/appendEvent.ts
+// helper, which drops the oldest event once the list would exceed the cap —
+// Undo itself only ever pops the newest entry regardless of history length.
 interface AppEvent {
   id: string;
   timestamp: number;

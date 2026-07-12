@@ -18,6 +18,7 @@ import {
 } from '../constants';
 import {
   uuid,
+  appendEvent,
   lastPressedByGroup,
   partitionPointStatesByBlock,
   partitionEventsByBlock,
@@ -247,7 +248,7 @@ export function useAppStore(
         ...prev.pointStates,
         [pointId]: result.newState,
       };
-      const nextEvents = [...prev.events, event];
+      const nextEvents = appendEvent(prev.events, event);
       const next: AppStorage = { pointStates: nextPointStates, events: nextEvents };
       scheduleSave(next);
 
@@ -293,7 +294,7 @@ export function useAppStore(
       };
 
       const nextPointStates = { ...prev.pointStates, [pointId]: newPointState };
-      const nextEvents = [...prev.events, event];
+      const nextEvents = appendEvent(prev.events, event);
       const next: AppStorage = { pointStates: nextPointStates, events: nextEvents };
       scheduleSave(next);
       return { ...prev, ...next, now };
@@ -324,7 +325,7 @@ export function useAppStore(
       };
 
       const nextPointStates = { ...prev.pointStates, [pointId]: newPointState };
-      const nextEvents = [...prev.events, event];
+      const nextEvents = appendEvent(prev.events, event);
       const next: AppStorage = { pointStates: nextPointStates, events: nextEvents };
       scheduleSave(next);
       return { ...prev, ...next, now };
@@ -358,7 +359,7 @@ export function useAppStore(
       };
 
       const nextPointStates = { ...prev.pointStates, [pointId]: result.newState };
-      const nextEvents = [...prev.events, event];
+      const nextEvents = appendEvent(prev.events, event);
       const next: AppStorage = { pointStates: nextPointStates, events: nextEvents };
       scheduleSave(next);
       return { ...prev, ...next, now };
@@ -386,7 +387,7 @@ export function useAppStore(
       };
 
       const nextPointStates = { ...prev.pointStates, [pointId]: newPointState };
-      const nextEvents = [...prev.events, event];
+      const nextEvents = appendEvent(prev.events, event);
       const next: AppStorage = { pointStates: nextPointStates, events: nextEvents };
       scheduleSave(next);
       return { ...prev, ...next, now };
