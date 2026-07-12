@@ -48,7 +48,17 @@ export enum ExportSettingKey {
   EnabledZones = 'enabled-zones',
 }
 
+// Which sub-category of injection point marks ExportOptionsDialog writes to
+// the export file — mirrors ExportSettingKey's role for the settings group,
+// but partitions pointStates/events by StoredPointState.isManuallyBlocked
+// instead of gating independent scalar fields. See "Selective export /
+// merge import" in CLAUDE.md.
+export enum ExportMarksKey {
+  ActivePoints = 'active-points',
+  BlockedPoints = 'blocked-points',
+}
+
 export interface ExportSelection {
-  marks: boolean;
+  marks: Record<ExportMarksKey, boolean>;
   settings: Record<ExportSettingKey, boolean>;
 }

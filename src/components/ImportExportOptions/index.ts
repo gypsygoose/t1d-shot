@@ -1,3 +1,3 @@
 export { ImportExportOptions } from "./ImportExportOptions";
 export { isSelectionEmpty } from "./utils";
-export { SETTING_KEYS } from "./constants";
+export { MARKS_KEYS, SETTING_KEYS } from "./constants";

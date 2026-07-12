@@ -1,8 +1,13 @@
 import { useTranslation } from "react-i18next";
 import { Checkbox, Accordion } from "../common";
-import { ExportSelection, ExportSettingKey } from "../../types";
+import { ExportMarksKey, ExportSelection, ExportSettingKey } from "../../types";
 import type { TranslationKey } from "../../i18n";
-import { SETTING_KEYS } from "./constants";
+import { MARKS_KEYS, SETTING_KEYS } from "./constants";
+
+const MARKS_LABEL_KEY: Record<ExportMarksKey, TranslationKey> = {
+  [ExportMarksKey.ActivePoints]: "menu.exportOptionsDialog.activePointsLabel",
+  [ExportMarksKey.BlockedPoints]: "menu.exportOptionsDialog.blockedPointsLabel",
+};
 
 const SETTING_LABEL_KEY: Record<ExportSettingKey, TranslationKey> = {
   [ExportSettingKey.Mirrored]: "menu.mirrorRow",
@@ -17,29 +22,47 @@ const SETTING_LABEL_KEY: Record<ExportSettingKey, TranslationKey> = {
 interface Props {
   selection: ExportSelection;
   onSelectionChange: (next: ExportSelection) => void;
+  marksExpanded: boolean;
+  onToggleMarksExpanded: () => void;
   settingsExpanded: boolean;
   onToggleSettingsExpanded: () => void;
-  // Disables the marks checkbox and/or individual setting checkboxes.
-  // ExportOptionsDialog leaves both at their defaults (nothing disabled,
-  // since every category is always available to export); ImportOptionsDialog
-  // passes these in to grey out a category absent from the imported file.
-  marksDisabled?: boolean;
+  // Disables individual marks/setting checkboxes. ExportOptionsDialog leaves
+  // both at their defaults (nothing disabled, since every category is always
+  // available to export); ImportOptionsDialog passes these in to grey out a
+  // category absent from the imported file.
+  disabledMarksKeys?: ExportMarksKey[];
   disabledSettingKeys?: ExportSettingKey[];
 }
 
-// The "Отметки точек укола" checkbox plus the "Настройки приложения"
-// accordion of per-setting checkboxes, shared by ExportOptionsDialog and
-// ImportOptionsDialog — only the meaning of a disabled row differs between
-// the two (export: never; import: category absent from the file).
+// The "Отметки точек укола" accordion of active/blocked-points checkboxes
+// plus the "Настройки приложения" accordion of per-setting checkboxes,
+// shared by ExportOptionsDialog and ImportOptionsDialog — only the meaning
+// of a disabled row differs between the two (export: never; import:
+// category absent from the file).
 export function ImportExportOptions({
   selection,
   onSelectionChange,
+  marksExpanded,
+  onToggleMarksExpanded,
   settingsExpanded,
   onToggleSettingsExpanded,
-  marksDisabled = false,
+  disabledMarksKeys = [],
   disabledSettingKeys = [],
 }: Props) {
   const { t } = useTranslation();
+  const checkableMarksKeys = MARKS_KEYS.filter(
+    (key) => !disabledMarksKeys.includes(key),
+  );
+  const marksGroupDisabled = checkableMarksKeys.length === 0;
+
+  const selectedCheckableMarksCount = checkableMarksKeys.filter(
+    (key) => selection.marks[key],
+  ).length;
+  const allMarksChecked =
+    checkableMarksKeys.length > 0 &&
+    selectedCheckableMarksCount === checkableMarksKeys.length;
+  const noMarksChecked = selectedCheckableMarksCount === 0;
+
   const checkableSettingKeys = SETTING_KEYS.filter(
     (key) => !disabledSettingKeys.includes(key),
   );
@@ -53,8 +76,18 @@ export function ImportExportOptions({
     selectedCheckableCount === checkableSettingKeys.length;
   const noSettingsChecked = selectedCheckableCount === 0;
 
-  const toggleMarks = () =>
-    onSelectionChange({ ...selection, marks: !selection.marks });
+  const toggleAllMarks = () => {
+    const nextValue = !allMarksChecked;
+    const nextMarks = { ...selection.marks };
+    for (const key of checkableMarksKeys) nextMarks[key] = nextValue;
+    onSelectionChange({ ...selection, marks: nextMarks });
+  };
+
+  const toggleMark = (key: ExportMarksKey) =>
+    onSelectionChange({
+      ...selection,
+      marks: { ...selection.marks, [key]: !selection.marks[key] },
+    });
 
   const toggleAllSettings = () => {
     const nextValue = !allSettingsChecked;
@@ -71,12 +104,30 @@ export function ImportExportOptions({
 
   return (
     <>
-      <Checkbox
-        label={t("menu.exportOptionsDialog.marksLabel")}
-        checked={selection.marks}
-        onToggle={toggleMarks}
-        disabled={marksDisabled}
-      />
+      <Accordion
+        label={
+          <Checkbox
+            label={t("menu.exportOptionsDialog.marksLabel")}
+            checked={allMarksChecked}
+            indeterminate={!allMarksChecked && !noMarksChecked}
+            onToggle={toggleAllMarks}
+            disabled={marksGroupDisabled}
+          />
+        }
+        expanded={marksExpanded}
+        onToggleExpanded={onToggleMarksExpanded}
+        disabled={marksGroupDisabled}
+      >
+        {MARKS_KEYS.map((key) => (
+          <Checkbox
+            key={key}
+            label={t(MARKS_LABEL_KEY[key])}
+            checked={selection.marks[key]}
+            onToggle={() => toggleMark(key)}
+            disabled={disabledMarksKeys.includes(key)}
+          />
+        ))}
+      </Accordion>
 
       <Accordion
         label={

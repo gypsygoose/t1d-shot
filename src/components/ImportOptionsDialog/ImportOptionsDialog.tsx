@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Dialog } from "../common";
-import { ImportExportOptions, isSelectionEmpty, SETTING_KEYS } from "../ImportExportOptions";
+import { ImportExportOptions, isSelectionEmpty, MARKS_KEYS, SETTING_KEYS } from "../ImportExportOptions";
 import { ExportedAppData, ExportSelection } from "../../types";
-import { availableSettings } from "./utils";
+import { availableMarks, availableSettings } from "./utils";
 
+const DEFAULT_MARKS_EXPANDED = false;
 const DEFAULT_SETTINGS_EXPANDED = false;
 
 interface Props {
@@ -20,7 +21,8 @@ interface Props {
 // sub-rows is disabled, i.e. the file carries no settings at all.
 export function ImportOptionsDialog({ visible, data, onConfirm, onCancel }: Props) {
   const { t } = useTranslation();
-  const marksAvailable = data.pointStates !== undefined;
+  const marksAvailable = availableMarks(data);
+  const disabledMarksKeys = MARKS_KEYS.filter((key) => !marksAvailable[key]);
   const settingsAvailable = availableSettings(data);
   const disabledSettingKeys = SETTING_KEYS.filter(
     (key) => !settingsAvailable[key],
@@ -30,13 +32,15 @@ export function ImportOptionsDialog({ visible, data, onConfirm, onCancel }: Prop
     marks: marksAvailable,
     settings: settingsAvailable,
   });
+  const [marksExpanded, setMarksExpanded] = useState(DEFAULT_MARKS_EXPANDED);
   const [settingsExpanded, setSettingsExpanded] = useState(
     DEFAULT_SETTINGS_EXPANDED,
   );
 
   useEffect(() => {
     if (!visible) return;
-    setSelection({ marks: marksAvailable, settings: availableSettings(data) });
+    setSelection({ marks: availableMarks(data), settings: availableSettings(data) });
+    setMarksExpanded(DEFAULT_MARKS_EXPANDED);
     setSettingsExpanded(DEFAULT_SETTINGS_EXPANDED);
     // Only re-run when the dialog opens or the underlying file changes, not
     // on every selection edit.
@@ -58,9 +62,11 @@ export function ImportOptionsDialog({ visible, data, onConfirm, onCancel }: Prop
       <ImportExportOptions
         selection={selection}
         onSelectionChange={setSelection}
+        marksExpanded={marksExpanded}
+        onToggleMarksExpanded={() => setMarksExpanded((v) => !v)}
         settingsExpanded={settingsExpanded}
         onToggleSettingsExpanded={() => setSettingsExpanded((v) => !v)}
-        marksDisabled={!marksAvailable}
+        disabledMarksKeys={disabledMarksKeys}
         disabledSettingKeys={disabledSettingKeys}
       />
     </Dialog>

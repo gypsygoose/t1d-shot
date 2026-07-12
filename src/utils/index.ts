@@ -1,6 +1,10 @@
 export { formatDateTime } from "./formatDateTime";
 export { lastPressedByGroup } from "./lastPressedByGroup";
 export { pad2 } from "./pad2";
+export { partitionEventsByBlock } from "./partitionEventsByBlock";
+export type { PartitionedEvents } from "./partitionEventsByBlock";
+export { partitionPointStatesByBlock } from "./partitionPointStatesByBlock";
+export type { PartitionedPointStates } from "./partitionPointStatesByBlock";
 export { SECONDS_PER_MINUTE, splitSeconds } from "./splitSeconds";
 export type { SplitSeconds } from "./splitSeconds";
 export { uuid } from "./uuid";

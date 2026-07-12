@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { AppStorage, AppEvent, AppEventType, EnabledZones, ExportedAppData, ExportSelection, ExportSettingKey, LanguageMode, StoredPointState, ThemeMode, ZoneGroup, ZonePointCounts, ZoneRuntimeData } from '../types';
+import { AppStorage, AppEvent, AppEventType, EnabledZones, ExportedAppData, ExportMarksKey, ExportSelection, ExportSettingKey, LanguageMode, StoredPointState, ThemeMode, ZoneGroup, ZonePointCounts, ZoneRuntimeData } from '../types';
 import {
   StorageService,
   StoredAutoLock,
@@ -16,7 +16,12 @@ import {
   MIN_DAYS_TO_WHITE,
   MAX_DAYS_TO_WHITE,
 } from '../constants';
-import { uuid, lastPressedByGroup } from '../utils';
+import {
+  uuid,
+  lastPressedByGroup,
+  partitionPointStatesByBlock,
+  partitionEventsByBlock,
+} from '../utils';
 
 // Debounce delay before persisting a state change to AsyncStorage.
 const SAVE_DEBOUNCE_MS = 300;
@@ -565,9 +570,20 @@ export function useAppStore(
       selection: ExportSelection,
     ) => {
       const data: ExportedAppData = {};
-      if (selection.marks) {
+      const activePointsSelected = selection.marks[ExportMarksKey.ActivePoints];
+      const blockedPointsSelected = selection.marks[ExportMarksKey.BlockedPoints];
+      if (activePointsSelected && blockedPointsSelected) {
         data.pointStates = state.pointStates;
         data.events = state.events;
+      } else if (activePointsSelected || blockedPointsSelected) {
+        const { active: activePointStates, blocked: blockedPointStates } =
+          partitionPointStatesByBlock(state.pointStates);
+        const { active: activeEvents, blocked: blockedEvents } =
+          partitionEventsByBlock(state.events);
+        data.pointStates = activePointsSelected
+          ? activePointStates
+          : blockedPointStates;
+        data.events = activePointsSelected ? activeEvents : blockedEvents;
       }
       if (selection.settings[ExportSettingKey.Mirrored]) {
         data.mirrored = state.mirrored;

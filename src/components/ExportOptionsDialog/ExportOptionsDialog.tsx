@@ -3,12 +3,13 @@ import { useTranslation } from "react-i18next";
 import { Dialog } from "../common";
 import { ImportExportOptions, isSelectionEmpty } from "../ImportExportOptions";
 import { ExportSelection } from "../../types";
-import { allSettings } from "./utils";
+import { allMarks, allSettings } from "./utils";
 
 const DEFAULT_SELECTION: ExportSelection = {
-  marks: true,
+  marks: allMarks(true),
   settings: allSettings(true),
 };
+const DEFAULT_MARKS_EXPANDED = false;
 const DEFAULT_SETTINGS_EXPANDED = false;
 
 interface Props {
@@ -21,6 +22,7 @@ export function ExportOptionsDialog({ visible, onConfirm, onCancel }: Props) {
   const { t } = useTranslation();
   const [selection, setSelection] =
     useState<ExportSelection>(DEFAULT_SELECTION);
+  const [marksExpanded, setMarksExpanded] = useState(DEFAULT_MARKS_EXPANDED);
   const [settingsExpanded, setSettingsExpanded] = useState(
     DEFAULT_SETTINGS_EXPANDED,
   );
@@ -28,6 +30,7 @@ export function ExportOptionsDialog({ visible, onConfirm, onCancel }: Props) {
   useEffect(() => {
     if (!visible) return;
     setSelection(DEFAULT_SELECTION);
+    setMarksExpanded(DEFAULT_MARKS_EXPANDED);
     setSettingsExpanded(DEFAULT_SETTINGS_EXPANDED);
   }, [visible]);
 
@@ -45,6 +48,8 @@ export function ExportOptionsDialog({ visible, onConfirm, onCancel }: Props) {
       <ImportExportOptions
         selection={selection}
         onSelectionChange={setSelection}
+        marksExpanded={marksExpanded}
+        onToggleMarksExpanded={() => setMarksExpanded((v) => !v)}
         settingsExpanded={settingsExpanded}
         onToggleSettingsExpanded={() => setSettingsExpanded((v) => !v)}
       />
