@@ -1,5 +1,5 @@
 import { TFunction } from "i18next";
-import { StoredPointState, ToastStatus } from "../../../types";
+import { PointAddress, PointDefinition, StoredPointState, ToastStatus } from "../../../types";
 import { PointService, PressResultType } from "../../../logic";
 import { formatDateTime } from "../../../utils";
 import { MARK_BACKDATED_THRESHOLD_MS } from "../../../constants";
@@ -22,8 +22,10 @@ export function buildMarkToastMessage(
   pointState: StoredPointState,
   timestamp: number,
   daysToWhite: number,
+  pointMap: Record<string, PointDefinition>,
+  pointAddress: Record<string, PointAddress>,
 ): MarkToastMessage | null {
-  const addressSuffix = buildPointAddressSuffix(t, pointId);
+  const addressSuffix = buildPointAddressSuffix(t, pointId, pointMap, pointAddress);
   if (!addressSuffix) return null;
 
   let message = t("toast.pointMarked", { address: addressSuffix });

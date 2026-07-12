@@ -10,6 +10,7 @@ const SETTING_LABEL_KEY: Record<ExportSettingKey, TranslationKey> = {
   [ExportSettingKey.DaysToWhite]: "menu.daysToWhiteRow",
   [ExportSettingKey.Theme]: "menu.themeRow",
   [ExportSettingKey.Language]: "menu.languageRow",
+  [ExportSettingKey.ZonePointCounts]: "menu.zonePointsRow",
 };
 
 interface Props {

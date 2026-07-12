@@ -76,7 +76,11 @@ export function Accordion({
         </View>
       </TouchableOpacity>
 
-      {expanded ? <View style={styles.content}>{children}</View> : null}
+      {expanded ? (
+        <View style={[styles.content, { borderLeftColor: colors.divider }]}>
+          {children}
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -101,6 +105,9 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   content: {
-    paddingLeft: 34,
+    paddingVertical: 8,
+    paddingLeft: 24,
+    marginLeft: 8,
+    borderLeftWidth: StyleSheet.hairlineWidth,
   },
 });

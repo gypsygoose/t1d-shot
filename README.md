@@ -8,7 +8,7 @@ Tap a point on the body diagram to log an injection at that spot. The point's co
 
 ## Features
 
-- Interactive body diagram with 30 injection points across 6 zones (shoulders, belly, thighs)
+- Interactive body diagram with 30 injection points across 6 zones (shoulders, belly, thighs) by default — the row/column grid is configurable per zone type from the menu (up to 3×2 for shoulders, 4×4 for belly, 4×3 for thighs), without losing injection history for points that stay in range
 - Long-press a point to see its body-relative address (row from top, position in the row from the body's center) alongside its history and actions; a toast with the same address confirms every marked injection, calling out a triggered blackout or a backdated mark's date/time when relevant
 - Status toasts (info/warning/success/error, each with its own color and icon) confirm every action — marking, blocking, clearing, undo, and import/export — and flag anything that needs attention, like a site getting system-blacked-out or a failed import
 - Color-coded rotation cycle (maroon → red → orange → yellow → green → white) based on local calendar days since last injection
@@ -43,11 +43,11 @@ src/
 ├── constants.ts            — shared non-text UI constants (durations, sizes, status colors)
 ├── utils/                  — shared helper functions, one per file (pad2, formatDateTime, splitSeconds, uuid, lastPressedByGroup, ...), re-exported via index.ts
 ├── hooks/useAppStore.ts    — React hook combining storage + state machine, re-exported via index.ts
-├── data/zones.ts           — zone + point definitions with (x,y) positions, re-exported via index.ts
+├── data/zones.ts           — zone metadata + buildZoneData(zonePointCounts): computes each zone's layout/points fresh from the configurable per-zone-type grid setting, re-exported via index.ts
 ├── logic/                  — pure functions: color computation, press handling (stateMachine.ts), re-exported via index.ts
 ├── theme/                  — light/dark theme palettes + ThemeProvider/useTheme, re-exported via index.ts
 ├── i18n/                   — i18next setup, ru/en translations, LanguageProvider/useLanguage
-├── storage/storage.ts      — AsyncStorage load/save/clear, re-exported via index.ts
+├── storage/StorageService.ts — AsyncStorage load/save/clear, re-exported via index.ts
 ├── components/             — app screens and components (helper-heavy ones live in their own ComponentName/ folder alongside their utils/constants/types — see CLAUDE.md); every folder, down to each ComponentName/utils/, has an index.ts barrel, so imports always go through a folder, never a concrete file inside it
 └── screens/MainScreen/     — root screen
 App.tsx                     — entry point

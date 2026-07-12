@@ -2,8 +2,16 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import * as DocumentPicker from "expo-document-picker";
-import { AppStorage, ExportedAppData, LanguageMode, ThemeMode } from "../types";
+import {
+  AppStorage,
+  ExportedAppData,
+  LanguageMode,
+  PointDefinition,
+  ThemeMode,
+  ZonePointCounts,
+} from "../types";
 import { DEFAULT_DAYS_TO_WHITE } from "../constants";
+import { DEFAULT_ZONE_POINT_COUNTS } from "../data";
 import {
   defaultStorage,
   normalizeStorage,
@@ -11,6 +19,7 @@ import {
   DEFAULT_AUTO_LOCK_AFTER_MARK_SECONDS,
   DEFAULT_AUTO_LOCK_AFTER_UNLOCK_SECONDS,
   clampDaysToWhite,
+  clampZonePointCounts,
   isValidAppStorage,
 } from "./utils";
 import {
@@ -21,6 +30,7 @@ import {
   DAYS_TO_WHITE_KEY,
   THEME_MODE_KEY,
   LANGUAGE_MODE_KEY,
+  ZONE_POINT_COUNTS_KEY,
   STORED_TRUE,
   STORED_FALSE,
   JSON_MIME_TYPE,
@@ -39,14 +49,14 @@ export { DEFAULT_AUTO_LOCK_AFTER_MARK_SECONDS, DEFAULT_AUTO_LOCK_AFTER_UNLOCK_SE
 // placement" — this stays the module's public API, same role storage.ts's
 // standalone functions used to serve).
 export class StorageService {
-  static async loadStorage(): Promise<AppStorage> {
+  static async loadStorage(activePoints: PointDefinition[]): Promise<AppStorage> {
     try {
       const raw = await AsyncStorage.getItem(STORAGE_KEY);
-      if (!raw) return defaultStorage();
+      if (!raw) return defaultStorage(activePoints);
       const parsed = JSON.parse(raw) as AppStorage;
-      return normalizeStorage(parsed);
+      return normalizeStorage(parsed, activePoints);
     } catch {
-      return defaultStorage();
+      return defaultStorage(activePoints);
     }
   }
 
@@ -54,8 +64,8 @@ export class StorageService {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }
 
-  static async clearStorage(): Promise<AppStorage> {
-    const fresh = defaultStorage();
+  static async clearStorage(activePoints: PointDefinition[]): Promise<AppStorage> {
+    const fresh = defaultStorage(activePoints);
     await StorageService.saveStorage(fresh);
     return fresh;
   }
@@ -142,6 +152,23 @@ export class StorageService {
     await AsyncStorage.setItem(LANGUAGE_MODE_KEY, mode);
   }
 
+  static async loadZonePointCounts(): Promise<ZonePointCounts> {
+    try {
+      const raw = await AsyncStorage.getItem(ZONE_POINT_COUNTS_KEY);
+      if (!raw) return DEFAULT_ZONE_POINT_COUNTS;
+      return clampZonePointCounts(JSON.parse(raw));
+    } catch {
+      return DEFAULT_ZONE_POINT_COUNTS;
+    }
+  }
+
+  static async saveZonePointCounts(data: ZonePointCounts): Promise<void> {
+    await AsyncStorage.setItem(
+      ZONE_POINT_COUNTS_KEY,
+      JSON.stringify(clampZonePointCounts(data)),
+    );
+  }
+
   // ---------------------------------------------------------------------
   // Export / import full app state to/from a JSON file
   // ---------------------------------------------------------------------
@@ -172,7 +199,9 @@ export class StorageService {
   // Missing fields are left absent (not defaulted) so the caller can tell a
   // category that was deliberately excluded from the export apart from one
   // that was included with a default value — see ExportedAppData's comment.
-  static async pickImportFile(): Promise<ImportResult> {
+  static async pickImportFile(
+    activePoints: PointDefinition[],
+  ): Promise<ImportResult> {
     const picked = await DocumentPicker.getDocumentAsync({
       type: JSON_MIME_TYPE,
       copyToCacheDirectory: true,
@@ -187,15 +216,21 @@ export class StorageService {
 
       const data: ExportedAppData = { ...parsed };
       if (data.pointStates !== undefined) {
-        const normalized = normalizeStorage({
-          pointStates: data.pointStates,
-          events: data.events ?? [],
-        });
+        const normalized = normalizeStorage(
+          {
+            pointStates: data.pointStates,
+            events: data.events ?? [],
+          },
+          activePoints,
+        );
         data.pointStates = normalized.pointStates;
         data.events = normalized.events;
       }
       if (data.daysToWhite !== undefined) {
         data.daysToWhite = clampDaysToWhite(data.daysToWhite);
+      }
+      if (data.zonePointCounts !== undefined) {
+        data.zonePointCounts = clampZonePointCounts(data.zonePointCounts);
       }
       return { type: ImportResultType.Success, data };
     } catch {

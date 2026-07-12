@@ -12,5 +12,6 @@ export { InjectionPoint } from "./InjectionPoint";
 export { MenuSheet, THEME_MODE_KEY, LANGUAGE_MODE_KEY } from "./MenuSheet";
 export { PointContextMenu } from "./PointContextMenu";
 export { ZoneContainer } from "./ZoneContainer";
+export { ZonePointsDialog } from "./ZonePointsDialog";
 export * from "./common";
 export * from "./icons";

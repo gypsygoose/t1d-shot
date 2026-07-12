@@ -1,14 +1,15 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { AppStorage, AppEvent, AppEventType, ExportedAppData, ExportSelection, ExportSettingKey, LanguageMode, StoredPointState, ThemeMode, ZoneGroup } from '../types';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { AppStorage, AppEvent, AppEventType, ExportedAppData, ExportSelection, ExportSettingKey, LanguageMode, StoredPointState, ThemeMode, ZoneGroup, ZonePointCounts, ZoneRuntimeData } from '../types';
 import {
   StorageService,
   StoredAutoLock,
   DEFAULT_AUTO_LOCK_AFTER_MARK_SECONDS,
   DEFAULT_AUTO_LOCK_AFTER_UNLOCK_SECONDS,
   ImportResult,
+  normalizeStorage,
 } from '../storage';
 import { PointService, PressResultType } from '../logic';
-import { POINT_MAP } from '../data';
+import { buildZoneData, DEFAULT_ZONE_POINT_COUNTS } from '../data';
 import {
   SECOND_MS,
   DEFAULT_DAYS_TO_WHITE,
@@ -35,6 +36,7 @@ export interface AppState extends AppStorage {
   // auto-lock is currently pending (e.g. already locked, or disabled).
   autoLockDeadline: number | null;
   daysToWhite: number;
+  zonePointCounts: ZonePointCounts;
 }
 
 export interface AppActions {
@@ -51,6 +53,7 @@ export interface AppActions {
   disableAutoLock(): void;
   updateAutoLockTimes(afterMarkSeconds: number, afterUnlockSeconds: number): void;
   setDaysToWhite(days: number): void;
+  setZonePointCounts(next: ZonePointCounts): void;
   exportData(
     themeMode: ThemeMode,
     languageMode: LanguageMode,
@@ -68,7 +71,10 @@ export interface AppActions {
 // doesn't retrigger the effect that owns the countdown timer below.
 export function useAppStore(
   onAutoLockFired?: () => void,
-): [AppState & { lastInGroup: Record<ZoneGroup, string | null> }, AppActions] {
+): [
+  AppState & { lastInGroup: Record<ZoneGroup, string | null>; zoneData: ZoneRuntimeData },
+  AppActions,
+] {
   const [state, setState] = useState<AppState>({
     pointStates: {},
     events: [],
@@ -81,54 +87,72 @@ export function useAppStore(
     autoLockAfterUnlockSeconds: DEFAULT_AUTO_LOCK_AFTER_UNLOCK_SECONDS,
     autoLockDeadline: null,
     daysToWhite: DEFAULT_DAYS_TO_WHITE,
+    zonePointCounts: DEFAULT_ZONE_POINT_COUNTS,
   });
   const saveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onAutoLockFiredRef = useRef(onAutoLockFired);
   onAutoLockFiredRef.current = onAutoLockFired;
 
-  // Load from storage on mount. Loaded together (rather than each in its own
-  // .then()) so the just-reopened-the-app auto-lock check below always sees
-  // the real persisted interfaceLocked value instead of racing against it.
+  // Recomputed only when zonePointCounts changes, not on every render — see
+  // data/zones.ts's buildZoneData. Read through a ref (below) by the
+  // useCallback bodies further down so they can stay stable ([] deps)
+  // instead of needing zoneData as a dependency.
+  const zoneData = useMemo(
+    () => buildZoneData(state.zonePointCounts),
+    [state.zonePointCounts],
+  );
+  const zoneDataRef = useRef(zoneData);
+  zoneDataRef.current = zoneData;
+
+  // Load from storage on mount. zonePointCounts loads first since loadStorage
+  // needs the resulting active-points list to know which point ids to
+  // backfill defaults for; the rest loads together (rather than each in its
+  // own .then()) so the just-reopened-the-app auto-lock check below always
+  // sees the real persisted interfaceLocked value instead of racing against it.
   useEffect(() => {
-    Promise.all([
-      StorageService.loadStorage(),
-      StorageService.loadMirrored(),
-      StorageService.loadInterfaceLocked(),
-      StorageService.loadAutoLock(),
-      StorageService.loadDaysToWhite(),
-    ]).then(([stored, mirrored, storedInterfaceLocked, autoLock, daysToWhite]) => {
-      const now = Date.now();
-      let interfaceLocked = storedInterfaceLocked;
-      let deadline = autoLock.deadline;
-      // App may have been closed past the deadline — lock immediately
-      // instead of waiting for a timer that already should have fired.
-      if (
-        autoLock.enabled &&
-        !interfaceLocked &&
-        deadline !== null &&
-        now >= deadline
-      ) {
-        interfaceLocked = true;
-        deadline = null;
-      }
-      if (interfaceLocked !== storedInterfaceLocked) {
-        StorageService.saveInterfaceLocked(interfaceLocked);
-      }
-      if (deadline !== autoLock.deadline) {
-        StorageService.saveAutoLock({ ...autoLock, deadline });
-      }
-      setState((prev) => ({
-        ...prev,
-        ...stored,
-        mirrored,
-        interfaceLocked,
-        autoLockEnabled: autoLock.enabled,
-        autoLockAfterMarkSeconds: autoLock.afterMarkSeconds,
-        autoLockAfterUnlockSeconds: autoLock.afterUnlockSeconds,
-        autoLockDeadline: deadline,
-        daysToWhite,
-        isLoaded: true,
-      }));
+    StorageService.loadZonePointCounts().then((zonePointCounts) => {
+      const activePoints = buildZoneData(zonePointCounts).points;
+      Promise.all([
+        StorageService.loadStorage(activePoints),
+        StorageService.loadMirrored(),
+        StorageService.loadInterfaceLocked(),
+        StorageService.loadAutoLock(),
+        StorageService.loadDaysToWhite(),
+      ]).then(([stored, mirrored, storedInterfaceLocked, autoLock, daysToWhite]) => {
+        const now = Date.now();
+        let interfaceLocked = storedInterfaceLocked;
+        let deadline = autoLock.deadline;
+        // App may have been closed past the deadline — lock immediately
+        // instead of waiting for a timer that already should have fired.
+        if (
+          autoLock.enabled &&
+          !interfaceLocked &&
+          deadline !== null &&
+          now >= deadline
+        ) {
+          interfaceLocked = true;
+          deadline = null;
+        }
+        if (interfaceLocked !== storedInterfaceLocked) {
+          StorageService.saveInterfaceLocked(interfaceLocked);
+        }
+        if (deadline !== autoLock.deadline) {
+          StorageService.saveAutoLock({ ...autoLock, deadline });
+        }
+        setState((prev) => ({
+          ...prev,
+          ...stored,
+          mirrored,
+          interfaceLocked,
+          autoLockEnabled: autoLock.enabled,
+          autoLockAfterMarkSeconds: autoLock.afterMarkSeconds,
+          autoLockAfterUnlockSeconds: autoLock.afterUnlockSeconds,
+          autoLockDeadline: deadline,
+          daysToWhite,
+          zonePointCounts,
+          isLoaded: true,
+        }));
+      });
     });
   }, []);
 
@@ -186,7 +210,7 @@ export function useAppStore(
   const pressPoint = useCallback((pointId: string) => {
     setState((prev) => {
       const now = Date.now();
-      const point = POINT_MAP[pointId];
+      const point = zoneDataRef.current.pointMap[pointId];
       if (!point) return prev;
 
       const currentPointState = prev.pointStates[pointId];
@@ -232,7 +256,7 @@ export function useAppStore(
   const blockPoint = useCallback((pointId: string) => {
     setState((prev) => {
       const now = Date.now();
-      const point = POINT_MAP[pointId];
+      const point = zoneDataRef.current.pointMap[pointId];
       if (!point) return prev;
 
       const currentPointState = prev.pointStates[pointId];
@@ -265,7 +289,7 @@ export function useAppStore(
   const unblockPoint = useCallback((pointId: string) => {
     setState((prev) => {
       const now = Date.now();
-      const point = POINT_MAP[pointId];
+      const point = zoneDataRef.current.pointMap[pointId];
       if (!point) return prev;
 
       const currentPointState = prev.pointStates[pointId];
@@ -298,7 +322,7 @@ export function useAppStore(
   const markPointAt = useCallback((pointId: string, timestamp: number) => {
     setState((prev) => {
       const now = Date.now();
-      const point = POINT_MAP[pointId];
+      const point = zoneDataRef.current.pointMap[pointId];
       if (!point) return prev;
 
       const currentPointState = prev.pointStates[pointId];
@@ -330,7 +354,7 @@ export function useAppStore(
   const clearPoint = useCallback((pointId: string) => {
     setState((prev) => {
       const now = Date.now();
-      const point = POINT_MAP[pointId];
+      const point = zoneDataRef.current.pointMap[pointId];
       if (!point) return prev;
 
       const currentPointState = prev.pointStates[pointId];
@@ -371,7 +395,7 @@ export function useAppStore(
   }, []);
 
   const clearAll = useCallback(() => {
-    StorageService.clearStorage().then((fresh) => {
+    StorageService.clearStorage(zoneDataRef.current.points).then((fresh) => {
       setState((prev) => ({ ...prev, ...fresh }));
     });
   }, []);
@@ -469,6 +493,29 @@ export function useAppStore(
     StorageService.saveDaysToWhite(clamped);
   }, []);
 
+  // Backfills default states for any slot newly brought into range by the
+  // grid change (normalizeStorage), while leaving every other point's
+  // history — including slots now outside the grid — untouched, so shrinking
+  // then re-growing a zone's grid restores its old history (see CLAUDE.md's
+  // "Zones and points").
+  const setZonePointCounts = useCallback((next: ZonePointCounts) => {
+    setState((prev) => {
+      const nextActivePoints = buildZoneData(next).points;
+      const normalized = normalizeStorage(
+        { pointStates: prev.pointStates, events: prev.events },
+        nextActivePoints,
+      );
+      scheduleSave(normalized);
+      return {
+        ...prev,
+        zonePointCounts: next,
+        pointStates: normalized.pointStates,
+        events: normalized.events,
+      };
+    });
+    StorageService.saveZonePointCounts(next);
+  }, []);
+
   // themeMode/languageMode are passed in rather than read from state —
   // they're owned by ThemeProvider/LanguageProvider (mounted in App.tsx,
   // above this hook's caller), not by this store. See
@@ -509,6 +556,9 @@ export function useAppStore(
       if (selection.settings[ExportSettingKey.Language]) {
         data.languageMode = languageMode;
       }
+      if (selection.settings[ExportSettingKey.ZonePointCounts]) {
+        data.zonePointCounts = state.zonePointCounts;
+      }
       await StorageService.exportStorageToFile(data, dialogTitle);
     },
     [
@@ -519,6 +569,7 @@ export function useAppStore(
       state.autoLockAfterMarkSeconds,
       state.autoLockAfterUnlockSeconds,
       state.daysToWhite,
+      state.zonePointCounts,
     ],
   );
 
@@ -561,15 +612,32 @@ export function useAppStore(
         next.daysToWhite = data.daysToWhite;
       }
 
+      // Same backfill-defaults treatment as setZonePointCounts, since an
+      // imported grid may bring previously out-of-range slots into range.
+      if (data.zonePointCounts !== undefined) {
+        const nextActivePoints = buildZoneData(data.zonePointCounts).points;
+        const normalized = normalizeStorage(
+          {
+            pointStates: next.pointStates,
+            events: next.events,
+          },
+          nextActivePoints,
+        );
+        next.pointStates = normalized.pointStates;
+        next.events = normalized.events;
+        next.zonePointCounts = data.zonePointCounts;
+        StorageService.saveZonePointCounts(data.zonePointCounts);
+      }
+
       return next;
     });
     StorageService.importStorage(data);
   }, []);
 
-  const lastInGroup = lastPressedByGroup(state.pointStates);
+  const lastInGroup = lastPressedByGroup(state.pointStates, zoneData.pointMap);
 
   return [
-    { ...state, lastInGroup },
+    { ...state, lastInGroup, zoneData },
     {
       pressPoint,
       blockPoint,
@@ -584,8 +652,9 @@ export function useAppStore(
       disableAutoLock,
       updateAutoLockTimes,
       setDaysToWhite,
+      setZonePointCounts,
       exportData,
-      pickImportFile: StorageService.pickImportFile,
+      pickImportFile: () => StorageService.pickImportFile(zoneDataRef.current.points),
       applyImport,
     },
   ];

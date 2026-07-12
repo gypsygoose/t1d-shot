@@ -1,14 +1,26 @@
-import { AppStorage } from "../../types";
-import { POINTS } from "../../data";
+import { AppStorage, PointDefinition } from "../../types";
+import { migrateLegacyPointIds } from "./migrateLegacyPointIds";
 
-// Merge any points not yet present (e.g. loading data saved by an older
-// app version, or a file imported from a different point in time).
-export function normalizeStorage(parsed: Partial<AppStorage>): AppStorage {
-  const states = parsed.pointStates ?? {};
-  for (const point of POINTS) {
+// Merge any active points not yet present (e.g. loading data saved by an
+// older app version, a file imported from a different point in time, or a
+// zone grid that just grew to include a previously out-of-range slot).
+// `activePoints` is the current ZonePointCounts-derived point list (see
+// data/zones.ts's buildZoneData) — a stored point outside that list (either
+// truly stale, or just currently hidden by a smaller grid) is left
+// untouched rather than dropped, so its history survives a future resize.
+export function normalizeStorage(
+  parsed: Partial<AppStorage>,
+  activePoints: PointDefinition[],
+): AppStorage {
+  const migrated = migrateLegacyPointIds(
+    parsed.pointStates ?? {},
+    parsed.events ?? [],
+  );
+  const states = migrated.pointStates;
+  for (const point of activePoints) {
     if (!states[point.id]) {
       states[point.id] = { pointId: point.id, isManuallyBlocked: false };
     }
   }
-  return { pointStates: states, events: parsed.events ?? [] };
+  return { pointStates: states, events: migrated.events };
 }

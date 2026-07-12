@@ -2,6 +2,7 @@ import { AppEvent } from './event';
 import { StoredPointState } from './point';
 import { ThemeMode } from './theme';
 import { LanguageMode } from './language';
+import { ZonePointCounts } from './zone';
 
 // Full app storage
 export interface AppStorage {
@@ -26,6 +27,7 @@ export interface ExportedAppData {
   daysToWhite?: number;
   themeMode?: ThemeMode;
   languageMode?: LanguageMode;
+  zonePointCounts?: ZonePointCounts;
 }
 
 // Which categories ExportOptionsDialog writes to the export file. The
@@ -41,6 +43,7 @@ export enum ExportSettingKey {
   DaysToWhite = 'days-to-white',
   Theme = 'theme',
   Language = 'language',
+  ZonePointCounts = 'zone-point-counts',
 }
 
 export interface ExportSelection {

@@ -7,5 +7,6 @@ export function allSettings(value: boolean): Record<ExportSettingKey, boolean> {
     [ExportSettingKey.DaysToWhite]: value,
     [ExportSettingKey.Theme]: value,
     [ExportSettingKey.Language]: value,
+    [ExportSettingKey.ZonePointCounts]: value,
   };
 }

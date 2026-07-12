@@ -29,5 +29,8 @@ export function buildImportData(
   if (selection.settings[ExportSettingKey.Language]) {
     filtered.languageMode = data.languageMode;
   }
+  if (selection.settings[ExportSettingKey.ZonePointCounts]) {
+    filtered.zonePointCounts = data.zonePointCounts;
+  }
   return filtered;
 }

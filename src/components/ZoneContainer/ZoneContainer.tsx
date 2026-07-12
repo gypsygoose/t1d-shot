@@ -1,7 +1,7 @@
 import { View, StyleSheet, DimensionValue } from "react-native";
 import { InjectionPoint } from "../InjectionPoint";
-import { ZONE_LAYOUT, ZONE_MIRROR_MAP, ZONE_TYPE, POINTS_BY_ZONE } from "../../data";
-import { PointColor, ThemeMode, ZoneId } from "../../types";
+import { ZONE_MIRROR_MAP, ZONE_TYPE } from "../../data";
+import { PointColor, PointDefinition, ThemeMode, ZoneId, ZoneLayout } from "../../types";
 import { useTheme } from "../../theme";
 import { chunk } from "./utils";
 import {
@@ -14,6 +14,11 @@ import {
 interface Props {
   zoneId: ZoneId;
   mirrored: boolean;
+  // Current ZonePointCounts-derived layout/points (see data/zones.ts's
+  // buildZoneData) — passed in rather than imported since they're no longer
+  // static constants.
+  zoneLayout: Record<ZoneId, ZoneLayout>;
+  pointsByZone: Record<ZoneId, PointDefinition[]>;
   getColor: (pointId: string) => PointColor;
   isCheckmarked: (pointId: string) => boolean;
   onPress: (pointId: string) => void;
@@ -27,6 +32,8 @@ interface Props {
 export function ZoneContainer({
   zoneId,
   mirrored,
+  zoneLayout,
+  pointsByZone,
   getColor,
   isCheckmarked,
   onPress,
@@ -35,13 +42,13 @@ export function ZoneContainer({
   // Mirror mode swaps a zone into its left/right counterpart's screen
   // position (point identity/colour stays tied to zoneId), and flips the
   // left-to-right order of points within each row to match.
-  const layout = ZONE_LAYOUT[mirrored ? ZONE_MIRROR_MAP[zoneId] : zoneId];
+  const layout = zoneLayout[mirrored ? ZONE_MIRROR_MAP[zoneId] : zoneId];
   const { colors, resolvedScheme } = useTheme();
   const isLight = resolvedScheme === ThemeMode.Light;
   const zoneColors = colors.zoneColors[ZONE_TYPE[zoneId]];
   const fillAlpha = isLight ? LIGHT_FILL_ALPHA : DARK_FILL_ALPHA;
   const borderAlpha = isLight ? LIGHT_BORDER_ALPHA : DARK_BORDER_ALPHA;
-  const rows = chunk(POINTS_BY_ZONE[zoneId], layout.cols).map((row) =>
+  const rows = chunk(pointsByZone[zoneId], layout.cols).map((row) =>
     mirrored ? [...row].reverse() : row,
   );
 

@@ -10,6 +10,7 @@ const SETTING_AVAILABLE: Record<
   [ExportSettingKey.DaysToWhite]: (data) => data.daysToWhite !== undefined,
   [ExportSettingKey.Theme]: (data) => data.themeMode !== undefined,
   [ExportSettingKey.Language]: (data) => data.languageMode !== undefined,
+  [ExportSettingKey.ZonePointCounts]: (data) => data.zonePointCounts !== undefined,
 };
 
 export function availableSettings(

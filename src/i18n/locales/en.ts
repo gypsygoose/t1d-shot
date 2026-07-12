@@ -28,6 +28,9 @@ export const en = {
     bellyLeft: "Belly (left)",
     thighRight: "Right thigh",
     thighLeft: "Left thigh",
+    groupShoulder: "Shoulders",
+    groupBelly: "Belly",
+    groupThigh: "Thighs",
   },
   toast: {
     blocked: "This point is blocked and can't be marked",
@@ -53,6 +56,7 @@ export const en = {
     pointClearedPrefix: "Point cleared",
     themeUpdatedPrefix: "Theme changed",
     languageUpdatedPrefix: "Language changed",
+    zonePointCountsUpdated: "Zone point layout updated",
     pointMarked: "Point marked: {{address}}",
     markBlackoutSuffix_one: "\nPoint blocked by the system for {{count}} day",
     markBlackoutSuffix_few: "\nPoint blocked by the system for {{count}} days",
@@ -68,6 +72,7 @@ export const en = {
     mirrorRow: "Mirror display",
     autoLockRow: "Auto-lock interface",
     daysToWhiteRow: "Days until point recovers",
+    zonePointsRow: "Zone point layout",
     themeRow: "Theme",
     languageRow: "Language",
     exportRow: "Export data",
@@ -82,6 +87,13 @@ export const en = {
     daysToWhiteDialog: {
       message:
         "How many days until an injection point is considered fully free (white) again. A lower value compresses the cycle's colors into that timeframe.",
+      fieldLabel: "Days",
+    },
+    zonePointsDialog: {
+      message:
+        "Choose how many rows and columns each zone group has. The zone stays centered around its own middle on both axes as it resizes.",
+      rowsLabel: "Rows",
+      colsLabel: "Columns",
     },
     themeDialog: {
       message: "The system theme follows your device's appearance setting.",
@@ -195,6 +207,8 @@ export const en = {
         "<bold>{{label}}</bold> — automatically enable locking after a set time following an injection mark, and after a manual unlock. Tapping the row opens the delay settings.",
       daysToWhite:
         "<bold>{{label}}</bold> — how many days until an injection point is considered fully free (white) again. Lowering the value compresses the color scheme into that timeframe.",
+      zonePoints:
+        "<bold>{{label}}</bold> — choose how many rows and columns each zone group (shoulders, belly, thighs) has. Shrinking a zone's grid hides its out-of-range points without losing their history; growing it back reveals that history again.",
       theme:
         "<bold>{{label}}</bold> — choose the app's light, dark, or system appearance theme.",
       language: "<bold>{{label}}</bold> — choose the app's interface language.",

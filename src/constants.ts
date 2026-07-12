@@ -24,6 +24,13 @@ export const MIN_DAYS_TO_WHITE = 1;
 export const MAX_DAYS_TO_WHITE = 8;
 export const DEFAULT_DAYS_TO_WHITE = MAX_DAYS_TO_WHITE;
 
+// Configurable per-zone-type point grid range — minimum is uniform across
+// zone types; the maximum differs per type (see data/zones.ts's
+// ZONE_MAX_GRID/DEFAULT_ZONE_POINT_COUNTS) since not every zone has the same
+// amount of usable space.
+export const MIN_ZONE_ROWS = 1;
+export const MIN_ZONE_COLS = 1;
+
 // Shared between Accordion (LayoutAnimation, content expand/collapse) and
 // Chevron (Animated.timing, rotation) so the two animate in lockstep.
 export const ACCORDION_ANIMATION_DURATION_MS = 150;

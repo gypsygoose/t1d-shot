@@ -39,7 +39,7 @@ export function DaysToWhiteDialog({
       onCancel={onCancel}
     >
       <NumberPickerField
-        label={t("menu.daysToWhiteRow")}
+        label={t("menu.daysToWhiteDialog.fieldLabel")}
         value={days}
         options={DAYS_OPTIONS}
         onChange={setDays}

@@ -1,17 +1,16 @@
 import { useTranslation } from "react-i18next";
-import { PointColor, StoredPointState } from "../../types";
+import { PointAddress, PointColor, StoredPointState } from "../../types";
 import { PointService } from "../../logic";
 import { ContextMenu, ContextMenuItem } from "../common";
-import { POINT_ADDRESS } from "../../data";
 import { formatDateTime } from "../../utils";
 import { formatCountdown } from "./utils";
 
 interface Props {
   visible: boolean;
-  pointId?: string;
   zoneLabel?: string;
   color?: PointColor;
   pointState?: StoredPointState;
+  address?: PointAddress;
   now: number;
   onBlock: () => void;
   onUnblock: () => void;
@@ -22,10 +21,10 @@ interface Props {
 
 export function PointContextMenu({
   visible,
-  pointId,
   zoneLabel,
   color,
   pointState,
+  address,
   now,
   onBlock,
   onUnblock,
@@ -39,7 +38,6 @@ export function PointContextMenu({
   const blackoutEndAt = pointState
     ? PointService.getBlackoutEndAt(pointState)
     : undefined;
-  const address = pointId ? POINT_ADDRESS[pointId] : undefined;
 
   const infoLines: string[] = [];
   if (pointState?.lastInjectionAt !== undefined) {

@@ -22,7 +22,7 @@ import { useAppStore } from "../../hooks";
 import { useTheme } from "../../theme";
 import { useLanguage } from "../../i18n";
 import { PointService } from "../../logic";
-import { ZONES, POINT_MAP, ZONE_MAP, ZONE_LABEL_KEY } from "../../data";
+import { ZONES, ZONE_MAP, ZONE_LABEL_KEY } from "../../data";
 import { PointColor, ThemeMode, ToastStatus, ZoneGroup } from "../../types";
 import {
   APP_NAME,
@@ -112,6 +112,8 @@ export function MainScreen() {
         state.pointStates[id],
         timestamp,
         state.daysToWhite,
+        state.zoneData.pointMap,
+        state.zoneData.pointAddress,
       );
       if (toast) showToast(toast.message, toast.status, TOAST_DURATION_MS);
     },
@@ -121,6 +123,7 @@ export function MainScreen() {
       state.now,
       state.daysToWhite,
       state.interfaceLocked,
+      state.zoneData,
       showToast,
       t,
       i18n.language,
@@ -129,7 +132,7 @@ export function MainScreen() {
   const handleLongPress = useCallback((id: string) => setMenuPointId(id), []);
 
   const menuZone = menuPointId
-    ? ZONE_MAP[POINT_MAP[menuPointId]?.zoneId]
+    ? ZONE_MAP[state.zoneData.pointMap[menuPointId]?.zoneId]
     : undefined;
   const menuZoneLabel = menuZone ? t(ZONE_LABEL_KEY[menuZone.id]) : undefined;
   const menuPointState = menuPointId
@@ -141,6 +144,9 @@ export function MainScreen() {
         state.now,
         state.daysToWhite,
       )
+    : undefined;
+  const menuPointAddress = menuPointId
+    ? state.zoneData.pointAddress[menuPointId]
     : undefined;
 
   if (!state.isLoaded) {
@@ -202,6 +208,8 @@ export function MainScreen() {
               key={zone.id}
               zoneId={zone.id}
               mirrored={state.mirrored}
+              zoneLayout={state.zoneData.zoneLayout}
+              pointsByZone={state.zoneData.pointsByZone}
               getColor={(pointId) =>
                 PointService.computePointColor(
                   state.pointStates[pointId],
@@ -246,6 +254,8 @@ export function MainScreen() {
         onUpdateAutoLockTimes={actions.updateAutoLockTimes}
         daysToWhite={state.daysToWhite}
         onSetDaysToWhite={actions.setDaysToWhite}
+        zonePointCounts={state.zonePointCounts}
+        onSetZonePointCounts={actions.setZonePointCounts}
         themeMode={themeMode}
         onSetThemeMode={onSetThemeMode}
         languageMode={languageMode}
@@ -273,15 +283,15 @@ export function MainScreen() {
       {/* Long-press menu for a single point */}
       <PointContextMenu
         visible={menuPointId !== null}
-        pointId={menuPointId ?? undefined}
         zoneLabel={menuZoneLabel}
         color={menuPointColor}
         pointState={menuPointState}
+        address={menuPointAddress}
         now={state.now}
         onBlock={() => {
           if (menuPointId) {
             actions.blockPoint(menuPointId);
-            const addressSuffix = buildPointAddressSuffix(t, menuPointId);
+            const addressSuffix = buildPointAddressSuffix(t, menuPointId, state.zoneData.pointMap, state.zoneData.pointAddress);
             if (addressSuffix) {
               showToast(
                 t("toast.labeledValue", {
@@ -297,7 +307,7 @@ export function MainScreen() {
         onUnblock={() => {
           if (menuPointId) {
             actions.unblockPoint(menuPointId);
-            const addressSuffix = buildPointAddressSuffix(t, menuPointId);
+            const addressSuffix = buildPointAddressSuffix(t, menuPointId, state.zoneData.pointMap, state.zoneData.pointAddress);
             if (addressSuffix) {
               showToast(
                 t("toast.labeledValue", {
@@ -337,6 +347,8 @@ export function MainScreen() {
               state.pointStates[markPointId],
               timestamp,
               state.daysToWhite,
+              state.zoneData.pointMap,
+              state.zoneData.pointAddress,
             );
             actions.markPointAt(markPointId, timestamp);
             if (toast) showToast(toast.message, toast.status);
@@ -354,7 +366,7 @@ export function MainScreen() {
         onConfirm={() => {
           if (clearPointId) {
             actions.clearPoint(clearPointId);
-            const addressSuffix = buildPointAddressSuffix(t, clearPointId);
+            const addressSuffix = buildPointAddressSuffix(t, clearPointId, state.zoneData.pointMap, state.zoneData.pointAddress);
             if (addressSuffix) {
               showToast(
                 t("toast.labeledValue", {
