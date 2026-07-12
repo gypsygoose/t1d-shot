@@ -239,26 +239,51 @@ function widenedBellyCenterX(zoneId: ZoneId, bellyWidth: number): number {
     : BELLY_ZONES_MIDLINE_X + halfGap + halfWidth;
 }
 
+// How far (fraction of the body image height) the shoulder and belly zones
+// are nudged down together whenever shouldLowerShoulderAndBellyZones is
+// true. A tall combined shoulder+belly row count grows both zones' boxes
+// noticeably taller than at DEFAULT_ZONE_POINT_COUNTS; nudging both down by
+// the same small amount keeps them better centered against the body
+// illustration's torso artwork instead of only growing upward off it.
+const SHOULDER_BELLY_ROWS_LOWER_OFFSET = 0.03;
+
+// Shoulder rows can only shrink from their default/max (3); belly rows can
+// grow up to 4 (see ZONE_MAX_GRID) — so this only fires once belly rows
+// reaches 4 with shoulder rows still at 3 (3 + 4 = 7), the one combination
+// whose combined row count exceeds the default sum (3 + 3 = 6).
+function shouldLowerShoulderAndBellyZones(
+  zonePointCounts: ZonePointCounts,
+): boolean {
+  const { rows: shoulderRows } = zonePointCounts[ZoneType.Shoulder];
+  const { rows: bellyRows } = zonePointCounts[ZoneType.Belly];
+  return shoulderRows + bellyRows > 6;
+}
+
 function buildZoneLayout(
   zonePointCounts: ZonePointCounts,
 ): Record<ZoneId, ZoneLayout> {
   const zoneLayout = {} as Record<ZoneId, ZoneLayout>;
   const raiseShoulderZones = shouldRaiseShoulderZones(zonePointCounts);
   const widenBellyGap = shouldWidenBellyGap(zonePointCounts);
+  const lowerShoulderAndBelly = shouldLowerShoulderAndBellyZones(zonePointCounts);
   for (const zone of ZONES) {
-    const { rows, cols } = zonePointCounts[ZONE_TYPE[zone.id]];
+    const zoneType = ZONE_TYPE[zone.id];
+    const { rows, cols } = zonePointCounts[zoneType];
     const { centerX, centerY } = ZONE_ANCHOR[zone.id];
     const { cellWidth, cellHeight } = ZONE_CELL_SIZE[zone.id];
     const width = cellWidth * cols;
     const height = cellHeight * rows;
     const resolvedCenterX =
-      widenBellyGap && ZONE_TYPE[zone.id] === ZoneType.Belly
+      widenBellyGap && zoneType === ZoneType.Belly
         ? widenedBellyCenterX(zone.id, width)
         : centerX;
-    const resolvedCenterY =
-      raiseShoulderZones && ZONE_TYPE[zone.id] === ZoneType.Shoulder
+    let resolvedCenterY =
+      raiseShoulderZones && zoneType === ZoneType.Shoulder
         ? raisedShoulderCenterY(zonePointCounts, height)
         : centerY;
+    if (lowerShoulderAndBelly && (zoneType === ZoneType.Shoulder || zoneType === ZoneType.Belly)) {
+      resolvedCenterY += SHOULDER_BELLY_ROWS_LOWER_OFFSET;
+    }
     zoneLayout[zone.id] = {
       x: resolvedCenterX - width / 2,
       y: resolvedCenterY - height / 2,
