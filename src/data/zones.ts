@@ -7,7 +7,11 @@ import {
   ZoneType,
   PointAddress,
 } from "../types";
-import type { TranslationKey } from "../i18n";
+// Imported directly from i18n/types.ts, not the "../i18n" barrel — that
+// barrel re-exports ./hooks, which reaches LanguageContext.tsx ->
+// StorageService -> data/ (this file's own folder), so importing the
+// barrel here would be circular.
+import type { TranslationKey } from "../i18n/types";
 
 // Zones from Figma design (grYg39698ogy0nEBd88Fup, node 26:3)
 // Group label follows patient perspective: "правое" = patient's right = screen LEFT

@@ -2,8 +2,7 @@ import { useEffect, useRef } from "react";
 import { Animated, StyleSheet } from "react-native";
 import { ACCORDION_ANIMATION_DURATION_MS } from "../../../constants";
 import { DEFAULT_SIZE, ROTATION_DEG, STROKE_WIDTH } from "./constants";
-
-export type ChevronDirection = "down" | "right";
+import { ChevronDirection } from "./types";
 
 interface Props {
   direction: ChevronDirection;

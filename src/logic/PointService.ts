@@ -1,7 +1,12 @@
 import { PointColor, StoredPointState } from "../types";
 import { DEFAULT_DAYS_TO_WHITE } from "../constants";
-import { daysBetween, injectionCycleColor, postBlackoutColor } from "./utils";
-import { DAY_MS, FULL_CYCLE_COLORS, COLOR_REMOVAL_ORDER } from "./constants";
+import {
+  activeCycleColors,
+  daysBetween,
+  injectionCycleColor,
+  postBlackoutColor,
+} from "./utils";
+import { DAY_MS } from "./constants";
 import {
   PressResultType,
   PressResult,
@@ -21,10 +26,11 @@ export class PointService {
   // Colors used for the normal injection cycle at a given daysToWhite
   // setting, in day order (index === days since injection). White is
   // reached once daysSince >= this list's length, i.e. on day `daysToWhite`.
+  // Delegates to logic/utils/activeCycleColors.ts, which also backs
+  // injectionCycleColor/postBlackoutColor directly (calling back into this
+  // class from there would cycle through logic/utils/index.ts).
   static activeCycleColors(daysToWhite: number): PointColor[] {
-    const removeCount = FULL_CYCLE_COLORS.length - daysToWhite;
-    const removed = new Set(COLOR_REMOVAL_ORDER.slice(0, removeCount));
-    return FULL_CYCLE_COLORS.filter((color) => !removed.has(color));
+    return activeCycleColors(daysToWhite);
   }
 
   static computePointColor(

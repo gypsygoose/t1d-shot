@@ -1,7 +1,6 @@
 import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
 import { ru, en } from "./locales";
-import type { AppLocale } from "./locales";
 import { getDeviceLanguage } from "./utils";
 
 export const resources = {
@@ -9,17 +8,10 @@ export const resources = {
   en: { translation: en },
 };
 
-// Dot-path union of every leaf key in en.ts (e.g. "menu.themeRow") — used to
-// type Record<SomeEnum, TranslationKey> lookup maps (ZONE_LABEL_KEY,
-// THEME_MODE_KEY, ...) so a value pulled from one and handed to t() stays
-// checked against the real key set, the same as a literal t('...') call.
-type LeafPaths<T, Prefix extends string = ""> = {
-  [K in keyof T & string]: T[K] extends string
-    ? `${Prefix}${K}`
-    : LeafPaths<T[K], `${Prefix}${K}.`>;
-}[keyof T & string];
-
-export type TranslationKey = LeafPaths<AppLocale>;
+// Defined in ./types (not here) so data/zones.ts can import it without a
+// cycle back through this file's own "./hooks" re-export below — see the
+// comment on TranslationKey in ./types for why.
+export type { TranslationKey } from "./types";
 
 // Best-guess language before LanguageProvider applies the persisted
 // LanguageMode override on mount (see src/i18n/LanguageContext.tsx) — reading

@@ -1,4 +1,4 @@
-import { ChevronDirection } from "./Chevron";
+import { ChevronDirection } from "./types";
 
 export const DEFAULT_SIZE = 10;
 export const STROKE_WIDTH = 2;

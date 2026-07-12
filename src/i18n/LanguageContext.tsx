@@ -6,9 +6,9 @@ import {
   useMemo,
   useState,
 } from "react";
+import i18next from "i18next";
 import { LanguageMode } from "../types";
 import { StorageService } from "../storage";
-import { i18next } from "./index";
 import { LanguageContextValue } from "./types";
 import { resolveLanguage } from "./utils";
 
@@ -24,6 +24,13 @@ export const LanguageContext = createContext<LanguageContextValue | null>(
 // change rather than subscribed to live OS locale changes — unlike
 // light/dark, a locale change mid-session is effectively never observed in
 // practice, so the extra plumbing isn't worth it here.
+//
+// Imports the `i18next` package directly (not the initialized instance
+// re-exported from ./index.ts) — the package's default export is already
+// the same singleton instance app-wide regardless of which file imports it,
+// and importing it directly here (instead of via ./index) avoids a module
+// cycle back through hooks/useLanguage.ts, which index.ts's own barrel
+// re-exports.
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [mode, setModeState] = useState<LanguageMode>(LanguageMode.System);
 

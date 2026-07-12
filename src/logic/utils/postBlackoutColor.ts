@@ -1,12 +1,12 @@
 import { PointColor } from "../../types";
-import { PointService } from "../PointService";
+import { activeCycleColors } from "./activeCycleColors";
 
 // After blackout ends: cycle starts at red (maroon is skipped)
 export function postBlackoutColor(
   daysSinceEnd: number,
   daysToWhite: number,
 ): PointColor {
-  const active = PointService.activeCycleColors(daysToWhite).filter(
+  const active = activeCycleColors(daysToWhite).filter(
     (color) => color !== PointColor.Maroon,
   );
   return daysSinceEnd < active.length
