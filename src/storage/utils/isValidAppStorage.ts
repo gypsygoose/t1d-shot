@@ -48,6 +48,11 @@ export function isValidAppStorage(data: unknown): data is ExportedAppData {
   )
     return false;
   if (
+    candidate.daysToAvailable !== undefined &&
+    typeof candidate.daysToAvailable !== "number"
+  )
+    return false;
+  if (
     candidate.themeMode !== undefined &&
     !THEME_MODES.includes(candidate.themeMode)
   )

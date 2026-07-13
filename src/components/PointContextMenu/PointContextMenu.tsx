@@ -12,6 +12,11 @@ interface Props {
   pointState?: StoredPointState;
   address?: PointAddress;
   now: number;
+  // Days remaining until the "days to available" setting allows marking
+  // this point again, or undefined if it can already be marked — see
+  // PointService.daysUntilAvailable. Only meaningful when the point isn't
+  // gray/black, which are gated by their own, unrelated rules.
+  daysUntilAvailable?: number;
   onBlock: () => void;
   onUnblock: () => void;
   onMark: () => void;
@@ -26,6 +31,7 @@ export function PointContextMenu({
   pointState,
   address,
   now,
+  daysUntilAvailable,
   onBlock,
   onUnblock,
   onMark,
@@ -35,6 +41,7 @@ export function PointContextMenu({
   const { t, i18n } = useTranslation();
   const isGray = color === PointColor.Gray;
   const isBlack = color === PointColor.Black;
+  const isUnavailable = daysUntilAvailable !== undefined;
   const blackoutEndAt = pointState
     ? PointService.getBlackoutEndAt(pointState)
     : undefined;
@@ -61,6 +68,11 @@ export function PointContextMenu({
       }),
     );
   }
+  if (isUnavailable) {
+    infoLines.push(
+      t("pointMenu.availableIn", { count: daysUntilAvailable }),
+    );
+  }
 
   const items: ContextMenuItem[] = [];
   if (isGray) {
@@ -68,7 +80,12 @@ export function PointContextMenu({
   }
   if (!isGray && !isBlack) {
     items.push({ key: "block", label: t("pointMenu.block"), onPress: onBlock });
-    items.push({ key: "mark", label: t("common.mark"), onPress: onMark });
+    items.push({
+      key: "mark",
+      label: t("common.mark"),
+      onPress: onMark,
+      disabled: isUnavailable,
+    });
   }
   items.push({
     key: "clear",

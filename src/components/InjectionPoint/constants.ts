@@ -4,3 +4,8 @@ export const GLOW_SIZE = 35;
 export const KNOB_SIZE = 25;
 // Context-menu long-press threshold — matches CLAUDE.md's "Manual block" note.
 export const LONG_PRESS_DELAY_MS = 800;
+// Fill drawn over the knob's top-right half when the "days to available"
+// setting blocks marking it — deliberately theme-invariant (like the
+// injection-cycle colors themselves), since it's an overlay on top of
+// whatever color the knob already is, not app chrome.
+export const UNAVAILABLE_OVERLAY_COLOR = "#333333CC";

@@ -103,6 +103,21 @@ export function MainScreen() {
         return;
       }
 
+      const daysUntilAvailable = PointService.daysUntilAvailable(
+        state.pointStates[id],
+        state.now,
+        state.daysToWhite,
+        state.daysToAvailable,
+      );
+      if (daysUntilAvailable !== undefined) {
+        showToast(
+          t("toast.pointUnavailable", { count: daysUntilAvailable }),
+          ToastStatus.Info,
+          TOAST_DURATION_MS,
+        );
+        return;
+      }
+
       const timestamp = Date.now();
       actions.pressPoint(id);
       const toast = buildMarkToastMessage(
@@ -122,6 +137,7 @@ export function MainScreen() {
       state.pointStates,
       state.now,
       state.daysToWhite,
+      state.daysToAvailable,
       state.interfaceLocked,
       state.zoneData,
       showToast,
@@ -143,6 +159,14 @@ export function MainScreen() {
         menuPointState,
         state.now,
         state.daysToWhite,
+      )
+    : undefined;
+  const menuDaysUntilAvailable = menuPointState
+    ? PointService.daysUntilAvailable(
+        menuPointState,
+        state.now,
+        state.daysToWhite,
+        state.daysToAvailable,
       )
     : undefined;
   const menuPointAddress = menuPointId
@@ -221,6 +245,14 @@ export function MainScreen() {
                 state.lastInGroup[ZoneGroup.Thighs] === pointId ||
                 state.lastInGroup[ZoneGroup.ShouldersAndBelly] === pointId
               }
+              isUnavailable={(pointId) =>
+                PointService.daysUntilAvailable(
+                  state.pointStates[pointId],
+                  state.now,
+                  state.daysToWhite,
+                  state.daysToAvailable,
+                ) !== undefined
+              }
               onPress={handlePress}
               onLongPress={handleLongPress}
             />
@@ -254,6 +286,8 @@ export function MainScreen() {
         onUpdateAutoLockTimes={actions.updateAutoLockTimes}
         daysToWhite={state.daysToWhite}
         onSetDaysToWhite={actions.setDaysToWhite}
+        daysToAvailable={state.daysToAvailable}
+        onSetDaysToAvailable={actions.setDaysToAvailable}
         zonePointCounts={state.zonePointCounts}
         onSetZonePointCounts={actions.setZonePointCounts}
         enabledZones={state.enabledZones}
@@ -290,6 +324,7 @@ export function MainScreen() {
         pointState={menuPointState}
         address={menuPointAddress}
         now={state.now}
+        daysUntilAvailable={menuDaysUntilAvailable}
         onBlock={() => {
           if (menuPointId) {
             actions.blockPoint(menuPointId);

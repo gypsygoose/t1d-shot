@@ -18,6 +18,8 @@ interface Props {
   onEditAutoLockSettings: () => void;
   daysToWhite: number;
   onEditDaysToWhite: () => void;
+  daysToAvailable: number;
+  onEditDaysToAvailable: () => void;
   onEditZonePointCounts: () => void;
   onEditZones: () => void;
   themeMode: ThemeMode;
@@ -41,6 +43,8 @@ export function MenuSheet({
   onEditAutoLockSettings,
   daysToWhite,
   onEditDaysToWhite,
+  daysToAvailable,
+  onEditDaysToAvailable,
   onEditZonePointCounts,
   onEditZones,
   themeMode,
@@ -104,6 +108,19 @@ export function MenuSheet({
         </Text>
         <Text style={[styles.rowValue, { color: colors.mutedText }]}>
           {t("common.daysCount", { count: daysToWhite })}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.row}
+        onPress={onEditDaysToAvailable}
+        activeOpacity={0.7}
+      >
+        <Text style={[styles.rowLabel, { color: colors.primaryText }]}>
+          {t("menu.daysToAvailableRow")}
+        </Text>
+        <Text style={[styles.rowValue, { color: colors.mutedText }]}>
+          {t("common.daysCount", { count: daysToAvailable })}
         </Text>
       </TouchableOpacity>
 

@@ -7,6 +7,7 @@ import { HelpSheet } from "../HelpSheet";
 import { MenuSheet, LANGUAGE_MODE_KEY, THEME_MODE_KEY } from "../MenuSheet";
 import { AutoLockDialog } from "../AutoLockDialog";
 import { DaysToWhiteDialog } from "../DaysToWhiteDialog";
+import { DaysToAvailableDialog } from "../DaysToAvailableDialog";
 import { ZonePointsDialog } from "../ZonePointsDialog";
 import { ZonesDialog } from "../ZonesDialog";
 import { ThemeDialog } from "../ThemeDialog";
@@ -58,6 +59,8 @@ interface Props {
   ) => void;
   daysToWhite: number;
   onSetDaysToWhite: (days: number) => void;
+  daysToAvailable: number;
+  onSetDaysToAvailable: (days: number) => void;
   zonePointCounts: ZonePointCounts;
   onSetZonePointCounts: (next: ZonePointCounts) => void;
   enabledZones: EnabledZones;
@@ -88,6 +91,8 @@ export function BottomMenu({
   onUpdateAutoLockTimes,
   daysToWhite,
   onSetDaysToWhite,
+  daysToAvailable,
+  onSetDaysToAvailable,
   zonePointCounts,
   onSetZonePointCounts,
   enabledZones,
@@ -110,6 +115,8 @@ export function BottomMenu({
   const [autoLockDialogIntent, setAutoLockDialogIntent] =
     useState<AutoLockDialogMode | null>(null);
   const [showDaysToWhiteDialog, setShowDaysToWhiteDialog] = useState(false);
+  const [showDaysToAvailableDialog, setShowDaysToAvailableDialog] =
+    useState(false);
   const [showZonePointsDialog, setShowZonePointsDialog] = useState(false);
   const [showZonesDialog, setShowZonesDialog] = useState(false);
   const [showThemeDialog, setShowThemeDialog] = useState(false);
@@ -137,6 +144,11 @@ export function BottomMenu({
   const handleEditDaysToWhite = () => {
     setShowMenu(false);
     setShowDaysToWhiteDialog(true);
+  };
+
+  const handleEditDaysToAvailable = () => {
+    setShowMenu(false);
+    setShowDaysToAvailableDialog(true);
   };
 
   const handleEditZonePointCounts = () => {
@@ -197,6 +209,8 @@ export function BottomMenu({
         onEditAutoLockSettings={handleEditAutoLockSettings}
         daysToWhite={daysToWhite}
         onEditDaysToWhite={handleEditDaysToWhite}
+        daysToAvailable={daysToAvailable}
+        onEditDaysToAvailable={handleEditDaysToAvailable}
         onEditZonePointCounts={handleEditZonePointCounts}
         onEditZones={handleEditZones}
         themeMode={themeMode}
@@ -248,6 +262,24 @@ export function BottomMenu({
           );
         }}
         onCancel={() => setShowDaysToWhiteDialog(false)}
+      />
+
+      <DaysToAvailableDialog
+        visible={showDaysToAvailableDialog}
+        initialDays={daysToAvailable}
+        maxDays={daysToWhite}
+        onConfirm={(days) => {
+          setShowDaysToAvailableDialog(false);
+          onSetDaysToAvailable(days);
+          onNotify(
+            t("toast.labeledValue", {
+              label: t("menu.daysToAvailableRow"),
+              value: days,
+            }),
+            ToastStatus.Success,
+          );
+        }}
+        onCancel={() => setShowDaysToAvailableDialog(false)}
       />
 
       <ZonePointsDialog

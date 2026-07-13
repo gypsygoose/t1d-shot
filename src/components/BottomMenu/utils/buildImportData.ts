@@ -41,6 +41,9 @@ export function buildImportData(
   if (selection.settings[ExportSettingKey.DaysToWhite]) {
     filtered.daysToWhite = data.daysToWhite;
   }
+  if (selection.settings[ExportSettingKey.DaysToAvailable]) {
+    filtered.daysToAvailable = data.daysToAvailable;
+  }
   if (selection.settings[ExportSettingKey.Theme]) {
     filtered.themeMode = data.themeMode;
   }

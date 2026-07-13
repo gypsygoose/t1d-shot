@@ -6,16 +6,33 @@ import {
   GestureResponderEvent,
 } from "react-native";
 import * as Haptics from "expo-haptics";
-import Svg, { Defs, RadialGradient, Stop, Circle } from "react-native-svg";
+import Svg, {
+  Defs,
+  RadialGradient,
+  Stop,
+  Circle,
+  Path,
+} from "react-native-svg";
 import { PointColor } from "../../types";
 import { COLOR_HEX, PointService } from "../../logic";
-import { GLOW_SIZE, KNOB_SIZE, LONG_PRESS_DELAY_MS } from "./constants";
+import { topRightHalfCirclePath } from "../../utils";
+import {
+  GLOW_SIZE,
+  KNOB_SIZE,
+  LONG_PRESS_DELAY_MS,
+  UNAVAILABLE_OVERLAY_COLOR,
+} from "./constants";
 
 interface Props {
   id: string;
   color: PointColor;
   glowColor: string;
   showCheckmark: boolean;
+  // True when the "days to available" setting still blocks marking this
+  // point — the color itself is unchanged (see CLAUDE.md's "Point colour
+  // state machine"); this only fills the knob's top-right half with an
+  // overlay.
+  unavailable: boolean;
   onPress: () => void;
   onLongPress: () => void;
 }
@@ -25,6 +42,7 @@ export function InjectionPoint({
   color,
   glowColor,
   showCheckmark,
+  unavailable,
   onPress,
   onLongPress,
 }: Props) {
@@ -47,6 +65,11 @@ export function InjectionPoint({
   const bg = COLOR_HEX[color];
   const ck = PointService.checkmarkColor(color);
   const gradientId = `glow-${id}`;
+  const unavailableOverlayPath = topRightHalfCirclePath(
+    GLOW_SIZE / 2,
+    GLOW_SIZE / 2,
+    KNOB_SIZE / 2,
+  );
 
   return (
     <TouchableOpacity
@@ -82,6 +105,9 @@ export function InjectionPoint({
           strokeWidth={1.5}
           strokeOpacity={0.9}
         />
+        {unavailable ? (
+          <Path d={unavailableOverlayPath} fill={UNAVAILABLE_OVERLAY_COLOR} />
+        ) : null}
       </Svg>
       {showCheckmark ? (
         <Text style={[styles.check, { color: ck }]}>✓</Text>

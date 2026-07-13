@@ -4,12 +4,14 @@ export enum PressResultType {
   Injection = "injection",
   Blackout = "blackout",
   Blocked = "blocked",
+  Unavailable = "unavailable",
 }
 
 export type PressResult =
   | { type: PressResultType.Injection; newState: StoredPointState }
   | { type: PressResultType.Blackout; newState: StoredPointState }
-  | { type: PressResultType.Blocked };
+  | { type: PressResultType.Blocked }
+  | { type: PressResultType.Unavailable; daysRemaining: number };
 
 // Which sentence PointService.colorLabel() (PointService.ts) describes —
 // kept as a descriptor rather than a formatted string so that file (tested

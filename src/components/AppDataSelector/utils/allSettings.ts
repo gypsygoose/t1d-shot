@@ -5,6 +5,7 @@ export function allSettings(value: boolean): Record<ExportSettingKey, boolean> {
     [ExportSettingKey.Mirrored]: value,
     [ExportSettingKey.AutoLock]: value,
     [ExportSettingKey.DaysToWhite]: value,
+    [ExportSettingKey.DaysToAvailable]: value,
     [ExportSettingKey.Theme]: value,
     [ExportSettingKey.Language]: value,
     [ExportSettingKey.ZonePointCounts]: value,

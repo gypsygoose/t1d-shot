@@ -1,5 +1,6 @@
 export { AutoLockDialog } from "./AutoLockDialog";
 export { DaysToWhiteDialog } from "./DaysToWhiteDialog";
+export { DaysToAvailableDialog } from "./DaysToAvailableDialog";
 export { LanguageDialog } from "./LanguageDialog";
 export { MarkDialog } from "./MarkDialog";
 export { ThemeDialog } from "./ThemeDialog";

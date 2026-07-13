@@ -15,6 +15,8 @@ import {
   DEFAULT_DAYS_TO_WHITE,
   MIN_DAYS_TO_WHITE,
   MAX_DAYS_TO_WHITE,
+  DEFAULT_DAYS_TO_AVAILABLE,
+  MIN_DAYS_TO_AVAILABLE,
 } from '../constants';
 import {
   uuid,
@@ -43,6 +45,7 @@ export interface AppState extends AppStorage {
   // auto-lock is currently pending (e.g. already locked, or disabled).
   autoLockDeadline: number | null;
   daysToWhite: number;
+  daysToAvailable: number;
   zonePointCounts: ZonePointCounts;
   enabledZones: EnabledZones;
 }
@@ -61,6 +64,7 @@ export interface AppActions {
   disableAutoLock(): void;
   updateAutoLockTimes(afterMarkSeconds: number, afterUnlockSeconds: number): void;
   setDaysToWhite(days: number): void;
+  setDaysToAvailable(days: number): void;
   setZonePointCounts(next: ZonePointCounts): void;
   setEnabledZones(next: EnabledZones): void;
   exportData(
@@ -96,6 +100,7 @@ export function useAppStore(
     autoLockAfterUnlockSeconds: DEFAULT_AUTO_LOCK_AFTER_UNLOCK_SECONDS,
     autoLockDeadline: null,
     daysToWhite: DEFAULT_DAYS_TO_WHITE,
+    daysToAvailable: DEFAULT_DAYS_TO_AVAILABLE,
     zonePointCounts: DEFAULT_ZONE_POINT_COUNTS,
     enabledZones: DEFAULT_ENABLED_ZONES,
   });
@@ -132,7 +137,8 @@ export function useAppStore(
         StorageService.loadInterfaceLocked(),
         StorageService.loadAutoLock(),
         StorageService.loadDaysToWhite(),
-      ]).then(([stored, mirrored, storedInterfaceLocked, autoLock, daysToWhite]) => {
+        StorageService.loadDaysToAvailable(),
+      ]).then(([stored, mirrored, storedInterfaceLocked, autoLock, daysToWhite, daysToAvailable]) => {
         const now = Date.now();
         let interfaceLocked = storedInterfaceLocked;
         let deadline = autoLock.deadline;
@@ -163,6 +169,7 @@ export function useAppStore(
           autoLockAfterUnlockSeconds: autoLock.afterUnlockSeconds,
           autoLockDeadline: deadline,
           daysToWhite,
+          daysToAvailable,
           zonePointCounts,
           enabledZones,
           isLoaded: true,
@@ -229,8 +236,17 @@ export function useAppStore(
       if (!point) return prev;
 
       const currentPointState = prev.pointStates[pointId];
-      const result = PointService.onPress(currentPointState, now, prev.daysToWhite);
-      if (result.type === PressResultType.Blocked) return prev;
+      const result = PointService.onPress(
+        currentPointState,
+        now,
+        prev.daysToWhite,
+        prev.daysToAvailable,
+      );
+      if (
+        result.type === PressResultType.Blocked ||
+        result.type === PressResultType.Unavailable
+      )
+        return prev;
 
       const event: AppEvent = {
         id: uuid(),
@@ -341,8 +357,17 @@ export function useAppStore(
       if (!point) return prev;
 
       const currentPointState = prev.pointStates[pointId];
-      const result = PointService.onPress(currentPointState, timestamp, prev.daysToWhite);
-      if (result.type === PressResultType.Blocked) return prev;
+      const result = PointService.onPress(
+        currentPointState,
+        timestamp,
+        prev.daysToWhite,
+        prev.daysToAvailable,
+      );
+      if (
+        result.type === PressResultType.Blocked ||
+        result.type === PressResultType.Unavailable
+      )
+        return prev;
 
       const event: AppEvent = {
         id: uuid(),
@@ -470,6 +495,11 @@ export function useAppStore(
       if (selection.settings[ExportSettingKey.DaysToWhite]) {
         next.daysToWhite = DEFAULT_DAYS_TO_WHITE;
         StorageService.saveDaysToWhite(DEFAULT_DAYS_TO_WHITE);
+      }
+
+      if (selection.settings[ExportSettingKey.DaysToAvailable]) {
+        next.daysToAvailable = DEFAULT_DAYS_TO_AVAILABLE;
+        StorageService.saveDaysToAvailable(DEFAULT_DAYS_TO_AVAILABLE);
       }
 
       // Same combined-backfill treatment as applyImport/setZonePointCounts/
@@ -609,6 +639,18 @@ export function useAppStore(
     StorageService.saveDaysToWhite(clamped);
   }, []);
 
+  // Raw value is clamped only to its own absolute bounds here — its
+  // effective cap against the current daysToWhite is applied at the point of
+  // use (see PointService.daysUntilAvailable), not by mutating this setting.
+  const setDaysToAvailable = useCallback((days: number) => {
+    const clamped = Math.min(
+      MAX_DAYS_TO_WHITE,
+      Math.max(MIN_DAYS_TO_AVAILABLE, days),
+    );
+    setState((prev) => ({ ...prev, daysToAvailable: clamped }));
+    StorageService.saveDaysToAvailable(clamped);
+  }, []);
+
   // Backfills default states for any slot newly brought into range by the
   // grid change (normalizeStorage), while leaving every other point's
   // history — including slots now outside the grid — untouched, so shrinking
@@ -699,6 +741,9 @@ export function useAppStore(
       if (selection.settings[ExportSettingKey.DaysToWhite]) {
         data.daysToWhite = state.daysToWhite;
       }
+      if (selection.settings[ExportSettingKey.DaysToAvailable]) {
+        data.daysToAvailable = state.daysToAvailable;
+      }
       if (selection.settings[ExportSettingKey.Theme]) {
         data.themeMode = themeMode;
       }
@@ -721,6 +766,7 @@ export function useAppStore(
       state.autoLockAfterMarkSeconds,
       state.autoLockAfterUnlockSeconds,
       state.daysToWhite,
+      state.daysToAvailable,
       state.zonePointCounts,
       state.enabledZones,
     ],
@@ -763,6 +809,11 @@ export function useAppStore(
       if (data.daysToWhite !== undefined) {
         StorageService.saveDaysToWhite(data.daysToWhite);
         next.daysToWhite = data.daysToWhite;
+      }
+
+      if (data.daysToAvailable !== undefined) {
+        StorageService.saveDaysToAvailable(data.daysToAvailable);
+        next.daysToAvailable = data.daysToAvailable;
       }
 
       // Same backfill-defaults treatment as setZonePointCounts/
@@ -820,6 +871,7 @@ export function useAppStore(
       disableAutoLock,
       updateAutoLockTimes,
       setDaysToWhite,
+      setDaysToAvailable,
       setZonePointCounts,
       setEnabledZones,
       exportData,

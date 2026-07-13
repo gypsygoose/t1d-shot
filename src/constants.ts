@@ -28,6 +28,15 @@ export const MIN_DAYS_TO_WHITE = 1;
 export const MAX_DAYS_TO_WHITE = 8;
 export const DEFAULT_DAYS_TO_WHITE = MAX_DAYS_TO_WHITE;
 
+// Configurable "days to available" setting — how many days after the start
+// of a point's current cycle (last injection, or blackout end) re-marking it
+// stays disabled entirely, on top of the existing color cycle. Its upper
+// bound is the *current* daysToWhite value (not a fixed constant), enforced
+// where it's actually used — see PointService.daysUntilAvailable and
+// DaysToAvailableDialog.
+export const MIN_DAYS_TO_AVAILABLE = 0;
+export const DEFAULT_DAYS_TO_AVAILABLE = MIN_DAYS_TO_AVAILABLE;
+
 // Configurable per-zone-type point grid range — minimum is uniform across
 // zone types; the maximum differs per type (see data/zones.ts's
 // ZONE_MAX_GRID/DEFAULT_ZONE_POINT_COUNTS) since not every zone has the same

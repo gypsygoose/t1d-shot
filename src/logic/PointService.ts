@@ -1,8 +1,9 @@
 import { PointColor, StoredPointState } from "../types";
-import { DEFAULT_DAYS_TO_WHITE } from "../constants";
+import { DEFAULT_DAYS_TO_AVAILABLE, DEFAULT_DAYS_TO_WHITE } from "../constants";
 import {
   activeCycleColors,
   daysBetween,
+  daysSinceCycleStart,
   injectionCycleColor,
   postBlackoutColor,
 } from "./utils";
@@ -74,6 +75,37 @@ export class PointService {
     return state.blackoutStartedAt + state.blackoutDurationDays * DAY_MS;
   }
 
+  // Days remaining until re-marking is allowed under the "days to available"
+  // setting, or undefined if the point can already be marked (setting
+  // disabled at 0, point never used, or already fully white/gray/black —
+  // those are gated by their own, unrelated rules). The setting's effective
+  // cap is the *current* daysToWhite value, not daysToAvailable's own raw
+  // stored value — see CLAUDE.md's "Point colour state machine": lowering
+  // daysToWhite below a previously-set daysToAvailable shortens the wait
+  // instead of leaving it stuck at the old, now out-of-range value.
+  static daysUntilAvailable(
+    state: StoredPointState,
+    now: number,
+    daysToWhite: number = DEFAULT_DAYS_TO_WHITE,
+    daysToAvailable: number = DEFAULT_DAYS_TO_AVAILABLE,
+  ): number | undefined {
+    if (daysToAvailable <= 0) return undefined;
+
+    const color = PointService.computePointColor(state, now, daysToWhite);
+    if (
+      color === PointColor.White ||
+      color === PointColor.Gray ||
+      color === PointColor.Black
+    ) {
+      return undefined;
+    }
+
+    const daysSince = daysSinceCycleStart(state, now)!;
+    const effectiveDaysToAvailable = Math.min(daysToAvailable, daysToWhite);
+    const remaining = effectiveDaysToAvailable - daysSince;
+    return remaining > 0 ? remaining : undefined;
+  }
+
   // ---------------------------------------------------------------------
   // Blackout duration by current color (days)
   // ---------------------------------------------------------------------
@@ -102,11 +134,21 @@ export class PointService {
     state: StoredPointState,
     now: number,
     daysToWhite: number = DEFAULT_DAYS_TO_WHITE,
+    daysToAvailable: number = DEFAULT_DAYS_TO_AVAILABLE,
   ): PressResult {
     const color = PointService.computePointColor(state, now, daysToWhite);
 
     if (color === PointColor.Gray || color === PointColor.Black)
       return { type: PressResultType.Blocked };
+
+    const daysRemaining = PointService.daysUntilAvailable(
+      state,
+      now,
+      daysToWhite,
+      daysToAvailable,
+    );
+    if (daysRemaining !== undefined)
+      return { type: PressResultType.Unavailable, daysRemaining };
 
     // White, dark-green, green → fresh injection
     if (

@@ -408,3 +408,112 @@ describe('colorLabel', () => {
     });
   });
 });
+
+// ---------------------------------------------------------------------------
+// Configurable daysToAvailable
+// ---------------------------------------------------------------------------
+
+describe('daysUntilAvailable', () => {
+  test('undefined (always available) when daysToAvailable is 0 (default)', () => {
+    const s = { ...fresh, lastInjectionAt: NOW };
+    expect(PointService.daysUntilAvailable(s, NOW, 8, 0)).toBeUndefined();
+    expect(PointService.daysUntilAvailable(s, NOW)).toBeUndefined();
+  });
+
+  test('never used point is always available regardless of daysToAvailable', () => {
+    expect(PointService.daysUntilAvailable(fresh, NOW, 8, 5)).toBeUndefined();
+  });
+
+  test('daysToWhite 8, daysToAvailable 5 — unavailable on day 0 (maroon), 5 days remaining', () => {
+    const s = { ...fresh, lastInjectionAt: NOW };
+    expect(PointService.daysUntilAvailable(s, NOW, 8, 5)).toBe(5);
+  });
+
+  test('daysToWhite 8, daysToAvailable 5 — unavailable on day 4 (dark yellow), 1 day remaining', () => {
+    const s = { ...fresh, lastInjectionAt: NOW - 4 * DAY };
+    expect(PointService.daysUntilAvailable(s, NOW, 8, 5)).toBe(1);
+  });
+
+  test('daysToWhite 8, daysToAvailable 5 — available from day 5 (yellow) onward', () => {
+    const dayFive = { ...fresh, lastInjectionAt: NOW - 5 * DAY };
+    const daySeven = { ...fresh, lastInjectionAt: NOW - 7 * DAY };
+    expect(PointService.daysUntilAvailable(dayFive, NOW, 8, 5)).toBeUndefined();
+    expect(PointService.daysUntilAvailable(daySeven, NOW, 8, 5)).toBeUndefined();
+  });
+
+  test('white is always available even at the maximum daysToAvailable', () => {
+    const s = { ...fresh, lastInjectionAt: NOW - 30 * DAY };
+    expect(PointService.daysUntilAvailable(s, NOW, 8, 8)).toBeUndefined();
+  });
+
+  test('gray/black are unaffected — daysUntilAvailable is undefined (gated separately)', () => {
+    const gray = { ...fresh, lastInjectionAt: NOW, isManuallyBlocked: true };
+    expect(PointService.daysUntilAvailable(gray, NOW, 8, 5)).toBeUndefined();
+
+    const black: StoredPointState = {
+      ...fresh,
+      blackoutStartedAt: NOW,
+      blackoutDurationDays: 4,
+    };
+    expect(PointService.daysUntilAvailable(black, NOW + DAY, 8, 5)).toBeUndefined();
+  });
+
+  test('at the maximum daysToAvailable (== daysToWhite), dark-green/green are unavailable too', () => {
+    const darkGreen = { ...fresh, lastInjectionAt: NOW - 6 * DAY };
+    const green = { ...fresh, lastInjectionAt: NOW - 7 * DAY };
+    expect(PointService.daysUntilAvailable(darkGreen, NOW, 8, 8)).toBe(2);
+    expect(PointService.daysUntilAvailable(green, NOW, 8, 8)).toBe(1);
+  });
+
+  test('reducing daysToWhite below a previously-set daysToAvailable shortens the effective wait', () => {
+    // daysToAvailable raw value (5) exceeds the current daysToWhite (3) —
+    // effective cap is min(5, 3) = 3, not 5.
+    const s = { ...fresh, lastInjectionAt: NOW };
+    expect(PointService.daysUntilAvailable(s, NOW, 3, 5)).toBe(3);
+  });
+
+  test('applies the same way to the post-blackout cycle', () => {
+    const s: StoredPointState = {
+      ...fresh,
+      blackoutStartedAt: NOW - 4 * DAY, // ended just now
+      blackoutDurationDays: 4,
+    };
+    // Post-blackout day 0 = red, day 1 = dark-orange, ... under daysToWhite 8.
+    expect(PointService.daysUntilAvailable(s, NOW, 8, 3)).toBe(3);
+    expect(PointService.daysUntilAvailable(s, NOW + 2 * DAY, 8, 3)).toBe(1);
+    expect(PointService.daysUntilAvailable(s, NOW + 3 * DAY, 8, 3)).toBeUndefined();
+  });
+});
+
+describe('onPress — respects daysToAvailable', () => {
+  test('unavailable on maroon point when pressed before the availability threshold', () => {
+    const s = { ...fresh, lastInjectionAt: NOW };
+    const result = PointService.onPress(s, NOW, 8, 5);
+    expect(result.type).toBe(PressResultType.Unavailable);
+    if (result.type === PressResultType.Unavailable) {
+      expect(result.daysRemaining).toBe(5);
+    }
+  });
+
+  test('falls through to the normal blackout outcome once available', () => {
+    // Day 5 = yellow under the default 8-cycle — available, but still a
+    // blockable color, so pressing it still triggers the usual 1-day
+    // blackout (the blackout table is unaffected by this setting).
+    const s = { ...fresh, lastInjectionAt: NOW - 5 * DAY };
+    const result = PointService.onPress(s, NOW, 8, 5);
+    expect(result.type).toBe(PressResultType.Blackout);
+    if (result.type === PressResultType.Blackout) {
+      expect(result.newState.blackoutDurationDays).toBe(1);
+    }
+  });
+
+  test('gray/black still take priority over Unavailable', () => {
+    const gray = { ...fresh, lastInjectionAt: NOW, isManuallyBlocked: true };
+    expect(PointService.onPress(gray, NOW, 8, 5).type).toBe(PressResultType.Blocked);
+  });
+
+  test('default daysToAvailable (0) never blocks — unchanged behavior', () => {
+    const s = { ...fresh, lastInjectionAt: NOW };
+    expect(PointService.onPress(s, NOW).type).toBe(PressResultType.Blackout);
+  });
+});

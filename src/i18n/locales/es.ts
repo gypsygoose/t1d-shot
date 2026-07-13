@@ -35,6 +35,14 @@ export const es: AppLocale = {
   },
   toast: {
     blocked: "Este punto está bloqueado y no se puede marcar",
+    pointUnavailable_one:
+      "Este punto aún no está disponible para marcar. Estará disponible en {{count}} día",
+    pointUnavailable_few:
+      "Este punto aún no está disponible para marcar. Estará disponible en {{count}} días",
+    pointUnavailable_many:
+      "Este punto aún no está disponible para marcar. Estará disponible en {{count}} días",
+    pointUnavailable_other:
+      "Este punto aún no está disponible para marcar. Estará disponible en {{count}} días",
     interfaceLocked:
       "La interfaz está bloqueada. Para marcar un punto de inyección, desbloquea la interfaz desde el menú inferior o usa el menú emergente del punto (pulsación larga).",
     interfaceLockEnabled: "Interfaz bloqueada",
@@ -77,6 +85,7 @@ export const es: AppLocale = {
     mirrorRow: "Reflejar vista",
     autoLockRow: "Bloqueo automático de la interfaz",
     daysToWhiteRow: "Días hasta que el punto se recupera",
+    daysToAvailableRow: "Días hasta que el punto vuelve a estar disponible",
     zonePointsRow: "Disposición de puntos en zonas",
     zonesRow: "Zonas activas",
     themeRow: "Tema",
@@ -93,6 +102,11 @@ export const es: AppLocale = {
     daysToWhiteDialog: {
       message:
         "Cuántos días deben pasar para que un punto de inyección se considere completamente libre (blanco) de nuevo. Un valor menor comprime los colores del ciclo en ese periodo.",
+      fieldLabel: "Días",
+    },
+    daysToAvailableDialog: {
+      message:
+        "Cuántos días después de la última marca un punto permanece deshabilitado para volver a marcarlo, además del ciclo de colores. No puede superar «Días hasta que el punto se recupera». En 0 (por defecto), un punto puede volver a marcarse en cualquier momento, igual que antes de existir este ajuste.",
       fieldLabel: "Días",
     },
     zonePointsDialog: {
@@ -160,6 +174,10 @@ export const es: AppLocale = {
     lastMark: "Última marca: {{dateTime}}",
     manuallyBlockedAt: "Bloqueado manualmente: {{dateTime}}",
     systemBlockedCountdown: "Bloqueado por el sistema.\nSe desbloquea en: {{countdown}}",
+    availableIn_one: "Disponible para marcar de nuevo en {{count}} día",
+    availableIn_few: "Disponible para marcar de nuevo en {{count}} días",
+    availableIn_many: "Disponible para marcar de nuevo en {{count}} días",
+    availableIn_other: "Disponible para marcar de nuevo en {{count}} días",
   },
   markDialog: {
     title: "Marcar inyección",
@@ -202,6 +220,10 @@ export const es: AppLocale = {
           "Absorción lenta. Para insulina de acción prolongada. Efecto máximo en 90–120 minutos.",
       },
     },
+    colorScheme: {
+      unavailableExample:
+        "Relleno gris en la esquina — la marca está bloqueada por el ajuste de días hasta disponibilidad",
+    },
     recommendations: {
       varySpot:
         "Aunque sigas la rotación de zonas, no inyectes siempre exactamente en el mismo punto — varía también ligeramente el punto exacto de inyección dentro de la misma zona.",
@@ -225,6 +247,8 @@ export const es: AppLocale = {
         "<bold>{{label}}</bold> — activar automáticamente el bloqueo tras un tiempo determinado después de marcar una inyección y tras un desbloqueo manual. Tocar la fila abre los ajustes de retardo.",
       daysToWhite:
         "<bold>{{label}}</bold> — cuántos días deben pasar para que un punto de inyección se considere completamente libre (blanco) de nuevo. Reducir el valor comprime el esquema de colores en ese periodo.",
+      daysToAvailable:
+        "<bold>{{label}}</bold> — cuántos días después de la última marca un punto permanece deshabilitado para volver a marcarlo, además del ciclo de colores. No puede superar el ajuste de días hasta la recuperación. En 0 (por defecto), un punto puede volver a marcarse en cualquier momento.",
       zonePoints:
         "<bold>{{label}}</bold> — elige cuántas filas y columnas tiene cada grupo de zonas (hombros, abdomen, muslos). Reducir la cuadrícula de una zona oculta sus puntos fuera de rango sin perder su historial; al aumentarla, ese historial vuelve a aparecer.",
       zones:

@@ -9,4 +9,5 @@ export type { PartitionedPointStates } from "./partitionPointStatesByBlock";
 export { resetPointStates } from "./resetPointStates";
 export { SECONDS_PER_MINUTE, splitSeconds } from "./splitSeconds";
 export type { SplitSeconds } from "./splitSeconds";
+export { topRightHalfCirclePath } from "./topRightHalfCirclePath";
 export { uuid } from "./uuid";

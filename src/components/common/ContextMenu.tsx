@@ -9,6 +9,7 @@ export interface ContextMenuItem {
   label: string;
   onPress: () => void;
   destructive?: boolean;
+  disabled?: boolean;
 }
 
 interface Props {
@@ -78,12 +79,14 @@ export function ContextMenu({
               style={styles.row}
               onPress={item.onPress}
               activeOpacity={0.7}
+              disabled={item.disabled}
             >
               <Text
                 style={[
                   styles.rowLabel,
                   { color: colors.primaryText },
                   item.destructive && { color: colors.destructive },
+                  item.disabled && { color: colors.mutedText },
                 ]}
               >
                 {item.label}

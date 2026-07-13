@@ -11,7 +11,7 @@ import {
   ThemeMode,
   ZonePointCounts,
 } from "../types";
-import { DEFAULT_DAYS_TO_WHITE } from "../constants";
+import { DEFAULT_DAYS_TO_AVAILABLE, DEFAULT_DAYS_TO_WHITE } from "../constants";
 import { DEFAULT_ZONE_POINT_COUNTS, DEFAULT_ENABLED_ZONES } from "../data";
 import {
   defaultStorage,
@@ -20,6 +20,7 @@ import {
   DEFAULT_AUTO_LOCK_AFTER_MARK_SECONDS,
   DEFAULT_AUTO_LOCK_AFTER_UNLOCK_SECONDS,
   clampDaysToWhite,
+  clampDaysToAvailable,
   clampZonePointCounts,
   clampEnabledZones,
   isValidAppStorage,
@@ -30,6 +31,7 @@ import {
   INTERFACE_LOCKED_KEY,
   AUTO_LOCK_KEY,
   DAYS_TO_WHITE_KEY,
+  DAYS_TO_AVAILABLE_KEY,
   THEME_MODE_KEY,
   LANGUAGE_MODE_KEY,
   ZONE_POINT_COUNTS_KEY,
@@ -118,6 +120,23 @@ export class StorageService {
 
   static async saveDaysToWhite(days: number): Promise<void> {
     await AsyncStorage.setItem(DAYS_TO_WHITE_KEY, String(clampDaysToWhite(days)));
+  }
+
+  static async loadDaysToAvailable(): Promise<number> {
+    try {
+      const raw = await AsyncStorage.getItem(DAYS_TO_AVAILABLE_KEY);
+      if (!raw) return DEFAULT_DAYS_TO_AVAILABLE;
+      return clampDaysToAvailable(Number(raw));
+    } catch {
+      return DEFAULT_DAYS_TO_AVAILABLE;
+    }
+  }
+
+  static async saveDaysToAvailable(days: number): Promise<void> {
+    await AsyncStorage.setItem(
+      DAYS_TO_AVAILABLE_KEY,
+      String(clampDaysToAvailable(days)),
+    );
   }
 
   static async loadThemeMode(): Promise<ThemeMode> {
@@ -242,6 +261,9 @@ export class StorageService {
       }
       if (data.daysToWhite !== undefined) {
         data.daysToWhite = clampDaysToWhite(data.daysToWhite);
+      }
+      if (data.daysToAvailable !== undefined) {
+        data.daysToAvailable = clampDaysToAvailable(data.daysToAvailable);
       }
       if (data.zonePointCounts !== undefined) {
         data.zonePointCounts = clampZonePointCounts(data.zonePointCounts);

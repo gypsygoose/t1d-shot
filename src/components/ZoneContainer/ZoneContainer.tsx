@@ -21,6 +21,7 @@ interface Props {
   pointsByZone: Record<ZoneId, PointDefinition[]>;
   getColor: (pointId: string) => PointColor;
   isCheckmarked: (pointId: string) => boolean;
+  isUnavailable: (pointId: string) => boolean;
   onPress: (pointId: string) => void;
   onLongPress: (pointId: string) => void;
 }
@@ -36,6 +37,7 @@ export function ZoneContainer({
   pointsByZone,
   getColor,
   isCheckmarked,
+  isUnavailable,
   onPress,
   onLongPress,
 }: Props) {
@@ -75,6 +77,7 @@ export function ZoneContainer({
               color={getColor(point.id)}
               glowColor={zoneColors.glow}
               showCheckmark={isCheckmarked(point.id)}
+              unavailable={isUnavailable(point.id)}
               onPress={() => onPress(point.id)}
               onLongPress={() => onLongPress(point.id)}
             />

@@ -34,6 +34,14 @@ export const en = {
   },
   toast: {
     blocked: "This point is blocked and can't be marked",
+    pointUnavailable_one:
+      "This point isn't available for marking yet. Available in {{count}} day",
+    pointUnavailable_few:
+      "This point isn't available for marking yet. Available in {{count}} days",
+    pointUnavailable_many:
+      "This point isn't available for marking yet. Available in {{count}} days",
+    pointUnavailable_other:
+      "This point isn't available for marking yet. Available in {{count}} days",
     interfaceLocked:
       "The interface is locked. To mark an injection point, unlock the interface from the bottom menu, or use the point's popup menu (long press).",
     interfaceLockEnabled: "Interface locked",
@@ -73,6 +81,7 @@ export const en = {
     mirrorRow: "Mirror display",
     autoLockRow: "Auto-lock interface",
     daysToWhiteRow: "Days until point recovers",
+    daysToAvailableRow: "Days until point is available again",
     zonePointsRow: "Zone point layout",
     zonesRow: "Active zones",
     themeRow: "Theme",
@@ -89,6 +98,11 @@ export const en = {
     daysToWhiteDialog: {
       message:
         "How many days until an injection point is considered fully free (white) again. A lower value compresses the cycle's colors into that timeframe.",
+      fieldLabel: "Days",
+    },
+    daysToAvailableDialog: {
+      message:
+        "How many days after the last mark a point stays disabled for re-marking, on top of the color cycle. Can't exceed \"Days until point recovers\". At 0 (default), a point can be re-marked at any time, same as before this setting existed.",
       fieldLabel: "Days",
     },
     zonePointsDialog: {
@@ -156,6 +170,10 @@ export const en = {
     lastMark: "Last marked: {{dateTime}}",
     manuallyBlockedAt: "Manually blocked: {{dateTime}}",
     systemBlockedCountdown: "Blocked by the system.\nUnlocks in: {{countdown}}",
+    availableIn_one: "Available for marking again in {{count}} day",
+    availableIn_few: "Available for marking again in {{count}} days",
+    availableIn_many: "Available for marking again in {{count}} days",
+    availableIn_other: "Available for marking again in {{count}} days",
   },
   markDialog: {
     title: "Mark injection",
@@ -198,6 +216,10 @@ export const en = {
           "Slow absorption. For long-acting insulin. Peak effect in 90–120 minutes.",
       },
     },
+    colorScheme: {
+      unavailableExample:
+        "Gray corner overlay — marking is blocked by the days-to-available setting",
+    },
     recommendations: {
       varySpot:
         "Even when following the site rotation, don't inject into the exact same spot every time — vary the precise injection point slightly within the same site as well.",
@@ -221,6 +243,8 @@ export const en = {
         "<bold>{{label}}</bold> — automatically enable locking after a set time following an injection mark, and after a manual unlock. Tapping the row opens the delay settings.",
       daysToWhite:
         "<bold>{{label}}</bold> — how many days until an injection point is considered fully free (white) again. Lowering the value compresses the color scheme into that timeframe.",
+      daysToAvailable:
+        "<bold>{{label}}</bold> — how many days after the last mark a point stays disabled for re-marking, on top of the color cycle. Can't exceed the days-to-recovery setting. At 0 (default), a point can be re-marked at any time.",
       zonePoints:
         "<bold>{{label}}</bold> — choose how many rows and columns each zone group (shoulders, belly, thighs) has. Shrinking a zone's grid hides its out-of-range points without losing their history; growing it back reveals that history again.",
       zones:

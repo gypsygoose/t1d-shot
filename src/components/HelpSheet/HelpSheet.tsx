@@ -1,47 +1,14 @@
 import { ScrollView, Text, View, StyleSheet } from "react-native";
+import Svg, { Circle, Path } from "react-native-svg";
 import { Trans, useTranslation } from "react-i18next";
 import { PointColor, ZoneType } from "../../types";
 import { COLOR_HEX, PointService } from "../../logic";
 import { BottomSheet } from "../common";
+import { UNAVAILABLE_OVERLAY_COLOR } from "../InjectionPoint";
 import { useTheme } from "../../theme";
-import type { TranslationKey } from "../../i18n";
+import { topRightHalfCirclePath } from "../../utils";
 import { colorOrder, formatColorLabel } from "./utils";
-
-// Injection zone descriptions, taken from the Figma "help" frame (node
-// 26:239, file grYg39698ogy0nEBd88Fup). `type` looks up the accent directly
-// from `colors.zoneColors`, which already resolves to the theme's darker
-// shade in light mode — the plain dark-theme accent reads too faint as
-// text/a badge border on the light theme's white sheet surface (same issue
-// as ZoneContainer's block — see CLAUDE.md's "Zones and points").
-const HELP_ZONE_TYPES: ZoneType[] = [
-  ZoneType.Shoulder,
-  ZoneType.Belly,
-  ZoneType.Thigh,
-];
-
-interface HelpZoneKeys {
-  label: TranslationKey;
-  location: TranslationKey;
-  description: TranslationKey;
-}
-
-const HELP_ZONE_KEY: Record<ZoneType, HelpZoneKeys> = {
-  [ZoneType.Shoulder]: {
-    label: "help.zones.shoulder.label",
-    location: "help.zones.shoulder.location",
-    description: "help.zones.shoulder.description",
-  },
-  [ZoneType.Belly]: {
-    label: "help.zones.belly.label",
-    location: "help.zones.belly.location",
-    description: "help.zones.belly.description",
-  },
-  [ZoneType.Thigh]: {
-    label: "help.zones.thigh.label",
-    location: "help.zones.thigh.location",
-    description: "help.zones.thigh.description",
-  },
-};
+import { COLOR_SWATCH_SIZE, HELP_ZONE_KEY, HELP_ZONE_TYPES } from "./constants";
 
 interface Props {
   visible: boolean;
@@ -120,6 +87,31 @@ export function HelpSheet({ visible, onClose, daysToWhite }: Props) {
             </Text>
           </View>
         ))}
+        <View style={styles.colorRow}>
+          <Svg
+            width={COLOR_SWATCH_SIZE}
+            height={COLOR_SWATCH_SIZE}
+            style={[styles.swatch, { borderWidth: 0 }]}
+          >
+            <Circle
+              cx={COLOR_SWATCH_SIZE / 2}
+              cy={COLOR_SWATCH_SIZE / 2}
+              r={COLOR_SWATCH_SIZE / 2}
+              fill={COLOR_HEX[PointColor.Yellow]}
+            />
+            <Path
+              d={topRightHalfCirclePath(
+                COLOR_SWATCH_SIZE / 2,
+                COLOR_SWATCH_SIZE / 2,
+                COLOR_SWATCH_SIZE / 2,
+              )}
+              fill={UNAVAILABLE_OVERLAY_COLOR}
+            />
+          </Svg>
+          <Text style={[styles.colorLabel, { color: colors.secondaryText }]}>
+            {t("help.colorScheme.unavailableExample")}
+          </Text>
+        </View>
 
         <Text style={sectionTitleStyle}>
           {t("help.sectionRecommendations")}
@@ -184,6 +176,13 @@ export function HelpSheet({ visible, onClose, daysToWhite }: Props) {
           <Trans
             i18nKey="help.menuItems.daysToWhite"
             values={{ label: t("menu.daysToWhiteRow") }}
+            components={boldComponents}
+          />
+        </Text>
+        <Text style={hintStyle}>
+          <Trans
+            i18nKey="help.menuItems.daysToAvailable"
+            values={{ label: t("menu.daysToAvailableRow") }}
             components={boldComponents}
           />
         </Text>
@@ -289,9 +288,9 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   swatch: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: COLOR_SWATCH_SIZE,
+    height: COLOR_SWATCH_SIZE,
+    borderRadius: COLOR_SWATCH_SIZE / 2,
     borderWidth: 1.5,
     flexShrink: 0,
   },

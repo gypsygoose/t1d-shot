@@ -36,6 +36,14 @@ export const pt: AppLocale = {
   },
   toast: {
     blocked: "Este ponto está bloqueado e não pode ser marcado",
+    pointUnavailable_one:
+      "Este ponto ainda não está disponível para marcação. Disponível em {{count}} dia",
+    pointUnavailable_few:
+      "Este ponto ainda não está disponível para marcação. Disponível em {{count}} dias",
+    pointUnavailable_many:
+      "Este ponto ainda não está disponível para marcação. Disponível em {{count}} dias",
+    pointUnavailable_other:
+      "Este ponto ainda não está disponível para marcação. Disponível em {{count}} dias",
     interfaceLocked:
       "A interface está bloqueada. Para marcar um ponto de injeção, desbloqueie a interface no menu inferior ou use o menu do ponto (toque longo).",
     interfaceLockEnabled: "Interface bloqueada",
@@ -77,6 +85,7 @@ export const pt: AppLocale = {
     mirrorRow: "Espelhar exibição",
     autoLockRow: "Bloqueio automático da interface",
     daysToWhiteRow: "Dias até o ponto se recuperar",
+    daysToAvailableRow: "Dias até o ponto ficar disponível novamente",
     zonePointsRow: "Disposição de pontos na zona",
     zonesRow: "Zonas ativas",
     themeRow: "Tema",
@@ -93,6 +102,11 @@ export const pt: AppLocale = {
     daysToWhiteDialog: {
       message:
         "Quantos dias até um ponto de injeção ser considerado totalmente livre (branco) novamente. Um valor menor comprime as cores do ciclo nesse período.",
+      fieldLabel: "Dias",
+    },
+    daysToAvailableDialog: {
+      message:
+        "Quantos dias após a última marca um ponto permanece desabilitado para uma nova marcação, além do ciclo de cores. Não pode exceder \"Dias até o ponto se recuperar\". Em 0 (padrão), um ponto pode ser marcado novamente a qualquer momento, como antes de esta configuração existir.",
       fieldLabel: "Dias",
     },
     zonePointsDialog: {
@@ -160,6 +174,10 @@ export const pt: AppLocale = {
     lastMark: "Última marcação: {{dateTime}}",
     manuallyBlockedAt: "Bloqueado manualmente: {{dateTime}}",
     systemBlockedCountdown: "Bloqueado pelo sistema.\nDesbloqueia em: {{countdown}}",
+    availableIn_one: "Disponível para marcar novamente em {{count}} dia",
+    availableIn_few: "Disponível para marcar novamente em {{count}} dias",
+    availableIn_many: "Disponível para marcar novamente em {{count}} dias",
+    availableIn_other: "Disponível para marcar novamente em {{count}} dias",
   },
   markDialog: {
     title: "Marcar injeção",
@@ -202,6 +220,10 @@ export const pt: AppLocale = {
           "Absorção lenta. Para insulina de ação prolongada. Pico de ação em 90–120 minutos.",
       },
     },
+    colorScheme: {
+      unavailableExample:
+        "Preenchimento cinza no canto — a marcação está bloqueada pela configuração de dias até disponível",
+    },
     recommendations: {
       varySpot:
         "Mesmo seguindo o rodízio dos locais, não aplique sempre exatamente no mesmo ponto — varie levemente o ponto exato de injeção também dentro do mesmo local.",
@@ -225,6 +247,8 @@ export const pt: AppLocale = {
         "<bold>{{label}}</bold> — ativa automaticamente o bloqueio após um tempo definido depois de marcar uma injeção e após um desbloqueio manual. Tocar na linha abre as configurações de atraso.",
       daysToWhite:
         "<bold>{{label}}</bold> — quantos dias até um ponto de injeção ser considerado totalmente livre (branco) novamente. Diminuir o valor comprime o esquema de cores nesse período.",
+      daysToAvailable:
+        "<bold>{{label}}</bold> — quantos dias após a última marca um ponto permanece desabilitado para uma nova marcação, além do ciclo de cores. Não pode exceder a configuração de dias até a recuperação. Em 0 (padrão), um ponto pode ser marcado novamente a qualquer momento.",
       zonePoints:
         "<bold>{{label}}</bold> — escolha quantas linhas e colunas cada grupo de zonas (ombros, abdômen, coxas) tem. Reduzir a grade de uma zona oculta seus pontos fora do intervalo sem perder o histórico; ao aumentá-la, esse histórico reaparece.",
       zones:

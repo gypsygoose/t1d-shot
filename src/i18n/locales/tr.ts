@@ -35,6 +35,14 @@ export const tr: AppLocale = {
   },
   toast: {
     blocked: "Bu nokta engellendi ve işaretlenemez",
+    pointUnavailable_one:
+      "Bu nokta henüz işaretlemeye uygun değil. {{count}} gün içinde uygun olacak",
+    pointUnavailable_few:
+      "Bu nokta henüz işaretlemeye uygun değil. {{count}} gün içinde uygun olacak",
+    pointUnavailable_many:
+      "Bu nokta henüz işaretlemeye uygun değil. {{count}} gün içinde uygun olacak",
+    pointUnavailable_other:
+      "Bu nokta henüz işaretlemeye uygun değil. {{count}} gün içinde uygun olacak",
     interfaceLocked:
       "Arayüz kilitli. Bir enjeksiyon noktasını işaretlemek için arayüzü alt menüden kilidini açın veya noktanın açılır menüsünü kullanın (uzun basma).",
     interfaceLockEnabled: "Arayüz kilitlendi",
@@ -77,6 +85,7 @@ export const tr: AppLocale = {
     mirrorRow: "Görünümü aynala",
     autoLockRow: "Arayüzü otomatik kilitle",
     daysToWhiteRow: "Noktanın iyileşmesine kalan gün sayısı",
+    daysToAvailableRow: "Noktanın tekrar kullanılabilir olmasına kalan gün sayısı",
     zonePointsRow: "Bölge nokta düzeni",
     zonesRow: "Etkin bölgeler",
     themeRow: "Tema",
@@ -93,6 +102,11 @@ export const tr: AppLocale = {
     daysToWhiteDialog: {
       message:
         "Bir enjeksiyon noktasının tekrar tamamen serbest (beyaz) sayılması için kaç gün geçmesi gerektiği. Daha düşük bir değer, döngünün renklerini bu süreye sıkıştırır.",
+      fieldLabel: "Gün",
+    },
+    daysToAvailableDialog: {
+      message:
+        "Son işaretlemeden sonra bir noktanın, renk döngüsüne ek olarak, tekrar işaretlenmek üzere kaç gün devre dışı kalacağı. \"Noktanın iyileşmesine kalan gün sayısı\" değerini aşamaz. 0'da (varsayılan), bir nokta bu ayar var olmadan önce olduğu gibi her zaman yeniden işaretlenebilir.",
       fieldLabel: "Gün",
     },
     zonePointsDialog: {
@@ -160,6 +174,10 @@ export const tr: AppLocale = {
     lastMark: "Son işaretleme: {{dateTime}}",
     manuallyBlockedAt: "Elle engellendi: {{dateTime}}",
     systemBlockedCountdown: "Sistem tarafından engellendi.\nKilit açılıyor: {{countdown}}",
+    availableIn_one: "{{count}} gün içinde tekrar işaretlenebilir",
+    availableIn_few: "{{count}} gün içinde tekrar işaretlenebilir",
+    availableIn_many: "{{count}} gün içinde tekrar işaretlenebilir",
+    availableIn_other: "{{count}} gün içinde tekrar işaretlenebilir",
   },
   markDialog: {
     title: "Enjeksiyonu işaretle",
@@ -202,6 +220,10 @@ export const tr: AppLocale = {
           "Yavaş emilim. Uzun etkili insülin için. Etki zirvesi 90–120 dakika.",
       },
     },
+    colorScheme: {
+      unavailableExample:
+        "Köşedeki gri dolgu — işaretleme \"kullanılabilirliğe kalan gün\" ayarıyla engelleniyor",
+    },
     recommendations: {
       varySpot:
         "Bölge rotasyonuna uysanız bile, her seferinde tam olarak aynı noktaya enjeksiyon yapmayın — aynı bölge içinde de tam enjeksiyon noktasını hafifçe değiştirin.",
@@ -225,6 +247,8 @@ export const tr: AppLocale = {
         "<bold>{{label}}</bold> — bir enjeksiyon işaretlendikten belirli bir süre sonra ve elle kilit açıldıktan sonra kilitlemeyi otomatik olarak etkinleştirir. Satıra dokunmak gecikme ayarlarını açar.",
       daysToWhite:
         "<bold>{{label}}</bold> — bir enjeksiyon noktasının tekrar tamamen serbest (beyaz) sayılması için kaç gün geçmesi gerektiği. Değeri düşürmek renk şemasını bu süreye sıkıştırır.",
+      daysToAvailable:
+        "<bold>{{label}}</bold> — son işaretlemeden sonra bir noktanın, renk döngüsüne ek olarak, tekrar işaretlenmek üzere kaç gün devre dışı kalacağı. İyileşmeye kalan gün sayısı ayarını aşamaz. 0'da (varsayılan), bir nokta her zaman yeniden işaretlenebilir.",
       zonePoints:
         "<bold>{{label}}</bold> — her bölge grubunun (omuzlar, karın, uyluklar) kaç satır ve sütuna sahip olacağını seçin. Bir bölgenin ızgarasını küçültmek, geçmişini kaybetmeden aralık dışı kalan noktalarını gizler; büyütüldüğünde bu geçmiş tekrar görünür.",
       zones:

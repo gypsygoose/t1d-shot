@@ -6,6 +6,7 @@ export {
   DEFAULT_AUTO_LOCK_AFTER_UNLOCK_SECONDS,
 } from "./defaultAutoLock";
 export { clampDaysToWhite } from "./clampDaysToWhite";
+export { clampDaysToAvailable } from "./clampDaysToAvailable";
 export { clampZonePointCounts } from "./clampZonePointCounts";
 export { clampEnabledZones } from "./clampEnabledZones";
 export { isValidAppStorage } from "./isValidAppStorage";

@@ -25,6 +25,7 @@ export interface ExportedAppData {
   autoLockAfterMarkSeconds?: number;
   autoLockAfterUnlockSeconds?: number;
   daysToWhite?: number;
+  daysToAvailable?: number;
   themeMode?: ThemeMode;
   languageMode?: LanguageMode;
   zonePointCounts?: ZonePointCounts;
@@ -42,6 +43,7 @@ export enum ExportSettingKey {
   Mirrored = 'mirrored',
   AutoLock = 'auto-lock',
   DaysToWhite = 'days-to-white',
+  DaysToAvailable = 'days-to-available',
   Theme = 'theme',
   Language = 'language',
   ZonePointCounts = 'zone-point-counts',

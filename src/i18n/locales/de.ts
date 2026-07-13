@@ -35,6 +35,14 @@ export const de: AppLocale = {
   },
   toast: {
     blocked: "Dieser Punkt ist gesperrt und kann nicht markiert werden",
+    pointUnavailable_one:
+      "Dieser Punkt ist noch nicht zum Markieren verfügbar. Verfügbar in {{count}} Tag",
+    pointUnavailable_few:
+      "Dieser Punkt ist noch nicht zum Markieren verfügbar. Verfügbar in {{count}} Tagen",
+    pointUnavailable_many:
+      "Dieser Punkt ist noch nicht zum Markieren verfügbar. Verfügbar in {{count}} Tagen",
+    pointUnavailable_other:
+      "Dieser Punkt ist noch nicht zum Markieren verfügbar. Verfügbar in {{count}} Tagen",
     interfaceLocked:
       "Die Oberfläche ist gesperrt. Um eine Injektionsstelle zu markieren, entsperre die Oberfläche über das untere Menü oder nutze das Kontextmenü des Punkts (langes Drücken).",
     interfaceLockEnabled: "Oberfläche gesperrt",
@@ -73,6 +81,7 @@ export const de: AppLocale = {
     mirrorRow: "Anzeige spiegeln",
     autoLockRow: "Oberfläche automatisch sperren",
     daysToWhiteRow: "Tage bis zur Erholung des Punkts",
+    daysToAvailableRow: "Tage bis der Punkt wieder verfügbar ist",
     zonePointsRow: "Punktraster der Zonen",
     zonesRow: "Aktive Zonen",
     themeRow: "Design",
@@ -89,6 +98,11 @@ export const de: AppLocale = {
     daysToWhiteDialog: {
       message:
         "Wie viele Tage vergehen, bis eine Injektionsstelle wieder als vollständig frei (weiß) gilt. Ein niedrigerer Wert komprimiert die Farben des Zyklus auf diesen Zeitraum.",
+      fieldLabel: "Tage",
+    },
+    daysToAvailableDialog: {
+      message:
+        "Wie viele Tage nach der letzten Markierung ein Punkt zusätzlich zum Farbzyklus für eine erneute Markierung gesperrt bleibt. Darf den Wert von „Tage bis zur Erholung des Punkts“ nicht überschreiten. Bei 0 (Standard) kann ein Punkt jederzeit erneut markiert werden, genau wie vor Einführung dieser Einstellung.",
       fieldLabel: "Tage",
     },
     zonePointsDialog: {
@@ -156,6 +170,10 @@ export const de: AppLocale = {
     lastMark: "Letzte Markierung: {{dateTime}}",
     manuallyBlockedAt: "Manuell gesperrt: {{dateTime}}",
     systemBlockedCountdown: "Vom System gesperrt.\nEntsperrung in: {{countdown}}",
+    availableIn_one: "Wieder markierbar in {{count}} Tag",
+    availableIn_few: "Wieder markierbar in {{count}} Tagen",
+    availableIn_many: "Wieder markierbar in {{count}} Tagen",
+    availableIn_other: "Wieder markierbar in {{count}} Tagen",
   },
   markDialog: {
     title: "Injektion markieren",
@@ -198,6 +216,10 @@ export const de: AppLocale = {
           "Langsame Aufnahme. Für lang wirkendes Insulin. Wirkungsspitze nach 90–120 Minuten.",
       },
     },
+    colorScheme: {
+      unavailableExample:
+        "Graue Füllung in der Ecke — Markieren ist durch die Einstellung „Tage bis verfügbar“ gesperrt",
+    },
     recommendations: {
       varySpot:
         "Auch wenn du die Rotation der Injektionsstellen einhältst, spritze nicht jedes Mal genau in denselben Punkt — variiere die genaue Injektionsstelle auch innerhalb derselben Zone leicht.",
@@ -221,6 +243,8 @@ export const de: AppLocale = {
         "<bold>{{label}}</bold> — die Sperre automatisch nach einer festgelegten Zeit nach dem Markieren einer Injektion und nach manueller Entsperrung aktivieren. Antippen der Zeile öffnet die Verzögerungseinstellungen.",
       daysToWhite:
         "<bold>{{label}}</bold> — wie viele Tage vergehen, bis eine Injektionsstelle wieder als vollständig frei (weiß) gilt. Ein niedrigerer Wert komprimiert das Farbschema auf diesen Zeitraum.",
+      daysToAvailable:
+        "<bold>{{label}}</bold> — wie viele Tage nach der letzten Markierung ein Punkt zusätzlich zum Farbzyklus für eine erneute Markierung gesperrt bleibt. Darf die Einstellung „Tage bis zur Erholung“ nicht überschreiten. Bei 0 (Standard) kann ein Punkt jederzeit erneut markiert werden.",
       zonePoints:
         "<bold>{{label}}</bold> — wähle, wie viele Reihen und Spalten jede Zonengruppe (Schultern, Bauch, Oberschenkel) hat. Eine Verkleinerung des Rasters einer Zone blendet ihre außerhalb liegenden Punkte aus, ohne deren Verlauf zu verlieren; bei Vergrößerung erscheint dieser Verlauf wieder.",
       zones:

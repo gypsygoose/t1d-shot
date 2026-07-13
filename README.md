@@ -2,7 +2,7 @@
 
 A mobile app for people with diabetes who take insulin injections, to track injection sites and enforce site rotation, helping prevent lipodystrophy.
 
-Tap a point on the body diagram to log an injection at that spot. The point's color cycles over a configurable number of days (1–8, default 8) to show how recently that site was used, so you always know which sites are safe to reuse.
+Tap a point on the body diagram to log an injection at that spot. The point's color cycles over a configurable number of days (1–8, default 8) to show how recently that site was used, so you always know which sites are safe to reuse. An optional second setting can additionally disable re-marking a point for a configurable number of days after its last mark, on top of the color cycle.
 
 **Platform:** iOS / Android — built with Expo (managed workflow), TypeScript, and React Native.
 
@@ -14,6 +14,7 @@ Tap a point on the body diagram to log an injection at that spot. The point's co
 - Status toasts (info/warning/success/error, each with its own color and icon) confirm every action — marking, blocking, clearing, undo, and import/export — and flag anything that needs attention, like a site getting system-blacked-out or a failed import
 - Color-coded rotation cycle (maroon → red → orange → yellow → green → white) based on local calendar days since last injection
 - Configurable "days to white" delay (1–8 days) to match your own rotation schedule
+- Optional "days to available" delay (0–8 days, capped at "days to white") that disables re-marking a point entirely until it's elapsed — a disabled point shows a diagonal strikethrough and its remaining wait, both on the body diagram and in its long-press menu
 - Automatic "blackout" cooldown when a site is reused too early, with duration based on how recently it was used
 - Manual site lock (long-press) to mark a spot as temporarily unavailable
 - Light, dark, or system-matched theme, switchable from the menu (defaults to following the OS appearance)

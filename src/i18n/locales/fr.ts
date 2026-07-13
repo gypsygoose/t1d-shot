@@ -35,6 +35,14 @@ export const fr: AppLocale = {
   },
   toast: {
     blocked: "Ce point est bloqué et ne peut pas être marqué",
+    pointUnavailable_one:
+      "Ce point n'est pas encore disponible pour être marqué. Disponible dans {{count}} jour",
+    pointUnavailable_few:
+      "Ce point n'est pas encore disponible pour être marqué. Disponible dans {{count}} jours",
+    pointUnavailable_many:
+      "Ce point n'est pas encore disponible pour être marqué. Disponible dans {{count}} jours",
+    pointUnavailable_other:
+      "Ce point n'est pas encore disponible pour être marqué. Disponible dans {{count}} jours",
     interfaceLocked:
       "L'interface est verrouillée. Pour marquer un point d'injection, déverrouillez l'interface depuis le menu du bas, ou utilisez le menu contextuel du point (appui long).",
     interfaceLockEnabled: "Interface verrouillée",
@@ -77,6 +85,7 @@ export const fr: AppLocale = {
     mirrorRow: "Affichage en miroir",
     autoLockRow: "Verrouillage automatique de l'interface",
     daysToWhiteRow: "Jours avant récupération du point",
+    daysToAvailableRow: "Jours avant que le point soit à nouveau disponible",
     zonePointsRow: "Disposition des points de zone",
     zonesRow: "Zones actives",
     themeRow: "Thème",
@@ -93,6 +102,11 @@ export const fr: AppLocale = {
     daysToWhiteDialog: {
       message:
         "Nombre de jours avant qu'un point d'injection soit à nouveau considéré comme totalement libre (blanc). Une valeur plus faible comprime les couleurs du cycle sur cette période.",
+      fieldLabel: "Jours",
+    },
+    daysToAvailableDialog: {
+      message:
+        "Nombre de jours après la dernière marque pendant lesquels un point reste désactivé pour un nouveau marquage, en plus du cycle de couleurs. Ne peut pas dépasser « Jours avant récupération du point ». À 0 (par défaut), un point peut être marqué à nouveau à tout moment, comme avant l'existence de ce paramètre.",
       fieldLabel: "Jours",
     },
     zonePointsDialog: {
@@ -160,6 +174,10 @@ export const fr: AppLocale = {
     lastMark: "Dernière marque : {{dateTime}}",
     manuallyBlockedAt: "Bloqué manuellement : {{dateTime}}",
     systemBlockedCountdown: "Bloqué par le système.\nDéverrouillage dans : {{countdown}}",
+    availableIn_one: "De nouveau disponible pour un marquage dans {{count}} jour",
+    availableIn_few: "De nouveau disponible pour un marquage dans {{count}} jours",
+    availableIn_many: "De nouveau disponible pour un marquage dans {{count}} jours",
+    availableIn_other: "De nouveau disponible pour un marquage dans {{count}} jours",
   },
   markDialog: {
     title: "Marquer une injection",
@@ -202,6 +220,10 @@ export const fr: AppLocale = {
           "Absorption lente. Pour les insulines à action prolongée. Pic d'action en 90–120 minutes.",
       },
     },
+    colorScheme: {
+      unavailableExample:
+        "Remplissage gris dans le coin — le marquage est bloqué par le réglage des jours avant disponibilité",
+    },
     recommendations: {
       varySpot:
         "Même en respectant la rotation des sites, n'injectez pas toujours exactement au même endroit — variez légèrement le point précis d'injection au sein d'un même site également.",
@@ -225,6 +247,8 @@ export const fr: AppLocale = {
         "<bold>{{label}}</bold> — activer automatiquement le verrouillage après un délai défini suivant le marquage d'une injection, et après un déverrouillage manuel. Appuyer sur la ligne ouvre les réglages de délai.",
       daysToWhite:
         "<bold>{{label}}</bold> — nombre de jours avant qu'un point d'injection soit à nouveau considéré comme totalement libre (blanc). Diminuer la valeur comprime le code couleur sur cette période.",
+      daysToAvailable:
+        "<bold>{{label}}</bold> — nombre de jours après la dernière marque pendant lesquels un point reste désactivé pour un nouveau marquage, en plus du cycle de couleurs. Ne peut pas dépasser le réglage des jours avant récupération. À 0 (par défaut), un point peut être marqué à nouveau à tout moment.",
       zonePoints:
         "<bold>{{label}}</bold> — choisissez le nombre de rangées et de colonnes de chaque groupe de zones (épaules, ventre, cuisses). Réduire la grille d'une zone masque ses points hors plage sans perdre leur historique ; en l'agrandissant, cet historique réapparaît.",
       zones:
