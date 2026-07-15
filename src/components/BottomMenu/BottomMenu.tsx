@@ -9,6 +9,7 @@ import {
   SettingsSheet,
   LANGUAGE_MODE_KEY,
   POINT_RESTORE_MODE_KEY,
+  GENDER_KEY,
   THEME_MODE_KEY,
 } from "../SettingsSheet";
 import { AutoLockDialog } from "../AutoLockDialog";
@@ -19,6 +20,7 @@ import { ZonesDialog } from "../ZonesDialog";
 import { ThemeDialog } from "../ThemeDialog";
 import { LanguageDialog } from "../LanguageDialog";
 import { PointRestoreModeDialog } from "../PointRestoreModeDialog";
+import { GenderDialog } from "../GenderDialog";
 import { ClearOptionsDialog } from "../ClearOptionsDialog";
 import { ExportOptionsDialog } from "../ExportOptionsDialog";
 import { ImportOptionsDialog } from "../ImportOptionsDialog";
@@ -35,6 +37,7 @@ import {
   ExportedAppData,
   ExportSelection,
   ExportSettingKey,
+  Gender,
   LanguageMode,
   PointRestoreMode,
   ThemeMode,
@@ -71,6 +74,8 @@ interface Props {
   onSetDaysToAvailable: (days: number) => void;
   pointRestoreMode: PointRestoreMode;
   onSetPointRestoreMode: (mode: PointRestoreMode) => void;
+  gender: Gender;
+  onSetGender: (gender: Gender) => void;
   zonePointCounts: ZonePointCounts;
   onSetZonePointCounts: (next: ZonePointCounts) => void;
   enabledZones: EnabledZones;
@@ -105,6 +110,8 @@ export function BottomMenu({
   onSetDaysToAvailable,
   pointRestoreMode,
   onSetPointRestoreMode,
+  gender,
+  onSetGender,
   zonePointCounts,
   onSetZonePointCounts,
   enabledZones,
@@ -134,6 +141,7 @@ export function BottomMenu({
   const [showZonesDialog, setShowZonesDialog] = useState(false);
   const [showPointRestoreModeDialog, setShowPointRestoreModeDialog] =
     useState(false);
+  const [showGenderDialog, setShowGenderDialog] = useState(false);
   const [showThemeDialog, setShowThemeDialog] = useState(false);
   const [showLanguageDialog, setShowLanguageDialog] = useState(false);
   const [showExportOptions, setShowExportOptions] = useState(false);
@@ -159,6 +167,11 @@ export function BottomMenu({
   const handleEditPointRestoreMode = () => {
     setShowSettings(false);
     setShowPointRestoreModeDialog(true);
+  };
+
+  const handleEditGender = () => {
+    setShowSettings(false);
+    setShowGenderDialog(true);
   };
 
   const handleEditDaysToWhite = () => {
@@ -248,6 +261,8 @@ export function BottomMenu({
         onEditAutoLockSettings={handleEditAutoLockSettings}
         pointRestoreMode={pointRestoreMode}
         onEditPointRestoreMode={handleEditPointRestoreMode}
+        gender={gender}
+        onEditGender={handleEditGender}
         daysToWhite={daysToWhite}
         onEditDaysToWhite={handleEditDaysToWhite}
         daysToAvailable={daysToAvailable}
@@ -351,6 +366,23 @@ export function BottomMenu({
           );
         }}
         onCancel={() => setShowPointRestoreModeDialog(false)}
+      />
+
+      <GenderDialog
+        visible={showGenderDialog}
+        initialGender={gender}
+        onConfirm={(nextGender) => {
+          setShowGenderDialog(false);
+          onSetGender(nextGender);
+          onNotify(
+            t("toast.labeledValue", {
+              label: t("menu.genderRow"),
+              value: t(GENDER_KEY[nextGender]),
+            }),
+            ToastStatus.Success,
+          );
+        }}
+        onCancel={() => setShowGenderDialog(false)}
       />
 
       <ThemeDialog

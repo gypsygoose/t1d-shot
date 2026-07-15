@@ -90,6 +90,11 @@ export const de: AppLocale = {
     daysToAvailableRow: "Tage bis der Punkt wieder verfügbar ist",
     zonePointsRow: "Punktraster der Zonen",
     zonesRow: "Aktive Zonen",
+    genderRow: "Geschlecht",
+    gender: {
+      male: "Männlich",
+      female: "Weiblich",
+    },
     themeRow: "Design",
     languageRow: "Sprache",
     exportRow: "Daten exportieren",
@@ -114,6 +119,10 @@ export const de: AppLocale = {
     pointRestoreModeDialog: {
       message:
         "Im Modus „Automatisch“ wechselt die Farbe eines Punkts mit der Zeit. Im Modus „Manuell“ wird ein Punkt in dem Moment, in dem er verwendet wird, schwarz und bleibt für eine erneute Markierung gesperrt – lösche ihn, um ihn wieder markieren zu können.",
+    },
+    genderDialog: {
+      message:
+        "Wähle, welche Körpersilhouette (männlich oder weiblich) hinter den Injektionspunkten angezeigt wird.",
     },
     zonePointsDialog: {
       message:
@@ -263,6 +272,8 @@ export const de: AppLocale = {
         "<bold>{{label}}</bold> — wähle, wie viele Reihen und Spalten jede Zonengruppe (Schultern, Bauch, Oberschenkel) hat. Eine Verkleinerung des Rasters einer Zone blendet ihre außerhalb liegenden Punkte aus, ohne deren Verlauf zu verlieren; bei Vergrößerung erscheint dieser Verlauf wieder.",
       zones:
         "<bold>{{label}}</bold> — wähle, welche einzelnen Zonen (z. B. linke/rechte Schulter) am Körper angezeigt werden. Das Deaktivieren einer Zone blendet sie aus, ohne ihren Verlauf zu verlieren; bei erneuter Aktivierung erscheint dieser Verlauf wieder.",
+      gender:
+        "<bold>{{label}}</bold> — wähle, welche Körpersilhouette (männlich oder weiblich) hinter den Injektionspunkten angezeigt wird.",
       theme:
         "<bold>{{label}}</bold> — wähle das helle, dunkle oder systemweite Erscheinungsbild der App.",
       language: "<bold>{{label}}</bold> — wähle die Sprache der App-Oberfläche.",

@@ -7,6 +7,7 @@ import {
   Animated,
   PanResponder,
   Pressable,
+  ScrollView,
 } from "react-native";
 import { useTheme } from "../../../theme";
 import {
@@ -25,12 +26,7 @@ interface Props {
   children: ReactNode;
 }
 
-export function BottomSheet({
-  visible,
-  onClose,
-  title,
-  children,
-}: Props) {
+export function BottomSheet({ visible, onClose, title, children }: Props) {
   const { colors } = useTheme();
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   // Kept mounted for the duration of the dismiss animation, then unmounted
@@ -107,7 +103,10 @@ export function BottomSheet({
     <Animated.View
       style={[
         styles.overlay,
-        { opacity: overlayOpacity, backgroundColor: colors.bottomSheetBackdrop },
+        {
+          opacity: overlayOpacity,
+          backgroundColor: colors.bottomSheetBackdrop,
+        },
       ]}
     >
       <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
@@ -123,7 +122,12 @@ export function BottomSheet({
         ]}
       >
         <View {...panResponder.panHandlers}>
-          <View style={[styles.handle, { backgroundColor: colors.bottomSheetHandle }]} />
+          <View
+            style={[
+              styles.handle,
+              { backgroundColor: colors.bottomSheetHandle },
+            ]}
+          />
           {title ? (
             <View style={styles.header}>
               <Text style={[styles.title, { color: colors.primaryText }]}>
@@ -133,7 +137,13 @@ export function BottomSheet({
           ) : null}
         </View>
 
-        {children}
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
+          {children}
+          <View style={styles.bottomPad} />
+        </ScrollView>
       </Animated.View>
     </Animated.View>
   );
@@ -152,6 +162,9 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
   },
+  scrollView: {
+    flex: 1,
+  },
   handle: {
     width: 36,
     height: 4,
@@ -168,5 +181,11 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 19,
     fontWeight: "700",
+  },
+  bottomPad: {
+    // Extra clearance so the last row isn't hidden behind the bottom menu
+    // bar, which now renders on top of the sheet instead of a full-screen
+    // Modal covering it.
+    height: 110,
   },
 });

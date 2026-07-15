@@ -2,9 +2,10 @@ import { Text, TouchableOpacity, View, Switch, StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
 import { BottomSheet } from "../common";
 import { useTheme } from "../../theme";
-import { LanguageMode, PointRestoreMode, ThemeMode } from "../../types";
+import { Gender, LanguageMode, PointRestoreMode, ThemeMode } from "../../types";
 import { formatDuration } from "./utils";
 import {
+  GENDER_KEY,
   LANGUAGE_MODE_KEY,
   POINT_RESTORE_MODE_KEY,
   THEME_MODE_KEY,
@@ -13,6 +14,8 @@ import {
 interface Props {
   visible: boolean;
   onClose: () => void;
+  gender: Gender;
+  onEditGender: () => void;
   mirrored: boolean;
   onToggleMirrored: (value: boolean) => void;
   autoLockEnabled: boolean;
@@ -37,6 +40,8 @@ interface Props {
 export function SettingsSheet({
   visible,
   onClose,
+  gender,
+  onEditGender,
   mirrored,
   onToggleMirrored,
   autoLockEnabled,
@@ -67,6 +72,19 @@ export function SettingsSheet({
       onClose={onClose}
       title={t("menu.settingsRow")}
     >
+      <TouchableOpacity
+        style={styles.row}
+        onPress={onEditGender}
+        activeOpacity={0.7}
+      >
+        <Text style={[styles.rowLabel, { color: colors.primaryText }]}>
+          {t("menu.genderRow")}
+        </Text>
+        <Text style={[styles.rowValue, { color: colors.mutedText }]}>
+          {t(GENDER_KEY[gender])}
+        </Text>
+      </TouchableOpacity>
+
       <View style={styles.row}>
         <Text style={[styles.rowLabel, { color: colors.primaryText }]}>
           {t("menu.mirrorRow")}

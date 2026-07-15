@@ -90,6 +90,11 @@ export const en = {
     daysToAvailableRow: "Days until point is available again",
     zonePointsRow: "Zone point layout",
     zonesRow: "Active zones",
+    genderRow: "Gender",
+    gender: {
+      male: "Male",
+      female: "Female",
+    },
     themeRow: "Theme",
     languageRow: "Language",
     exportRow: "Export data",
@@ -114,6 +119,10 @@ export const en = {
     pointRestoreModeDialog: {
       message:
         "In Auto mode, a point's color cycles over time. In Manual mode, a point turns black and stays disabled for re-marking the moment it's used — clear it to mark it again.",
+    },
+    genderDialog: {
+      message:
+        "Choose which body silhouette (male or female) is shown behind the injection points.",
     },
     zonePointsDialog: {
       message:
@@ -263,6 +272,8 @@ export const en = {
         "<bold>{{label}}</bold> — choose how many rows and columns each zone group (shoulders, belly, thighs) has. Shrinking a zone's grid hides its out-of-range points without losing their history; growing it back reveals that history again.",
       zones:
         "<bold>{{label}}</bold> — choose which individual zones (e.g. left/right shoulder) are shown on the body. Disabling a zone hides it without losing its history; re-enabling it reveals that history again.",
+      gender:
+        "<bold>{{label}}</bold> — choose which body silhouette (male or female) is shown behind the injection points.",
       theme:
         "<bold>{{label}}</bold> — choose the app's light, dark, or system appearance theme.",
       language: "<bold>{{label}}</bold> — choose the app's interface language.",

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { AppStorage, AppEvent, AppEventType, EnabledZones, ExportedAppData, ExportMarksKey, ExportSelection, ExportSettingKey, LanguageMode, PointRestoreMode, StoredPointState, ThemeMode, ZoneGroup, ZonePointCounts, ZoneRuntimeData } from '../types';
+import { AppStorage, AppEvent, AppEventType, EnabledZones, ExportedAppData, ExportMarksKey, ExportSelection, ExportSettingKey, Gender, LanguageMode, PointRestoreMode, StoredPointState, ThemeMode, ZoneGroup, ZonePointCounts, ZoneRuntimeData } from '../types';
 import {
   StorageService,
   StoredAutoLock,
@@ -18,6 +18,7 @@ import {
   DEFAULT_DAYS_TO_AVAILABLE,
   MIN_DAYS_TO_AVAILABLE,
   DEFAULT_POINT_RESTORE_MODE,
+  DEFAULT_GENDER,
 } from '../constants';
 import {
   uuid,
@@ -48,6 +49,7 @@ export interface AppState extends AppStorage {
   daysToWhite: number;
   daysToAvailable: number;
   pointRestoreMode: PointRestoreMode;
+  gender: Gender;
   zonePointCounts: ZonePointCounts;
   enabledZones: EnabledZones;
 }
@@ -68,6 +70,7 @@ export interface AppActions {
   setDaysToWhite(days: number): void;
   setDaysToAvailable(days: number): void;
   setPointRestoreMode(mode: PointRestoreMode): void;
+  setGender(gender: Gender): void;
   setZonePointCounts(next: ZonePointCounts): void;
   setEnabledZones(next: EnabledZones): void;
   exportData(
@@ -105,6 +108,7 @@ export function useAppStore(
     daysToWhite: DEFAULT_DAYS_TO_WHITE,
     daysToAvailable: DEFAULT_DAYS_TO_AVAILABLE,
     pointRestoreMode: DEFAULT_POINT_RESTORE_MODE,
+    gender: DEFAULT_GENDER,
     zonePointCounts: DEFAULT_ZONE_POINT_COUNTS,
     enabledZones: DEFAULT_ENABLED_ZONES,
   });
@@ -143,7 +147,8 @@ export function useAppStore(
         StorageService.loadDaysToWhite(),
         StorageService.loadDaysToAvailable(),
         StorageService.loadPointRestoreMode(),
-      ]).then(([stored, mirrored, storedInterfaceLocked, autoLock, daysToWhite, daysToAvailable, pointRestoreMode]) => {
+        StorageService.loadGender(),
+      ]).then(([stored, mirrored, storedInterfaceLocked, autoLock, daysToWhite, daysToAvailable, pointRestoreMode, gender]) => {
         const now = Date.now();
         let interfaceLocked = storedInterfaceLocked;
         let deadline = autoLock.deadline;
@@ -176,6 +181,7 @@ export function useAppStore(
           daysToWhite,
           daysToAvailable,
           pointRestoreMode,
+          gender,
           zonePointCounts,
           enabledZones,
           isLoaded: true,
@@ -545,6 +551,11 @@ export function useAppStore(
         StorageService.savePointRestoreMode(DEFAULT_POINT_RESTORE_MODE);
       }
 
+      if (selection.settings[ExportSettingKey.Gender]) {
+        next.gender = DEFAULT_GENDER;
+        StorageService.saveGender(DEFAULT_GENDER);
+      }
+
       if (selection.settings[ExportSettingKey.DaysToWhite]) {
         next.daysToWhite = DEFAULT_DAYS_TO_WHITE;
         StorageService.saveDaysToWhite(DEFAULT_DAYS_TO_WHITE);
@@ -669,6 +680,11 @@ export function useAppStore(
     StorageService.savePointRestoreMode(mode);
   }, []);
 
+  const setGender = useCallback((gender: Gender) => {
+    setState((prev) => ({ ...prev, gender }));
+    StorageService.saveGender(gender);
+  }, []);
+
   // Backfills default states for any slot newly brought into range by the
   // grid change (normalizeStorage), while leaving every other point's
   // history — including slots now outside the grid — untouched, so shrinking
@@ -765,6 +781,9 @@ export function useAppStore(
       if (selection.settings[ExportSettingKey.PointRestoreMode]) {
         data.pointRestoreMode = state.pointRestoreMode;
       }
+      if (selection.settings[ExportSettingKey.Gender]) {
+        data.gender = state.gender;
+      }
       if (selection.settings[ExportSettingKey.DaysToWhite]) {
         data.daysToWhite = state.daysToWhite;
       }
@@ -789,6 +808,7 @@ export function useAppStore(
       state.daysToWhite,
       state.daysToAvailable,
       state.pointRestoreMode,
+      state.gender,
       state.zonePointCounts,
       state.enabledZones,
     ],
@@ -865,6 +885,11 @@ export function useAppStore(
         next.pointRestoreMode = data.pointRestoreMode;
       }
 
+      if (data.gender !== undefined) {
+        StorageService.saveGender(data.gender);
+        next.gender = data.gender;
+      }
+
       if (data.daysToWhite !== undefined) {
         StorageService.saveDaysToWhite(data.daysToWhite);
         next.daysToWhite = data.daysToWhite;
@@ -900,6 +925,7 @@ export function useAppStore(
       setDaysToWhite,
       setDaysToAvailable,
       setPointRestoreMode,
+      setGender,
       setZonePointCounts,
       setEnabledZones,
       exportData,

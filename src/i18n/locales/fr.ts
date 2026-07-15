@@ -94,6 +94,11 @@ export const fr: AppLocale = {
     daysToAvailableRow: "Jours avant que le point soit à nouveau disponible",
     zonePointsRow: "Disposition des points de zone",
     zonesRow: "Zones actives",
+    genderRow: "Sexe",
+    gender: {
+      male: "Homme",
+      female: "Femme",
+    },
     themeRow: "Thème",
     languageRow: "Langue",
     exportRow: "Exporter les données",
@@ -118,6 +123,10 @@ export const fr: AppLocale = {
     pointRestoreModeDialog: {
       message:
         "En mode Automatique, la couleur d'un point évolue avec le temps. En mode Manuel, un point devient noir et reste désactivé pour un nouveau marquage dès qu'il est utilisé — effacez-le pour pouvoir le marquer à nouveau.",
+    },
+    genderDialog: {
+      message:
+        "Choisissez la silhouette corporelle (homme ou femme) affichée derrière les points d'injection.",
     },
     zonePointsDialog: {
       message:
@@ -267,6 +276,8 @@ export const fr: AppLocale = {
         "<bold>{{label}}</bold> — choisissez le nombre de rangées et de colonnes de chaque groupe de zones (épaules, ventre, cuisses). Réduire la grille d'une zone masque ses points hors plage sans perdre leur historique ; en l'agrandissant, cet historique réapparaît.",
       zones:
         "<bold>{{label}}</bold> — choisissez les zones individuelles (par exemple épaule gauche/droite) affichées sur le corps. Désactiver une zone la masque sans perdre son historique ; en la réactivant, cet historique réapparaît.",
+      gender:
+        "<bold>{{label}}</bold> — choisissez la silhouette corporelle (homme ou femme) affichée derrière les points d'injection.",
       theme:
         "<bold>{{label}}</bold> — choisissez l'apparence claire, sombre ou système de l'application.",
       language: "<bold>{{label}}</bold> — choisissez la langue de l'interface de l'application.",

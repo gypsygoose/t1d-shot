@@ -16,6 +16,7 @@ Tap a point on the body diagram to log an injection at that spot. The point's co
 - Configurable "days to white" delay (1–8 days) to match your own rotation schedule
 - Optional "days to available" delay (0–8 days, capped at "days to white") that disables re-marking a point entirely until it's elapsed — a disabled point shows a diagonal strikethrough and its remaining wait, both on the body diagram and in its long-press menu
 - Point restore mode setting (Auto/Manual): Auto keeps the day-based cycle above; Manual instead turns a point permanently black the moment it's marked and disables it for re-marking until manually cleared, and disables the days-to-white/days-to-available settings while active
+- Gender setting (Male/Female) that switches the body silhouette shown behind the injection points, switchable from the menu's Settings screen (defaults to Male)
 - Automatic "blackout" cooldown when a site is reused too early, with duration based on how recently it was used
 - Manual site lock (long-press) to mark a spot as temporarily unavailable
 - Light, dark, or system-matched theme, switchable from the menu's Settings screen (defaults to following the OS appearance)

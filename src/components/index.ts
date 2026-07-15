@@ -1,6 +1,8 @@
 export { AutoLockDialog } from "./AutoLockDialog";
+export { BodyImage } from "./BodyImage";
 export { DaysToWhiteDialog } from "./DaysToWhiteDialog";
 export { DaysToAvailableDialog } from "./DaysToAvailableDialog";
+export { GenderDialog } from "./GenderDialog";
 export { LanguageDialog } from "./LanguageDialog";
 export { MarkDialog } from "./MarkDialog";
 export { PointRestoreModeDialog } from "./PointRestoreModeDialog";

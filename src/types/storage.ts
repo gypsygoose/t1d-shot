@@ -4,6 +4,7 @@ import { ThemeMode } from './theme';
 import { LanguageMode } from './language';
 import { EnabledZones, ZonePointCounts } from './zone';
 import { PointRestoreMode } from './pointRestoreMode';
+import { Gender } from './gender';
 
 // Full app storage
 export interface AppStorage {
@@ -32,6 +33,7 @@ export interface ExportedAppData {
   zonePointCounts?: ZonePointCounts;
   enabledZones?: EnabledZones;
   pointRestoreMode?: PointRestoreMode;
+  gender?: Gender;
 }
 
 // Which categories ExportOptionsDialog writes to the export file. The
@@ -42,6 +44,7 @@ export interface ExportedAppData {
 // key not present in the file is forced unchecked and disabled rather than
 // user-selectable.
 export enum ExportSettingKey {
+  Gender = 'gender',
   Mirrored = 'mirrored',
   AutoLock = 'auto-lock',
   EnabledZones = 'enabled-zones',

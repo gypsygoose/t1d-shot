@@ -16,7 +16,7 @@ import {
   ConfirmDialog,
   ToastEntry,
   ToastStack,
-  BodyIllustration,
+  BodyImage,
 } from "../../components";
 import { useAppStore } from "../../hooks";
 import { useTheme } from "../../theme";
@@ -216,7 +216,7 @@ export function MainScreen() {
       {/* Body image + points overlay */}
       <View style={styles.bodyWrap}>
         <View style={styles.imageContainer}>
-          <BodyIllustration style={[styles.image]} />
+          <BodyImage gender={state.gender} style={[styles.image]} />
         </View>
 
         <View
@@ -295,6 +295,8 @@ export function MainScreen() {
         onSetDaysToAvailable={actions.setDaysToAvailable}
         pointRestoreMode={state.pointRestoreMode}
         onSetPointRestoreMode={actions.setPointRestoreMode}
+        gender={state.gender}
+        onSetGender={actions.setGender}
         zonePointCounts={state.zonePointCounts}
         onSetZonePointCounts={actions.setZonePointCounts}
         enabledZones={state.enabledZones}

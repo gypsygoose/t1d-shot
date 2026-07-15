@@ -6,6 +6,7 @@ export function allSettings(value: boolean): Record<ExportSettingKey, boolean> {
     [ExportSettingKey.AutoLock]: value,
     [ExportSettingKey.EnabledZones]: value,
     [ExportSettingKey.ZonePointCounts]: value,
+    [ExportSettingKey.Gender]: value,
     [ExportSettingKey.PointRestoreMode]: value,
     [ExportSettingKey.DaysToWhite]: value,
     [ExportSettingKey.DaysToAvailable]: value,

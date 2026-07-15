@@ -6,6 +6,7 @@ import {
   AppStorage,
   EnabledZones,
   ExportedAppData,
+  Gender,
   LanguageMode,
   PointDefinition,
   PointRestoreMode,
@@ -15,6 +16,7 @@ import {
 import {
   DEFAULT_DAYS_TO_AVAILABLE,
   DEFAULT_DAYS_TO_WHITE,
+  DEFAULT_GENDER,
   DEFAULT_POINT_RESTORE_MODE,
 } from "../constants";
 import { DEFAULT_ZONE_POINT_COUNTS, DEFAULT_ENABLED_ZONES } from "../data";
@@ -38,6 +40,7 @@ import {
   DAYS_TO_WHITE_KEY,
   DAYS_TO_AVAILABLE_KEY,
   POINT_RESTORE_MODE_KEY,
+  GENDER_KEY,
   THEME_MODE_KEY,
   LANGUAGE_MODE_KEY,
   ZONE_POINT_COUNTS_KEY,
@@ -50,6 +53,7 @@ import {
   THEME_MODES,
   LANGUAGE_MODES,
   POINT_RESTORE_MODES,
+  GENDERS,
 } from "./constants";
 import { ImportResult, ImportResultType, StoredAutoLock } from "./types";
 
@@ -159,6 +163,20 @@ export class StorageService {
 
   static async savePointRestoreMode(mode: PointRestoreMode): Promise<void> {
     await AsyncStorage.setItem(POINT_RESTORE_MODE_KEY, mode);
+  }
+
+  static async loadGender(): Promise<Gender> {
+    try {
+      const raw = await AsyncStorage.getItem(GENDER_KEY);
+      if (raw && GENDERS.includes(raw as Gender)) return raw as Gender;
+      return DEFAULT_GENDER;
+    } catch {
+      return DEFAULT_GENDER;
+    }
+  }
+
+  static async saveGender(gender: Gender): Promise<void> {
+    await AsyncStorage.setItem(GENDER_KEY, gender);
   }
 
   static async loadThemeMode(): Promise<ThemeMode> {

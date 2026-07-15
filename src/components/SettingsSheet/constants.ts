@@ -1,4 +1,4 @@
-import { LanguageMode, PointRestoreMode, ThemeMode } from "../../types";
+import { Gender, LanguageMode, PointRestoreMode, ThemeMode } from "../../types";
 import type { TranslationKey } from "../../i18n";
 
 // Shared with ThemeDialog.tsx, which offers the same three options — values
@@ -26,4 +26,11 @@ export const LANGUAGE_MODE_KEY: Record<LanguageMode, TranslationKey> = {
 export const POINT_RESTORE_MODE_KEY: Record<PointRestoreMode, TranslationKey> = {
   [PointRestoreMode.Auto]: "menu.pointRestoreMode.auto",
   [PointRestoreMode.Manual]: "menu.pointRestoreMode.manual",
+};
+
+// Shared with SettingsSheet.tsx's row label and GenderDialog.tsx, which
+// offers the same two options.
+export const GENDER_KEY: Record<Gender, TranslationKey> = {
+  [Gender.Male]: "menu.gender.male",
+  [Gender.Female]: "menu.gender.female",
 };

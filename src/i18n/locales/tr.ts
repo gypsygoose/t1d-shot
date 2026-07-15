@@ -94,6 +94,11 @@ export const tr: AppLocale = {
     daysToAvailableRow: "Noktanın tekrar kullanılabilir olmasına kalan gün sayısı",
     zonePointsRow: "Bölge nokta düzeni",
     zonesRow: "Etkin bölgeler",
+    genderRow: "Cinsiyet",
+    gender: {
+      male: "Erkek",
+      female: "Kadın",
+    },
     themeRow: "Tema",
     languageRow: "Dil",
     exportRow: "Verileri dışa aktar",
@@ -118,6 +123,10 @@ export const tr: AppLocale = {
     pointRestoreModeDialog: {
       message:
         "Otomatik modda, bir noktanın rengi zamanla değişir. Manuel modda, bir nokta kullanıldığı anda siyaha döner ve yeniden işaretlenmek üzere devre dışı kalır — tekrar işaretlemek için önce temizleyin.",
+    },
+    genderDialog: {
+      message:
+        "Enjeksiyon noktalarının arkasında hangi vücut silüetinin (erkek veya kadın) gösterileceğini seçin.",
     },
     zonePointsDialog: {
       message:
@@ -267,6 +276,8 @@ export const tr: AppLocale = {
         "<bold>{{label}}</bold> — her bölge grubunun (omuzlar, karın, uyluklar) kaç satır ve sütuna sahip olacağını seçin. Bir bölgenin ızgarasını küçültmek, geçmişini kaybetmeden aralık dışı kalan noktalarını gizler; büyütüldüğünde bu geçmiş tekrar görünür.",
       zones:
         "<bold>{{label}}</bold> — vücutta hangi tek tek bölgelerin (örneğin sol/sağ omuz) gösterileceğini seçin. Bir bölgeyi devre dışı bırakmak, geçmişini kaybetmeden onu gizler; yeniden etkinleştirildiğinde bu geçmiş tekrar görünür.",
+      gender:
+        "<bold>{{label}}</bold> — enjeksiyon noktalarının arkasında hangi vücut silüetinin (erkek veya kadın) gösterileceğini seçin.",
       theme:
         "<bold>{{label}}</bold> — uygulamanın açık, koyu veya sistem görünüm temasını seçin.",
       language: "<bold>{{label}}</bold> — uygulama arayüzünün dilini seçin.",

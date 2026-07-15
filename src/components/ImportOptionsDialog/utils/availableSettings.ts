@@ -9,6 +9,7 @@ const SETTING_AVAILABLE: Record<
   [ExportSettingKey.AutoLock]: (data) => data.autoLockEnabled !== undefined,
   [ExportSettingKey.EnabledZones]: (data) => data.enabledZones !== undefined,
   [ExportSettingKey.ZonePointCounts]: (data) => data.zonePointCounts !== undefined,
+  [ExportSettingKey.Gender]: (data) => data.gender !== undefined,
   [ExportSettingKey.PointRestoreMode]: (data) => data.pointRestoreMode !== undefined,
   [ExportSettingKey.DaysToWhite]: (data) => data.daysToWhite !== undefined,
   [ExportSettingKey.DaysToAvailable]: (data) => data.daysToAvailable !== undefined,

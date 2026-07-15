@@ -14,6 +14,7 @@ const SETTING_LABEL_KEY: Record<ExportSettingKey, TranslationKey> = {
   [ExportSettingKey.AutoLock]: "menu.autoLockRow",
   [ExportSettingKey.EnabledZones]: "menu.zonesRow",
   [ExportSettingKey.ZonePointCounts]: "menu.zonePointsRow",
+  [ExportSettingKey.Gender]: "menu.genderRow",
   [ExportSettingKey.PointRestoreMode]: "menu.pointRestoreModeRow",
   [ExportSettingKey.DaysToWhite]: "menu.daysToWhiteRow",
   [ExportSettingKey.DaysToAvailable]: "menu.daysToAvailableRow",

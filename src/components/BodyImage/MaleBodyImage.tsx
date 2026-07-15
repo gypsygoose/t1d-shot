@@ -1,18 +1,17 @@
 import Svg, { Path } from "react-native-svg";
 import { StyleProp, ViewStyle } from "react-native";
 
-interface BodyIllustrationProps {
+interface MaleBodyImageProps {
   style?: StyleProp<ViewStyle>;
 }
 
 // Traced from the Figma male-body illustration (optimized/simplified path
 // data) — rendered as an inline SVG instead of a rasterized PNG so it stays
-// crisp at any size. preserveAspectRatio="none" deliberately stretches it to
-// fill whatever box it's given, since the illustration's own native aspect
-// ratio (627x1081) doesn't match IMG_ASPECT (the Figma "with buttons" frame
-// the zone/point positions are tuned against) — see CLAUDE.md's body image
-// section.
-export function BodyIllustration({ style }: BodyIllustrationProps) {
+// crisp at any size. Its own native viewBox (627x1081) doesn't need to match
+// whatever box the caller lays it out into (see BodyImage.tsx) — the caller's
+// `style` (MainScreen's imageContainer/image, both width/height "100%")
+// governs the actual rendered box.
+export function MaleBodyImage({ style }: MaleBodyImageProps) {
   return (
     <Svg
       width="627"

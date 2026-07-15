@@ -7,3 +7,4 @@ export * from './language';
 export * from './toast';
 export * from './autoLock';
 export * from './pointRestoreMode';
+export * from './gender';

@@ -1,3 +1,5 @@
+import { Gender, PointRestoreMode } from "./types";
+
 // Brand name — deliberately not localized (see src/i18n/), unlike every
 // other user-facing string in the app.
 export const APP_NAME = "Insulin Shot Tracker";
@@ -36,6 +38,15 @@ export const DEFAULT_DAYS_TO_WHITE = MAX_DAYS_TO_WHITE;
 // DaysToAvailableDialog.
 export const MIN_DAYS_TO_AVAILABLE = 0;
 export const DEFAULT_DAYS_TO_AVAILABLE = MIN_DAYS_TO_AVAILABLE;
+
+// Default point restore mode — see PointService.ts / CLAUDE.md's "Point
+// restore mode".
+export const DEFAULT_POINT_RESTORE_MODE = PointRestoreMode.Auto;
+
+// Default body silhouette shown behind the injection points — Male, so
+// existing installs (which only ever had the one silhouette) see no visual
+// change — see src/components/BodyImage/ / CLAUDE.md's "Gender".
+export const DEFAULT_GENDER = Gender.Male;
 
 // Configurable per-zone-type point grid range — minimum is uniform across
 // zone types; the maximum differs per type (see data/zones.ts's

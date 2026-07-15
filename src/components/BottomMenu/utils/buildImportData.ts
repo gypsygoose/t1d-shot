@@ -47,6 +47,9 @@ export function buildImportData(
   if (selection.settings[ExportSettingKey.PointRestoreMode]) {
     filtered.pointRestoreMode = data.pointRestoreMode;
   }
+  if (selection.settings[ExportSettingKey.Gender]) {
+    filtered.gender = data.gender;
+  }
   if (selection.settings[ExportSettingKey.DaysToWhite]) {
     filtered.daysToWhite = data.daysToWhite;
   }

@@ -1,4 +1,4 @@
-import { ExportedAppData, LanguageMode, PointRestoreMode, ThemeMode } from "../../types";
+import { ExportedAppData, Gender, LanguageMode, PointRestoreMode, ThemeMode } from "../../types";
 import { isValidEvent } from "./isValidEvent";
 import { isValidPointState } from "./isValidPointState";
 import { isValidZonePointCounts } from "./isValidZonePointCounts";
@@ -7,6 +7,7 @@ import { isValidEnabledZones } from "./isValidEnabledZones";
 const THEME_MODES: ThemeMode[] = Object.values(ThemeMode);
 const LANGUAGE_MODES: LanguageMode[] = Object.values(LanguageMode);
 const POINT_RESTORE_MODES: PointRestoreMode[] = Object.values(PointRestoreMode);
+const GENDERS: Gender[] = Object.values(Gender);
 
 // Every field is optional — ExportOptionsDialog lets the user write only a
 // subset of categories to the file (see ExportedAppData's comment) — so each
@@ -66,6 +67,11 @@ export function isValidAppStorage(data: unknown): data is ExportedAppData {
   if (
     candidate.pointRestoreMode !== undefined &&
     !POINT_RESTORE_MODES.includes(candidate.pointRestoreMode)
+  )
+    return false;
+  if (
+    candidate.gender !== undefined &&
+    !GENDERS.includes(candidate.gender)
   )
     return false;
   if (

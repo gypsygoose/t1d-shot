@@ -94,6 +94,11 @@ export const es: AppLocale = {
     daysToAvailableRow: "Días hasta que el punto vuelve a estar disponible",
     zonePointsRow: "Disposición de puntos en zonas",
     zonesRow: "Zonas activas",
+    genderRow: "Género",
+    gender: {
+      male: "Masculino",
+      female: "Femenino",
+    },
     themeRow: "Tema",
     languageRow: "Idioma",
     exportRow: "Exportar datos",
@@ -118,6 +123,10 @@ export const es: AppLocale = {
     pointRestoreModeDialog: {
       message:
         "En el modo Automático, el color de un punto cambia con el tiempo. En el modo Manual, un punto se vuelve negro y queda deshabilitado para volver a marcarlo en cuanto se usa; bórralo para poder marcarlo de nuevo.",
+    },
+    genderDialog: {
+      message:
+        "Elige qué silueta corporal (masculina o femenina) se muestra detrás de los puntos de inyección.",
     },
     zonePointsDialog: {
       message:
@@ -267,6 +276,8 @@ export const es: AppLocale = {
         "<bold>{{label}}</bold> — elige cuántas filas y columnas tiene cada grupo de zonas (hombros, abdomen, muslos). Reducir la cuadrícula de una zona oculta sus puntos fuera de rango sin perder su historial; al aumentarla, ese historial vuelve a aparecer.",
       zones:
         "<bold>{{label}}</bold> — elige qué zonas individuales (por ejemplo, hombro izquierdo/derecho) se muestran en el cuerpo. Desactivar una zona la oculta sin perder su historial; al reactivarla, ese historial vuelve a aparecer.",
+      gender:
+        "<bold>{{label}}</bold> — elige qué silueta corporal (masculina o femenina) se muestra detrás de los puntos de inyección.",
       theme:
         "<bold>{{label}}</bold> — elige el tema de apariencia de la aplicación: claro, oscuro o del sistema.",
       language: "<bold>{{label}}</bold> — elige el idioma de la interfaz de la aplicación.",
