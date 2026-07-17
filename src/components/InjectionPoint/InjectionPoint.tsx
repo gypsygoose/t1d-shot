@@ -65,11 +65,11 @@ export function InjectionPoint({
   const bg = COLOR_HEX[color];
   const ck = PointService.checkmarkColor(color);
   const gradientId = `glow-${id}`;
-  const unavailableOverlayPath = topRightHalfCirclePath(
-    GLOW_SIZE / 2,
-    GLOW_SIZE / 2,
-    KNOB_SIZE / 2,
-  );
+  const unavailableOverlayPath = topRightHalfCirclePath({
+    centerX: GLOW_SIZE / 2,
+    centerY: GLOW_SIZE / 2,
+    radius: KNOB_SIZE / 2,
+  });
 
   return (
     <TouchableOpacity

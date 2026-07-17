@@ -1,4 +1,27 @@
-import { StoredPointState } from "../types";
+import { PointColor, PointRestoreMode, StoredPointState } from "../types";
+
+// Params objects for PointService.ts's public methods — see CLAUDE.md's
+// "more than 2 parameters" coding-convention bullet. daysUntilAvailable and
+// onPress need the exact same context computePointColor does, plus
+// daysToAvailable, so their params extend/alias it rather than repeating it.
+export interface ComputePointColorParams {
+  state: StoredPointState;
+  now: number;
+  daysToWhite: number;
+  pointRestoreMode: PointRestoreMode;
+}
+
+export interface DaysUntilAvailableParams extends ComputePointColorParams {
+  daysToAvailable: number;
+}
+
+export type OnPressParams = DaysUntilAvailableParams;
+
+export interface ColorLabelParams {
+  color: PointColor;
+  daysToWhite: number;
+  pointRestoreMode: PointRestoreMode;
+}
 
 export enum PressResultType {
   Injection = "injection",

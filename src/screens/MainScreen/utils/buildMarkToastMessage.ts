@@ -1,15 +1,9 @@
-import { TFunction } from "i18next";
-import {
-  PointAddress,
-  PointDefinition,
-  PointRestoreMode,
-  StoredPointState,
-  ToastStatus,
-} from "../../../types";
+import { ToastStatus } from "../../../types";
 import { PointService, PressResultType } from "../../../logic";
 import { formatDateTime } from "../../../utils";
 import { MARK_BACKDATED_THRESHOLD_MS } from "../../../constants";
 import { buildPointAddressSuffix } from "./buildPointAddressSuffix";
+import { BuildMarkToastMessageParams } from "../types";
 
 interface MarkToastMessage {
   message: string;
@@ -28,33 +22,33 @@ interface MarkToastMessage {
 // only thing PointContextMenu's own pre-check gates on) — so a Blocked/
 // Unavailable outcome here is possible and must return null (no misleading
 // success toast) rather than only being checked for Blackout.
-export function buildMarkToastMessage(
-  t: TFunction,
-  locale: string,
-  pointId: string,
-  pointState: StoredPointState,
-  timestamp: number,
-  daysToWhite: number,
-  daysToAvailable: number,
-  pointMap: Record<string, PointDefinition>,
-  pointAddress: Record<string, PointAddress>,
-  pointRestoreMode: PointRestoreMode,
-): MarkToastMessage | null {
-  const addressSuffix = buildPointAddressSuffix(
+export function buildMarkToastMessage({
+  t,
+  locale,
+  pointId,
+  pointState,
+  timestamp,
+  daysToWhite,
+  daysToAvailable,
+  pointMap,
+  pointAddress,
+  pointRestoreMode,
+}: BuildMarkToastMessageParams): MarkToastMessage | null {
+  const addressSuffix = buildPointAddressSuffix({
     t,
     pointId,
     pointMap,
     pointAddress,
-  );
+  });
   if (!addressSuffix) return null;
 
-  const result = PointService.onPress(
-    pointState,
-    timestamp,
+  const result = PointService.onPress({
+    state: pointState,
+    now: timestamp,
     daysToWhite,
     daysToAvailable,
     pointRestoreMode,
-  );
+  });
 
   if (
     result.type === PressResultType.Blocked ||

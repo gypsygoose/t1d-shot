@@ -54,6 +54,14 @@ export interface AppState extends AppStorage {
   enabledZones: EnabledZones;
 }
 
+// See CLAUDE.md's "more than 2 parameters" coding-convention bullet.
+export interface ExportDataParams {
+  themeMode: ThemeMode;
+  languageMode: LanguageMode;
+  dialogTitle: string;
+  selection: ExportSelection;
+}
+
 export interface AppActions {
   pressPoint(pointId: string): void;
   blockPoint(pointId: string): void;
@@ -73,12 +81,7 @@ export interface AppActions {
   setGender(gender: Gender): void;
   setZonePointCounts(next: ZonePointCounts): void;
   setEnabledZones(next: EnabledZones): void;
-  exportData(
-    themeMode: ThemeMode,
-    languageMode: LanguageMode,
-    dialogTitle: string,
-    selection: ExportSelection,
-  ): Promise<void>;
+  exportData(params: ExportDataParams): Promise<void>;
   pickImportFile(): Promise<ImportResult>;
   applyImport(data: ExportedAppData): void;
 }
@@ -248,13 +251,13 @@ export function useAppStore(
       if (!point) return prev;
 
       const currentPointState = prev.pointStates[pointId];
-      const result = PointService.onPress(
-        currentPointState,
+      const result = PointService.onPress({
+        state: currentPointState,
         now,
-        prev.daysToWhite,
-        prev.daysToAvailable,
-        prev.pointRestoreMode,
-      );
+        daysToWhite: prev.daysToWhite,
+        daysToAvailable: prev.daysToAvailable,
+        pointRestoreMode: prev.pointRestoreMode,
+      });
       if (
         result.type === PressResultType.Blocked ||
         result.type === PressResultType.Unavailable
@@ -370,13 +373,13 @@ export function useAppStore(
       if (!point) return prev;
 
       const currentPointState = prev.pointStates[pointId];
-      const result = PointService.onPress(
-        currentPointState,
-        timestamp,
-        prev.daysToWhite,
-        prev.daysToAvailable,
-        prev.pointRestoreMode,
-      );
+      const result = PointService.onPress({
+        state: currentPointState,
+        now: timestamp,
+        daysToWhite: prev.daysToWhite,
+        daysToAvailable: prev.daysToAvailable,
+        pointRestoreMode: prev.pointRestoreMode,
+      });
       if (
         result.type === PressResultType.Blocked ||
         result.type === PressResultType.Unavailable
@@ -742,12 +745,12 @@ export function useAppStore(
   // entirely, not written with a default, so a partial file round-trips
   // correctly through the merge-import logic in applyImport below.
   const exportData = useCallback(
-    async (
-      themeMode: ThemeMode,
-      languageMode: LanguageMode,
-      dialogTitle: string,
-      selection: ExportSelection,
-    ) => {
+    async ({
+      themeMode,
+      languageMode,
+      dialogTitle,
+      selection,
+    }: ExportDataParams) => {
       const data: ExportedAppData = {};
       const activePointsSelected = selection.marks[ExportMarksKey.ActivePoints];
       const blockedPointsSelected = selection.marks[ExportMarksKey.BlockedPoints];

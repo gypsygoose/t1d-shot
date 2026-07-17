@@ -12,6 +12,10 @@ import {
   PressResult,
   ColorLabelType,
   ColorLabelDescriptor,
+  ComputePointColorParams,
+  DaysUntilAvailableParams,
+  OnPressParams,
+  ColorLabelParams,
 } from "./types";
 
 // Injection-site color computation and press handling — every method is
@@ -33,12 +37,12 @@ export class PointService {
     return activeCycleColors(daysToWhite);
   }
 
-  static computePointColor(
-    state: StoredPointState,
-    now: number,
-    daysToWhite: number,
-    pointRestoreMode: PointRestoreMode,
-  ): PointColor {
+  static computePointColor({
+    state,
+    now,
+    daysToWhite,
+    pointRestoreMode,
+  }: ComputePointColorParams): PointColor {
     if (state.isManuallyBlocked) return PointColor.Gray;
 
     // Manual restore mode ignores the day-based cycle entirely: a point is
@@ -92,20 +96,20 @@ export class PointService {
   // stored value — see CLAUDE.md's "Point colour state machine": lowering
   // daysToWhite below a previously-set daysToAvailable shortens the wait
   // instead of leaving it stuck at the old, now out-of-range value.
-  static daysUntilAvailable(
-    state: StoredPointState,
-    now: number,
-    daysToWhite: number,
-    daysToAvailable: number,
-    pointRestoreMode: PointRestoreMode,
-  ): number | undefined {
+  static daysUntilAvailable({
+    state,
+    now,
+    daysToWhite,
+    daysToAvailable,
+    pointRestoreMode,
+  }: DaysUntilAvailableParams): number | undefined {
     // Manual restore mode has no partial-day gating — a point is either
     // available (White) or blocked outright (Marked/Gray), the latter
     // already conveyed by its color, not this separate countdown.
     if (pointRestoreMode === PointRestoreMode.Manual) return undefined;
     if (daysToAvailable <= 0) return undefined;
 
-    const color = PointService.computePointColor(state, now, daysToWhite, pointRestoreMode);
+    const color = PointService.computePointColor({ state, now, daysToWhite, pointRestoreMode });
     if (
       color === PointColor.White ||
       color === PointColor.Gray ||
@@ -144,19 +148,14 @@ export class PointService {
   // State transitions
   // ---------------------------------------------------------------------
 
-  static onPress(
-    state: StoredPointState,
-    now: number,
-    daysToWhite: number,
-    daysToAvailable: number,
-    pointRestoreMode: PointRestoreMode,
-  ): PressResult {
-    const color = PointService.computePointColor(
-      state,
-      now,
-      daysToWhite,
-      pointRestoreMode,
-    );
+  static onPress({
+    state,
+    now,
+    daysToWhite,
+    daysToAvailable,
+    pointRestoreMode,
+  }: OnPressParams): PressResult {
+    const color = PointService.computePointColor({ state, now, daysToWhite, pointRestoreMode });
 
     if (
       color === PointColor.Gray ||
@@ -180,13 +179,13 @@ export class PointService {
       };
     }
 
-    const daysRemaining = PointService.daysUntilAvailable(
+    const daysRemaining = PointService.daysUntilAvailable({
       state,
       now,
       daysToWhite,
       daysToAvailable,
       pointRestoreMode,
-    );
+    });
     if (daysRemaining !== undefined)
       return { type: PressResultType.Unavailable, daysRemaining };
 
@@ -224,11 +223,11 @@ export class PointService {
   // drops the "unused for N+ days" count in Manual restore mode, since
   // White there just means "never marked" — there's no day-based cycle to
   // report a count against (see CLAUDE.md's "Point restore mode" section).
-  static colorLabel(
-    color: PointColor,
-    daysToWhite: number,
-    pointRestoreMode: PointRestoreMode,
-  ): ColorLabelDescriptor {
+  static colorLabel({
+    color,
+    daysToWhite,
+    pointRestoreMode,
+  }: ColorLabelParams): ColorLabelDescriptor {
     switch (color) {
       case PointColor.White:
         return pointRestoreMode === PointRestoreMode.Manual

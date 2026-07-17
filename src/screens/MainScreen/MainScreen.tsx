@@ -32,6 +32,15 @@ import {
 } from "../../constants";
 import { buildPointAddressSuffix, buildMarkToastMessage } from "./utils";
 
+// See CLAUDE.md's "more than 2 parameters" coding-convention bullet — local
+// to this file (only ≤2 other local types would apply here), so it stays
+// declared near its one use rather than moving to ./types.
+interface ShowToastParams {
+  message: string;
+  status: ToastStatus;
+  duration?: number;
+}
+
 export function MainScreen() {
   // Long-pressed point awaiting an action from the menu / follow-up dialogs.
   const [menuPointId, setMenuPointId] = useState<string | null>(null);
@@ -41,11 +50,7 @@ export function MainScreen() {
   const nextToastIdRef = useRef(0);
 
   const showToast = useCallback(
-    (
-      message: string,
-      status: ToastStatus,
-      duration: number = TOAST_DURATION_MS,
-    ) => {
+    ({ message, status, duration = TOAST_DURATION_MS }: ShowToastParams) => {
       const id = `toast-${nextToastIdRef.current++}`;
       setToasts((prev) =>
         [{ id, message, status, duration }, ...prev].slice(
@@ -65,7 +70,8 @@ export function MainScreen() {
 
   const [state, actions] = useAppStore(
     useCallback(
-      () => showToast(t("toast.autoLockFired"), ToastStatus.Info),
+      () =>
+        showToast({ message: t("toast.autoLockFired"), status: ToastStatus.Info }),
       [showToast, t],
     ),
   );
@@ -82,62 +88,71 @@ export function MainScreen() {
 
   const handlePress = useCallback(
     (id: string) => {
-      const color = PointService.computePointColor(
-        state.pointStates[id],
-        state.now,
-        state.daysToWhite,
-        state.pointRestoreMode,
-      );
+      const color = PointService.computePointColor({
+        state: state.pointStates[id],
+        now: state.now,
+        daysToWhite: state.daysToWhite,
+        pointRestoreMode: state.pointRestoreMode,
+      });
 
       if (
         color === PointColor.Gray ||
         color === PointColor.Black ||
         color === PointColor.Marked
       ) {
-        showToast(t("toast.blocked"), ToastStatus.Info, TOAST_DURATION_MS);
+        showToast({
+          message: t("toast.blocked"),
+          status: ToastStatus.Info,
+          duration: TOAST_DURATION_MS,
+        });
         return;
       }
 
       if (state.interfaceLocked) {
-        showToast(
-          t("toast.interfaceLocked"),
-          ToastStatus.Info,
-          INTERFACE_LOCKED_TOAST_DURATION_MS,
-        );
+        showToast({
+          message: t("toast.interfaceLocked"),
+          status: ToastStatus.Info,
+          duration: INTERFACE_LOCKED_TOAST_DURATION_MS,
+        });
         return;
       }
 
-      const daysUntilAvailable = PointService.daysUntilAvailable(
-        state.pointStates[id],
-        state.now,
-        state.daysToWhite,
-        state.daysToAvailable,
-        state.pointRestoreMode,
-      );
+      const daysUntilAvailable = PointService.daysUntilAvailable({
+        state: state.pointStates[id],
+        now: state.now,
+        daysToWhite: state.daysToWhite,
+        daysToAvailable: state.daysToAvailable,
+        pointRestoreMode: state.pointRestoreMode,
+      });
       if (daysUntilAvailable !== undefined) {
-        showToast(
-          t("toast.pointUnavailable", { count: daysUntilAvailable }),
-          ToastStatus.Info,
-          TOAST_DURATION_MS,
-        );
+        showToast({
+          message: t("toast.pointUnavailable", { count: daysUntilAvailable }),
+          status: ToastStatus.Info,
+          duration: TOAST_DURATION_MS,
+        });
         return;
       }
 
       const timestamp = Date.now();
       actions.pressPoint(id);
-      const toast = buildMarkToastMessage(
+      const toast = buildMarkToastMessage({
         t,
-        i18n.language,
-        id,
-        state.pointStates[id],
+        locale: i18n.language,
+        pointId: id,
+        pointState: state.pointStates[id],
         timestamp,
-        state.daysToWhite,
-        state.daysToAvailable,
-        state.zoneData.pointMap,
-        state.zoneData.pointAddress,
-        state.pointRestoreMode,
-      );
-      if (toast) showToast(toast.message, toast.status, TOAST_DURATION_MS);
+        daysToWhite: state.daysToWhite,
+        daysToAvailable: state.daysToAvailable,
+        pointMap: state.zoneData.pointMap,
+        pointAddress: state.zoneData.pointAddress,
+        pointRestoreMode: state.pointRestoreMode,
+      });
+      if (toast)
+        showToast({
+          message: toast.message,
+          status: toast.status,
+          duration: TOAST_DURATION_MS,
+        });
     },
     [
       actions,
@@ -163,21 +178,21 @@ export function MainScreen() {
     ? state.pointStates[menuPointId]
     : undefined;
   const menuPointColor = menuPointState
-    ? PointService.computePointColor(
-        menuPointState,
-        state.now,
-        state.daysToWhite,
-        state.pointRestoreMode,
-      )
+    ? PointService.computePointColor({
+        state: menuPointState,
+        now: state.now,
+        daysToWhite: state.daysToWhite,
+        pointRestoreMode: state.pointRestoreMode,
+      })
     : undefined;
   const menuDaysUntilAvailable = menuPointState
-    ? PointService.daysUntilAvailable(
-        menuPointState,
-        state.now,
-        state.daysToWhite,
-        state.daysToAvailable,
-        state.pointRestoreMode,
-      )
+    ? PointService.daysUntilAvailable({
+        state: menuPointState,
+        now: state.now,
+        daysToWhite: state.daysToWhite,
+        daysToAvailable: state.daysToAvailable,
+        pointRestoreMode: state.pointRestoreMode,
+      })
     : undefined;
   const menuPointAddress = menuPointId
     ? state.zoneData.pointAddress[menuPointId]
@@ -242,25 +257,25 @@ export function MainScreen() {
             zoneLayout={state.zoneData.zoneLayout}
             pointsByZone={state.zoneData.pointsByZone}
             getColor={(pointId) =>
-              PointService.computePointColor(
-                state.pointStates[pointId],
-                state.now,
-                state.daysToWhite,
-                state.pointRestoreMode,
-              )
+              PointService.computePointColor({
+                state: state.pointStates[pointId],
+                now: state.now,
+                daysToWhite: state.daysToWhite,
+                pointRestoreMode: state.pointRestoreMode,
+              })
             }
             isCheckmarked={(pointId) =>
               state.lastInGroup[ZoneGroup.Thighs] === pointId ||
               state.lastInGroup[ZoneGroup.ShouldersAndBelly] === pointId
             }
             isUnavailable={(pointId) =>
-              PointService.daysUntilAvailable(
-                state.pointStates[pointId],
-                state.now,
-                state.daysToWhite,
-                state.daysToAvailable,
-                state.pointRestoreMode,
-              ) !== undefined
+              PointService.daysUntilAvailable({
+                state: state.pointStates[pointId],
+                now: state.now,
+                daysToWhite: state.daysToWhite,
+                daysToAvailable: state.daysToAvailable,
+                pointRestoreMode: state.pointRestoreMode,
+              }) !== undefined
             }
             onPress={handlePress}
             onLongPress={handleLongPress}
@@ -279,12 +294,12 @@ export function MainScreen() {
         onToggleInterfaceLocked={() => {
           const nextLocked = !state.interfaceLocked;
           actions.setInterfaceLocked(nextLocked);
-          showToast(
-            nextLocked
+          showToast({
+            message: nextLocked
               ? t("toast.interfaceLockEnabled")
               : t("toast.interfaceLockDisabled"),
-            ToastStatus.Info,
-          );
+            status: ToastStatus.Info,
+          });
         }}
         autoLockEnabled={state.autoLockEnabled}
         autoLockAfterMarkSeconds={state.autoLockAfterMarkSeconds}
@@ -309,14 +324,14 @@ export function MainScreen() {
         languageMode={languageMode}
         onSetLanguageMode={onSetLanguageMode}
         onExport={(selection) =>
-          actions.exportData(
+          actions.exportData({
             themeMode,
             languageMode,
-            t("menu.exportOptionsDialog.shareDialogTitle", {
+            dialogTitle: t("menu.exportOptionsDialog.shareDialogTitle", {
               appName: APP_NAME,
             }),
             selection,
-          )
+          })
         }
         onPickImportFile={actions.pickImportFile}
         onApplyImport={(data) => {
@@ -325,7 +340,7 @@ export function MainScreen() {
           if (data.languageMode !== undefined)
             onSetLanguageMode(data.languageMode);
         }}
-        onNotify={showToast}
+        onNotify={(message, status) => showToast({ message, status })}
       />
 
       {/* Long-press menu for a single point */}
@@ -340,20 +355,20 @@ export function MainScreen() {
         onBlock={() => {
           if (menuPointId) {
             actions.blockPoint(menuPointId);
-            const addressSuffix = buildPointAddressSuffix(
+            const addressSuffix = buildPointAddressSuffix({
               t,
-              menuPointId,
-              state.zoneData.pointMap,
-              state.zoneData.pointAddress,
-            );
+              pointId: menuPointId,
+              pointMap: state.zoneData.pointMap,
+              pointAddress: state.zoneData.pointAddress,
+            });
             if (addressSuffix) {
-              showToast(
-                t("toast.labeledValue", {
+              showToast({
+                message: t("toast.labeledValue", {
                   label: t("toast.manualBlockPrefix"),
                   value: addressSuffix,
                 }),
-                ToastStatus.Success,
-              );
+                status: ToastStatus.Success,
+              });
             }
           }
           setMenuPointId(null);
@@ -361,20 +376,20 @@ export function MainScreen() {
         onUnblock={() => {
           if (menuPointId) {
             actions.unblockPoint(menuPointId);
-            const addressSuffix = buildPointAddressSuffix(
+            const addressSuffix = buildPointAddressSuffix({
               t,
-              menuPointId,
-              state.zoneData.pointMap,
-              state.zoneData.pointAddress,
-            );
+              pointId: menuPointId,
+              pointMap: state.zoneData.pointMap,
+              pointAddress: state.zoneData.pointAddress,
+            });
             if (addressSuffix) {
-              showToast(
-                t("toast.labeledValue", {
+              showToast({
+                message: t("toast.labeledValue", {
                   label: t("toast.manualUnblockPrefix"),
                   value: addressSuffix,
                 }),
-                ToastStatus.Success,
-              );
+                status: ToastStatus.Success,
+              });
             }
           }
           setMenuPointId(null);
@@ -399,20 +414,21 @@ export function MainScreen() {
         }
         onConfirm={(timestamp) => {
           if (markPointId) {
-            const toast = buildMarkToastMessage(
+            const toast = buildMarkToastMessage({
               t,
-              i18n.language,
-              markPointId,
-              state.pointStates[markPointId],
+              locale: i18n.language,
+              pointId: markPointId,
+              pointState: state.pointStates[markPointId],
               timestamp,
-              state.daysToWhite,
-              state.daysToAvailable,
-              state.zoneData.pointMap,
-              state.zoneData.pointAddress,
-              state.pointRestoreMode,
-            );
+              daysToWhite: state.daysToWhite,
+              daysToAvailable: state.daysToAvailable,
+              pointMap: state.zoneData.pointMap,
+              pointAddress: state.zoneData.pointAddress,
+              pointRestoreMode: state.pointRestoreMode,
+            });
             actions.markPointAt(markPointId, timestamp);
-            if (toast) showToast(toast.message, toast.status);
+            if (toast)
+              showToast({ message: toast.message, status: toast.status });
           }
           setMarkPointId(null);
         }}
@@ -427,20 +443,20 @@ export function MainScreen() {
         onConfirm={() => {
           if (clearPointId) {
             actions.clearPoint(clearPointId);
-            const addressSuffix = buildPointAddressSuffix(
+            const addressSuffix = buildPointAddressSuffix({
               t,
-              clearPointId,
-              state.zoneData.pointMap,
-              state.zoneData.pointAddress,
-            );
+              pointId: clearPointId,
+              pointMap: state.zoneData.pointMap,
+              pointAddress: state.zoneData.pointAddress,
+            });
             if (addressSuffix) {
-              showToast(
-                t("toast.labeledValue", {
+              showToast({
+                message: t("toast.labeledValue", {
                   label: t("toast.pointClearedPrefix"),
                   value: addressSuffix,
                 }),
-                ToastStatus.Success,
-              );
+                status: ToastStatus.Success,
+              });
             }
           }
           setClearPointId(null);

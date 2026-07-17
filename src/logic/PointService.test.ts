@@ -15,71 +15,71 @@ const fresh: StoredPointState = { pointId: 'x', isManuallyBlocked: false };
 
 describe('computePointColor — normal cycle', () => {
   test('white when never used', () => {
-    expect(PointService.computePointColor(fresh, NOW, 8, AUTO)).toBe(PointColor.White);
+    expect(PointService.computePointColor({ state: fresh, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.White);
   });
 
   test('maroon on day 0', () => {
     const s = { ...fresh, lastInjectionAt: NOW };
-    expect(PointService.computePointColor(s, NOW, 8, AUTO)).toBe(PointColor.Maroon);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.Maroon);
   });
 
   test('maroon stays until local midnight, regardless of elapsed hours', () => {
     const pressedAt = new Date(2024, 6, 3, 15, 30).getTime(); // 3 July, 15:30 local
     const sameEvening = new Date(2024, 6, 3, 23, 59).getTime(); // still 3 July
     const s = { ...fresh, lastInjectionAt: pressedAt };
-    expect(PointService.computePointColor(s, sameEvening, 8, AUTO)).toBe(PointColor.Maroon);
+    expect(PointService.computePointColor({ state: s, now: sameEvening, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.Maroon);
   });
 
   test('turns red right after local midnight, even before 24 h have elapsed', () => {
     const pressedAt = new Date(2024, 6, 3, 15, 30).getTime(); // 3 July, 15:30 local
     const nextMidnight = new Date(2024, 6, 4, 0, 0).getTime(); // 4 July, 00:00 local
     const s = { ...fresh, lastInjectionAt: pressedAt };
-    expect(PointService.computePointColor(s, nextMidnight, 8, AUTO)).toBe(PointColor.Red);
+    expect(PointService.computePointColor({ state: s, now: nextMidnight, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.Red);
   });
 
   test('red on day 1', () => {
     const s = { ...fresh, lastInjectionAt: NOW - DAY };
-    expect(PointService.computePointColor(s, NOW, 8, AUTO)).toBe(PointColor.Red);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.Red);
   });
 
   test('dark-orange on day 2', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 2 * DAY };
-    expect(PointService.computePointColor(s, NOW, 8, AUTO)).toBe(PointColor.DarkOrange);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.DarkOrange);
   });
 
   test('orange on day 3', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 3 * DAY };
-    expect(PointService.computePointColor(s, NOW, 8, AUTO)).toBe(PointColor.Orange);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.Orange);
   });
 
   test('dark-yellow on day 4', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 4 * DAY };
-    expect(PointService.computePointColor(s, NOW, 8, AUTO)).toBe(PointColor.DarkYellow);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.DarkYellow);
   });
 
   test('yellow on day 5', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 5 * DAY };
-    expect(PointService.computePointColor(s, NOW, 8, AUTO)).toBe(PointColor.Yellow);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.Yellow);
   });
 
   test('dark-green on day 6', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 6 * DAY };
-    expect(PointService.computePointColor(s, NOW, 8, AUTO)).toBe(PointColor.DarkGreen);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.DarkGreen);
   });
 
   test('green on day 7', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 7 * DAY };
-    expect(PointService.computePointColor(s, NOW, 8, AUTO)).toBe(PointColor.Green);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.Green);
   });
 
   test('white on day 8', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 8 * DAY };
-    expect(PointService.computePointColor(s, NOW, 8, AUTO)).toBe(PointColor.White);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.White);
   });
 
   test('white on day 30', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 30 * DAY };
-    expect(PointService.computePointColor(s, NOW, 8, AUTO)).toBe(PointColor.White);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.White);
   });
 });
 
@@ -90,7 +90,7 @@ describe('computePointColor — normal cycle', () => {
 describe('computePointColor — gray (manual block)', () => {
   test('gray overrides normal cycle', () => {
     const s = { ...fresh, lastInjectionAt: NOW - DAY, isManuallyBlocked: true };
-    expect(PointService.computePointColor(s, NOW, 8, AUTO)).toBe(PointColor.Gray);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.Gray);
   });
 
   test('gray overrides blackout', () => {
@@ -100,7 +100,7 @@ describe('computePointColor — gray (manual block)', () => {
       blackoutDurationDays: 4,
       isManuallyBlocked: true,
     };
-    expect(PointService.computePointColor(s, NOW, 8, AUTO)).toBe(PointColor.Gray);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.Gray);
   });
 });
 
@@ -116,8 +116,8 @@ describe('computePointColor — blackout state', () => {
       blackoutStartedAt: NOW,
       blackoutDurationDays: 4,
     };
-    expect(PointService.computePointColor(s, NOW + DAY, 8, AUTO)).toBe(PointColor.Black);
-    expect(PointService.computePointColor(s, NOW + 3 * DAY, 8, AUTO)).toBe(PointColor.Black);
+    expect(PointService.computePointColor({ state: s, now: NOW + DAY, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.Black);
+    expect(PointService.computePointColor({ state: s, now: NOW + 3 * DAY, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.Black);
   });
 
   test('red on day 0 after blackout ends', () => {
@@ -126,7 +126,7 @@ describe('computePointColor — blackout state', () => {
       blackoutStartedAt: NOW - 4 * DAY,
       blackoutDurationDays: 4,
     };
-    expect(PointService.computePointColor(s, NOW, 8, AUTO)).toBe(PointColor.Red);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.Red);
   });
 
   test('post-blackout cycle skips maroon (starts at red)', () => {
@@ -136,13 +136,13 @@ describe('computePointColor — blackout state', () => {
       blackoutDurationDays: 4,
     };
     // day 0 after blackout end = red
-    expect(PointService.computePointColor(s, NOW, 8, AUTO)).toBe(PointColor.Red);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.Red);
     // day 1 after end = dark-orange
-    expect(PointService.computePointColor(s, NOW + DAY, 8, AUTO)).toBe(PointColor.DarkOrange);
+    expect(PointService.computePointColor({ state: s, now: NOW + DAY, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.DarkOrange);
     // day 6 after end = green
-    expect(PointService.computePointColor(s, NOW + 6 * DAY, 8, AUTO)).toBe(PointColor.Green);
+    expect(PointService.computePointColor({ state: s, now: NOW + 6 * DAY, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.Green);
     // day 7 after end = white
-    expect(PointService.computePointColor(s, NOW + 7 * DAY, 8, AUTO)).toBe(PointColor.White);
+    expect(PointService.computePointColor({ state: s, now: NOW + 7 * DAY, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.White);
   });
 
   test('new injection after blackout overrides post-blackout cycle', () => {
@@ -152,7 +152,7 @@ describe('computePointColor — blackout state', () => {
       blackoutDurationDays: 4,             // ended 1 day ago
       lastInjectionAt: NOW,               // new injection just now (> blackoutStartedAt)
     };
-    expect(PointService.computePointColor(s, NOW, 8, AUTO)).toBe(PointColor.Maroon);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.Maroon);
   });
 });
 
@@ -165,7 +165,7 @@ describe('computePointColor — blackout state', () => {
 
 describe('onPress', () => {
   test('injection on white point', () => {
-    const result = PointService.onPress(fresh, NOW, 8, 0, AUTO);
+    const result = PointService.onPress({ state: fresh, now: NOW, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: AUTO });
     expect(result.type).toBe(PressResultType.Injection);
     if (result.type === PressResultType.Injection) {
       expect(result.newState.lastInjectionAt).toBe(NOW);
@@ -175,19 +175,19 @@ describe('onPress', () => {
 
   test('injection on dark-green point (day 6)', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 6 * DAY };
-    const result = PointService.onPress(s, NOW, 8, 0, AUTO);
+    const result = PointService.onPress({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: AUTO });
     expect(result.type).toBe(PressResultType.Injection);
   });
 
   test('injection on green point (day 7)', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 7 * DAY };
-    const result = PointService.onPress(s, NOW, 8, 0, AUTO);
+    const result = PointService.onPress({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: AUTO });
     expect(result.type).toBe(PressResultType.Injection);
   });
 
   test('blackout on maroon point — 4 days', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 0 * DAY };
-    const result = PointService.onPress(s, NOW, 8, 0, AUTO);
+    const result = PointService.onPress({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: AUTO });
     expect(result.type).toBe(PressResultType.Blackout);
     if (result.type === PressResultType.Blackout) {
       expect(result.newState.blackoutDurationDays).toBe(4);
@@ -196,7 +196,7 @@ describe('onPress', () => {
 
   test('blackout on red point — 4 days', () => {
     const s = { ...fresh, lastInjectionAt: NOW - DAY };
-    const result = PointService.onPress(s, NOW, 8, 0, AUTO);
+    const result = PointService.onPress({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: AUTO });
     expect(result.type).toBe(PressResultType.Blackout);
     if (result.type === PressResultType.Blackout) {
       expect(result.newState.blackoutDurationDays).toBe(4);
@@ -205,7 +205,7 @@ describe('onPress', () => {
 
   test('blackout on orange point — 2 days', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 3 * DAY };
-    const result = PointService.onPress(s, NOW, 8, 0, AUTO);
+    const result = PointService.onPress({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: AUTO });
     expect(result.type).toBe(PressResultType.Blackout);
     if (result.type === PressResultType.Blackout) {
       expect(result.newState.blackoutDurationDays).toBe(2);
@@ -214,7 +214,7 @@ describe('onPress', () => {
 
   test('blackout on yellow point — 1 day', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 5 * DAY };
-    const result = PointService.onPress(s, NOW, 8, 0, AUTO);
+    const result = PointService.onPress({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: AUTO });
     expect(result.type).toBe(PressResultType.Blackout);
     if (result.type === PressResultType.Blackout) {
       expect(result.newState.blackoutDurationDays).toBe(1);
@@ -223,7 +223,7 @@ describe('onPress', () => {
 
   test('blocked on gray (manually blocked) point', () => {
     const s = { ...fresh, isManuallyBlocked: true };
-    expect(PointService.onPress(s, NOW, 8, 0, AUTO).type).toBe(PressResultType.Blocked);
+    expect(PointService.onPress({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: AUTO }).type).toBe(PressResultType.Blocked);
   });
 
   test('blocked on black (blackout active) point', () => {
@@ -232,7 +232,7 @@ describe('onPress', () => {
       blackoutStartedAt: NOW,
       blackoutDurationDays: 4,
     };
-    expect(PointService.onPress(s, NOW + DAY, 8, 0, AUTO).type).toBe(PressResultType.Blocked);
+    expect(PointService.onPress({ state: s, now: NOW + DAY, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: AUTO }).type).toBe(PressResultType.Blocked);
   });
 });
 
@@ -242,7 +242,7 @@ describe('onPress', () => {
 
 function colorOnDay(daysSince: number, daysToWhite: number): PointColor {
   const s = { ...fresh, lastInjectionAt: NOW - daysSince * DAY };
-  return PointService.computePointColor(s, NOW, daysToWhite, AUTO);
+  return PointService.computePointColor({ state: s, now: NOW, daysToWhite, pointRestoreMode: AUTO });
 }
 
 describe('activeCycleColors', () => {
@@ -322,10 +322,10 @@ describe('computePointColor — configurable daysToWhite', () => {
       blackoutDurationDays: 4,
     };
     // daysToWhite 6 → active cycle minus maroon: red, orange, yellow, dark-green, green
-    expect(PointService.computePointColor(s, NOW, 6, AUTO)).toBe(PointColor.Red);
-    expect(PointService.computePointColor(s, NOW + DAY, 6, AUTO)).toBe(PointColor.Orange);
-    expect(PointService.computePointColor(s, NOW + 4 * DAY, 6, AUTO)).toBe(PointColor.Green);
-    expect(PointService.computePointColor(s, NOW + 5 * DAY, 6, AUTO)).toBe(PointColor.White);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 6, pointRestoreMode: AUTO })).toBe(PointColor.Red);
+    expect(PointService.computePointColor({ state: s, now: NOW + DAY, daysToWhite: 6, pointRestoreMode: AUTO })).toBe(PointColor.Orange);
+    expect(PointService.computePointColor({ state: s, now: NOW + 4 * DAY, daysToWhite: 6, pointRestoreMode: AUTO })).toBe(PointColor.Green);
+    expect(PointService.computePointColor({ state: s, now: NOW + 5 * DAY, daysToWhite: 6, pointRestoreMode: AUTO })).toBe(PointColor.White);
   });
 
   test('post-blackout is immediately white when daysToWhite is 1 (no colors besides maroon)', () => {
@@ -334,7 +334,7 @@ describe('computePointColor — configurable daysToWhite', () => {
       blackoutStartedAt: NOW - 4 * DAY,
       blackoutDurationDays: 4,
     };
-    expect(PointService.computePointColor(s, NOW, 1, AUTO)).toBe(PointColor.White);
+    expect(PointService.computePointColor({ state: s, now: NOW, daysToWhite: 1, pointRestoreMode: AUTO })).toBe(PointColor.White);
   });
 });
 
@@ -342,14 +342,14 @@ describe('onPress — respects daysToWhite', () => {
   test('injection on orange point that is now green under a reduced cycle', () => {
     // Under daysToWhite 6, day 5 is green (was yellow under the default 8-cycle)
     const s = { ...fresh, lastInjectionAt: NOW - 5 * DAY };
-    const result = PointService.onPress(s, NOW, 6, 0, AUTO);
+    const result = PointService.onPress({ state: s, now: NOW, daysToWhite: 6, daysToAvailable: 0, pointRestoreMode: AUTO });
     expect(result.type).toBe(PressResultType.Injection);
   });
 
   test('blackout duration is unaffected by daysToWhite (still keyed by color)', () => {
     // Under daysToWhite 6, day 1 is red → still a 4-day blackout
     const s = { ...fresh, lastInjectionAt: NOW - DAY };
-    const result = PointService.onPress(s, NOW, 6, 0, AUTO);
+    const result = PointService.onPress({ state: s, now: NOW, daysToWhite: 6, daysToAvailable: 0, pointRestoreMode: AUTO });
     expect(result.type).toBe(PressResultType.Blackout);
     if (result.type === PressResultType.Blackout) {
       expect(result.newState.blackoutDurationDays).toBe(4);
@@ -359,47 +359,47 @@ describe('onPress — respects daysToWhite', () => {
 
 describe('colorLabel', () => {
   test('returns a descriptor at daysToWhite 8', () => {
-    expect(PointService.colorLabel(PointColor.Maroon, 8, AUTO)).toEqual({
+    expect(PointService.colorLabel({ color: PointColor.Maroon, daysToWhite: 8, pointRestoreMode: AUTO })).toEqual({
       type: ColorLabelType.Maroon,
     });
-    expect(PointService.colorLabel(PointColor.Red, 8, AUTO)).toEqual({
+    expect(PointService.colorLabel({ color: PointColor.Red, daysToWhite: 8, pointRestoreMode: AUTO })).toEqual({
       type: ColorLabelType.Days,
       count: 1,
     });
-    expect(PointService.colorLabel(PointColor.DarkOrange, 8, AUTO)).toEqual({
+    expect(PointService.colorLabel({ color: PointColor.DarkOrange, daysToWhite: 8, pointRestoreMode: AUTO })).toEqual({
       type: ColorLabelType.Days,
       count: 2,
     });
-    expect(PointService.colorLabel(PointColor.Green, 8, AUTO)).toEqual({
+    expect(PointService.colorLabel({ color: PointColor.Green, daysToWhite: 8, pointRestoreMode: AUTO })).toEqual({
       type: ColorLabelType.Days,
       count: 7,
     });
-    expect(PointService.colorLabel(PointColor.White, 8, AUTO)).toEqual({
+    expect(PointService.colorLabel({ color: PointColor.White, daysToWhite: 8, pointRestoreMode: AUTO })).toEqual({
       type: ColorLabelType.White,
       count: 8,
     });
   });
 
   test('reflects a reduced daysToWhite', () => {
-    expect(PointService.colorLabel(PointColor.Orange, 7, AUTO)).toEqual({
+    expect(PointService.colorLabel({ color: PointColor.Orange, daysToWhite: 7, pointRestoreMode: AUTO })).toEqual({
       type: ColorLabelType.Days,
       count: 3,
     });
-    expect(PointService.colorLabel(PointColor.Green, 7, AUTO)).toEqual({
+    expect(PointService.colorLabel({ color: PointColor.Green, daysToWhite: 7, pointRestoreMode: AUTO })).toEqual({
       type: ColorLabelType.Days,
       count: 6,
     });
-    expect(PointService.colorLabel(PointColor.White, 7, AUTO)).toEqual({
+    expect(PointService.colorLabel({ color: PointColor.White, daysToWhite: 7, pointRestoreMode: AUTO })).toEqual({
       type: ColorLabelType.White,
       count: 7,
     });
   });
 
   test('block-state descriptors are unaffected by daysToWhite', () => {
-    expect(PointService.colorLabel(PointColor.Black, 5, AUTO)).toEqual({
+    expect(PointService.colorLabel({ color: PointColor.Black, daysToWhite: 5, pointRestoreMode: AUTO })).toEqual({
       type: ColorLabelType.Black,
     });
-    expect(PointService.colorLabel(PointColor.Gray, 5, AUTO)).toEqual({
+    expect(PointService.colorLabel({ color: PointColor.Gray, daysToWhite: 5, pointRestoreMode: AUTO })).toEqual({
       type: ColorLabelType.Gray,
     });
   });
@@ -412,59 +412,59 @@ describe('colorLabel', () => {
 describe('daysUntilAvailable', () => {
   test('undefined (always available) when daysToAvailable is 0', () => {
     const s = { ...fresh, lastInjectionAt: NOW };
-    expect(PointService.daysUntilAvailable(s, NOW, 8, 0, AUTO)).toBeUndefined();
+    expect(PointService.daysUntilAvailable({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: AUTO })).toBeUndefined();
   });
 
   test('never used point is always available regardless of daysToAvailable', () => {
-    expect(PointService.daysUntilAvailable(fresh, NOW, 8, 5, AUTO)).toBeUndefined();
+    expect(PointService.daysUntilAvailable({ state: fresh, now: NOW, daysToWhite: 8, daysToAvailable: 5, pointRestoreMode: AUTO })).toBeUndefined();
   });
 
   test('daysToWhite 8, daysToAvailable 5 — unavailable on day 0 (maroon), 5 days remaining', () => {
     const s = { ...fresh, lastInjectionAt: NOW };
-    expect(PointService.daysUntilAvailable(s, NOW, 8, 5, AUTO)).toBe(5);
+    expect(PointService.daysUntilAvailable({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 5, pointRestoreMode: AUTO })).toBe(5);
   });
 
   test('daysToWhite 8, daysToAvailable 5 — unavailable on day 4 (dark yellow), 1 day remaining', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 4 * DAY };
-    expect(PointService.daysUntilAvailable(s, NOW, 8, 5, AUTO)).toBe(1);
+    expect(PointService.daysUntilAvailable({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 5, pointRestoreMode: AUTO })).toBe(1);
   });
 
   test('daysToWhite 8, daysToAvailable 5 — available from day 5 (yellow) onward', () => {
     const dayFive = { ...fresh, lastInjectionAt: NOW - 5 * DAY };
     const daySeven = { ...fresh, lastInjectionAt: NOW - 7 * DAY };
-    expect(PointService.daysUntilAvailable(dayFive, NOW, 8, 5, AUTO)).toBeUndefined();
-    expect(PointService.daysUntilAvailable(daySeven, NOW, 8, 5, AUTO)).toBeUndefined();
+    expect(PointService.daysUntilAvailable({ state: dayFive, now: NOW, daysToWhite: 8, daysToAvailable: 5, pointRestoreMode: AUTO })).toBeUndefined();
+    expect(PointService.daysUntilAvailable({ state: daySeven, now: NOW, daysToWhite: 8, daysToAvailable: 5, pointRestoreMode: AUTO })).toBeUndefined();
   });
 
   test('white is always available even at the maximum daysToAvailable', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 30 * DAY };
-    expect(PointService.daysUntilAvailable(s, NOW, 8, 8, AUTO)).toBeUndefined();
+    expect(PointService.daysUntilAvailable({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 8, pointRestoreMode: AUTO })).toBeUndefined();
   });
 
   test('gray/black are unaffected — daysUntilAvailable is undefined (gated separately)', () => {
     const gray = { ...fresh, lastInjectionAt: NOW, isManuallyBlocked: true };
-    expect(PointService.daysUntilAvailable(gray, NOW, 8, 5, AUTO)).toBeUndefined();
+    expect(PointService.daysUntilAvailable({ state: gray, now: NOW, daysToWhite: 8, daysToAvailable: 5, pointRestoreMode: AUTO })).toBeUndefined();
 
     const black: StoredPointState = {
       ...fresh,
       blackoutStartedAt: NOW,
       blackoutDurationDays: 4,
     };
-    expect(PointService.daysUntilAvailable(black, NOW + DAY, 8, 5, AUTO)).toBeUndefined();
+    expect(PointService.daysUntilAvailable({ state: black, now: NOW + DAY, daysToWhite: 8, daysToAvailable: 5, pointRestoreMode: AUTO })).toBeUndefined();
   });
 
   test('at the maximum daysToAvailable (== daysToWhite), dark-green/green are unavailable too', () => {
     const darkGreen = { ...fresh, lastInjectionAt: NOW - 6 * DAY };
     const green = { ...fresh, lastInjectionAt: NOW - 7 * DAY };
-    expect(PointService.daysUntilAvailable(darkGreen, NOW, 8, 8, AUTO)).toBe(2);
-    expect(PointService.daysUntilAvailable(green, NOW, 8, 8, AUTO)).toBe(1);
+    expect(PointService.daysUntilAvailable({ state: darkGreen, now: NOW, daysToWhite: 8, daysToAvailable: 8, pointRestoreMode: AUTO })).toBe(2);
+    expect(PointService.daysUntilAvailable({ state: green, now: NOW, daysToWhite: 8, daysToAvailable: 8, pointRestoreMode: AUTO })).toBe(1);
   });
 
   test('reducing daysToWhite below a previously-set daysToAvailable shortens the effective wait', () => {
     // daysToAvailable raw value (5) exceeds the current daysToWhite (3) —
     // effective cap is min(5, 3) = 3, not 5.
     const s = { ...fresh, lastInjectionAt: NOW };
-    expect(PointService.daysUntilAvailable(s, NOW, 3, 5, AUTO)).toBe(3);
+    expect(PointService.daysUntilAvailable({ state: s, now: NOW, daysToWhite: 3, daysToAvailable: 5, pointRestoreMode: AUTO })).toBe(3);
   });
 
   test('applies the same way to the post-blackout cycle', () => {
@@ -474,16 +474,16 @@ describe('daysUntilAvailable', () => {
       blackoutDurationDays: 4,
     };
     // Post-blackout day 0 = red, day 1 = dark-orange, ... under daysToWhite 8.
-    expect(PointService.daysUntilAvailable(s, NOW, 8, 3, AUTO)).toBe(3);
-    expect(PointService.daysUntilAvailable(s, NOW + 2 * DAY, 8, 3, AUTO)).toBe(1);
-    expect(PointService.daysUntilAvailable(s, NOW + 3 * DAY, 8, 3, AUTO)).toBeUndefined();
+    expect(PointService.daysUntilAvailable({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 3, pointRestoreMode: AUTO })).toBe(3);
+    expect(PointService.daysUntilAvailable({ state: s, now: NOW + 2 * DAY, daysToWhite: 8, daysToAvailable: 3, pointRestoreMode: AUTO })).toBe(1);
+    expect(PointService.daysUntilAvailable({ state: s, now: NOW + 3 * DAY, daysToWhite: 8, daysToAvailable: 3, pointRestoreMode: AUTO })).toBeUndefined();
   });
 });
 
 describe('onPress — respects daysToAvailable', () => {
   test('unavailable on maroon point when pressed before the availability threshold', () => {
     const s = { ...fresh, lastInjectionAt: NOW };
-    const result = PointService.onPress(s, NOW, 8, 5, AUTO);
+    const result = PointService.onPress({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 5, pointRestoreMode: AUTO });
     expect(result.type).toBe(PressResultType.Unavailable);
     if (result.type === PressResultType.Unavailable) {
       expect(result.daysRemaining).toBe(5);
@@ -495,7 +495,7 @@ describe('onPress — respects daysToAvailable', () => {
     // blockable color, so pressing it still triggers the usual 1-day
     // blackout (the blackout table is unaffected by this setting).
     const s = { ...fresh, lastInjectionAt: NOW - 5 * DAY };
-    const result = PointService.onPress(s, NOW, 8, 5, AUTO);
+    const result = PointService.onPress({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 5, pointRestoreMode: AUTO });
     expect(result.type).toBe(PressResultType.Blackout);
     if (result.type === PressResultType.Blackout) {
       expect(result.newState.blackoutDurationDays).toBe(1);
@@ -504,12 +504,12 @@ describe('onPress — respects daysToAvailable', () => {
 
   test('gray/black still take priority over Unavailable', () => {
     const gray = { ...fresh, lastInjectionAt: NOW, isManuallyBlocked: true };
-    expect(PointService.onPress(gray, NOW, 8, 5, AUTO).type).toBe(PressResultType.Blocked);
+    expect(PointService.onPress({ state: gray, now: NOW, daysToWhite: 8, daysToAvailable: 5, pointRestoreMode: AUTO }).type).toBe(PressResultType.Blocked);
   });
 
   test('daysToAvailable 0 never blocks — unchanged behavior', () => {
     const s = { ...fresh, lastInjectionAt: NOW };
-    expect(PointService.onPress(s, NOW, 8, 0, AUTO).type).toBe(PressResultType.Blackout);
+    expect(PointService.onPress({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: AUTO }).type).toBe(PressResultType.Blackout);
   });
 });
 
@@ -520,7 +520,7 @@ describe('onPress — respects daysToAvailable', () => {
 describe('computePointColor — manual restore mode', () => {
   test('white when never used', () => {
     expect(
-      PointService.computePointColor(fresh, NOW, 8, PointRestoreMode.Manual),
+      PointService.computePointColor({ state: fresh, now: NOW, daysToWhite: 8, pointRestoreMode: PointRestoreMode.Manual }),
     ).toBe(PointColor.White);
   });
 
@@ -528,10 +528,10 @@ describe('computePointColor — manual restore mode', () => {
     const justNow = { ...fresh, lastInjectionAt: NOW };
     const longAgo = { ...fresh, lastInjectionAt: NOW - 30 * DAY };
     expect(
-      PointService.computePointColor(justNow, NOW, 8, PointRestoreMode.Manual),
+      PointService.computePointColor({ state: justNow, now: NOW, daysToWhite: 8, pointRestoreMode: PointRestoreMode.Manual }),
     ).toBe(PointColor.Marked);
     expect(
-      PointService.computePointColor(longAgo, NOW, 8, PointRestoreMode.Manual),
+      PointService.computePointColor({ state: longAgo, now: NOW, daysToWhite: 8, pointRestoreMode: PointRestoreMode.Manual }),
     ).toBe(PointColor.Marked);
   });
 
@@ -542,7 +542,7 @@ describe('computePointColor — manual restore mode', () => {
       isManuallyBlocked: true,
     };
     expect(
-      PointService.computePointColor(s, NOW, 8, PointRestoreMode.Manual),
+      PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: PointRestoreMode.Manual }),
     ).toBe(PointColor.Gray);
   });
 
@@ -554,7 +554,7 @@ describe('computePointColor — manual restore mode', () => {
       blackoutDurationDays: 4,
     };
     expect(
-      PointService.computePointColor(s, NOW, 8, PointRestoreMode.Manual),
+      PointService.computePointColor({ state: s, now: NOW, daysToWhite: 8, pointRestoreMode: PointRestoreMode.Manual }),
     ).toBe(PointColor.Marked);
   });
 });
@@ -562,24 +562,18 @@ describe('computePointColor — manual restore mode', () => {
 describe('daysUntilAvailable — manual restore mode', () => {
   test('always undefined, regardless of daysToAvailable or color', () => {
     expect(
-      PointService.daysUntilAvailable(fresh, NOW, 8, 5, PointRestoreMode.Manual),
+      PointService.daysUntilAvailable({ state: fresh, now: NOW, daysToWhite: 8, daysToAvailable: 5, pointRestoreMode: PointRestoreMode.Manual }),
     ).toBeUndefined();
     const marked = { ...fresh, lastInjectionAt: NOW };
     expect(
-      PointService.daysUntilAvailable(marked, NOW, 8, 5, PointRestoreMode.Manual),
+      PointService.daysUntilAvailable({ state: marked, now: NOW, daysToWhite: 8, daysToAvailable: 5, pointRestoreMode: PointRestoreMode.Manual }),
     ).toBeUndefined();
   });
 });
 
 describe('onPress — manual restore mode', () => {
   test('marks a fresh (white) point', () => {
-    const result = PointService.onPress(
-      fresh,
-      NOW,
-      8,
-      0,
-      PointRestoreMode.Manual,
-    );
+    const result = PointService.onPress({ state: fresh, now: NOW, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: PointRestoreMode.Manual });
     expect(result.type).toBe(PressResultType.Injection);
     if (result.type === PressResultType.Injection) {
       expect(result.newState.lastInjectionAt).toBe(NOW);
@@ -588,26 +582,26 @@ describe('onPress — manual restore mode', () => {
 
   test('blocked once already marked — cannot press again', () => {
     const s = { ...fresh, lastInjectionAt: NOW - 30 * DAY };
-    const result = PointService.onPress(s, NOW, 8, 0, PointRestoreMode.Manual);
+    const result = PointService.onPress({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: PointRestoreMode.Manual });
     expect(result.type).toBe(PressResultType.Blocked);
   });
 
   test('blocked when manually (gray) blocked', () => {
     const s = { ...fresh, isManuallyBlocked: true };
-    const result = PointService.onPress(s, NOW, 8, 0, PointRestoreMode.Manual);
+    const result = PointService.onPress({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: PointRestoreMode.Manual });
     expect(result.type).toBe(PressResultType.Blocked);
   });
 
   test('never produces a blackout outcome', () => {
     const s = { ...fresh, lastInjectionAt: NOW };
-    const result = PointService.onPress(s, NOW, 8, 0, PointRestoreMode.Manual);
+    const result = PointService.onPress({ state: s, now: NOW, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: PointRestoreMode.Manual });
     expect(result.type).not.toBe(PressResultType.Blackout);
   });
 });
 
 describe('colorLabel — marked', () => {
   test('returns a Marked descriptor', () => {
-    expect(PointService.colorLabel(PointColor.Marked, 8, AUTO)).toEqual({
+    expect(PointService.colorLabel({ color: PointColor.Marked, daysToWhite: 8, pointRestoreMode: AUTO })).toEqual({
       type: ColorLabelType.Marked,
     });
   });
@@ -616,13 +610,13 @@ describe('colorLabel — marked', () => {
 describe('colorLabel — manual restore mode', () => {
   test('returns a WhiteManual descriptor for White, with no count', () => {
     expect(
-      PointService.colorLabel(PointColor.White, 8, PointRestoreMode.Manual),
+      PointService.colorLabel({ color: PointColor.White, daysToWhite: 8, pointRestoreMode: PointRestoreMode.Manual }),
     ).toEqual({ type: ColorLabelType.WhiteManual });
   });
 
   test('Auto mode is unaffected', () => {
     expect(
-      PointService.colorLabel(PointColor.White, 8, PointRestoreMode.Auto),
+      PointService.colorLabel({ color: PointColor.White, daysToWhite: 8, pointRestoreMode: PointRestoreMode.Auto }),
     ).toEqual({ type: ColorLabelType.White, count: 8 });
   });
 });

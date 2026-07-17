@@ -88,7 +88,7 @@ export function HelpSheet({
           <Text style={[styles.colorLabel, { color: colors.secondaryText }]}>
             {formatColorLabel(
               t,
-              PointService.colorLabel(color, daysToWhite, pointRestoreMode),
+              PointService.colorLabel({ color, daysToWhite, pointRestoreMode }),
             )}
           </Text>
         </View>
@@ -107,11 +107,11 @@ export function HelpSheet({
               fill={COLOR_HEX[PointColor.Yellow]}
             />
             <Path
-              d={topRightHalfCirclePath(
-                COLOR_SWATCH_SIZE / 2,
-                COLOR_SWATCH_SIZE / 2,
-                COLOR_SWATCH_SIZE / 2,
-              )}
+              d={topRightHalfCirclePath({
+                centerX: COLOR_SWATCH_SIZE / 2,
+                centerY: COLOR_SWATCH_SIZE / 2,
+                radius: COLOR_SWATCH_SIZE / 2,
+              })}
               fill={UNAVAILABLE_OVERLAY_COLOR}
             />
           </Svg>
