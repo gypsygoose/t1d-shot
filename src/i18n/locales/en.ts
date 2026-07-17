@@ -163,8 +163,6 @@ export const en = {
       title: "Export data",
       message: "Choose what to export to the file.",
       marksLabel: "Injection point marks",
-      activePointsLabel: "Active points",
-      blockedPointsLabel: "Manually blocked points",
       settingsLabel: "App settings",
       confirmLabel: "Export",
       shareDialogTitle: "Export {{appName}} data",

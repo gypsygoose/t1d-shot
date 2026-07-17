@@ -1,8 +1,8 @@
 import { MutableRefObject, useCallback } from "react";
-import { ExportedAppData, ExportMarksKey, ExportSettingKey, ZoneRuntimeData } from "../types";
+import { ExportedAppData, ExportSettingKey, ZoneRuntimeData } from "../types";
 import { ImportResult, StorageService } from "../storage";
 import { SECOND_MS } from "../constants";
-import { computeZoneBackfill, partitionEventsByBlock, partitionPointStatesByBlock } from "../utils";
+import { computeZoneBackfill } from "../utils";
 import { AppState, ExportDataParams, SetAppState } from "./types";
 
 interface UseImportExportParams {
@@ -34,18 +34,9 @@ export function useImportExport({ state, setState, zoneDataRef }: UseImportExpor
   const exportData = useCallback(
     async ({ themeMode, languageMode, dialogTitle, selection }: ExportDataParams) => {
       const data: ExportedAppData = {};
-      const activePointsSelected = selection.marks[ExportMarksKey.ActivePoints];
-      const blockedPointsSelected = selection.marks[ExportMarksKey.BlockedPoints];
-      if (activePointsSelected && blockedPointsSelected) {
+      if (Object.values(selection.marks).some(Boolean)) {
         data.pointStates = state.pointStates;
         data.events = state.events;
-      } else if (activePointsSelected || blockedPointsSelected) {
-        const { active: activePointStates, blocked: blockedPointStates } =
-          partitionPointStatesByBlock(state.pointStates);
-        const { active: activeEvents, blocked: blockedEvents } =
-          partitionEventsByBlock(state.events);
-        data.pointStates = activePointsSelected ? activePointStates : blockedPointStates;
-        data.events = activePointsSelected ? activeEvents : blockedEvents;
       }
       if (selection.settings[ExportSettingKey.Mirrored]) {
         data.mirrored = state.mirrored;

@@ -163,8 +163,6 @@ export const de: AppLocale = {
       title: "Daten exportieren",
       message: "Wähle, was in die Datei exportiert werden soll.",
       marksLabel: "Injektionspunkt-Markierungen",
-      activePointsLabel: "Aktive Punkte",
-      blockedPointsLabel: "Manuell gesperrte Punkte",
       settingsLabel: "App-Einstellungen",
       confirmLabel: "Exportieren",
       shareDialogTitle: "{{appName}}-Daten exportieren",

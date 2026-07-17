@@ -167,8 +167,6 @@ export const tr: AppLocale = {
       title: "Verileri dışa aktar",
       message: "Dosyaya nelerin aktarılacağını seçin.",
       marksLabel: "Enjeksiyon noktası işaretleri",
-      activePointsLabel: "Etkin noktalar",
-      blockedPointsLabel: "Elle engellenen noktalar",
       settingsLabel: "Uygulama ayarları",
       confirmLabel: "Dışa aktar",
       shareDialogTitle: "{{appName}} verilerini dışa aktar",

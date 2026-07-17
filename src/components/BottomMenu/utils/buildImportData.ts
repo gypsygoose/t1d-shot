@@ -1,5 +1,4 @@
-import { ExportedAppData, ExportMarksKey, ExportSelection, ExportSettingKey } from "../../../types";
-import { partitionEventsByBlock, partitionPointStatesByBlock } from "../../../utils";
+import { ExportedAppData, ExportSelection, ExportSettingKey } from "../../../types";
 
 // Narrows a parsed import file down to just the categories the user kept
 // checked in ImportOptionsDialog, mirroring useAppStore's exportData filter
@@ -9,26 +8,13 @@ export function buildImportData(
   selection: ExportSelection,
 ): ExportedAppData {
   const filtered: ExportedAppData = {};
-  const activePointsSelected = selection.marks[ExportMarksKey.ActivePoints];
-  const blockedPointsSelected = selection.marks[ExportMarksKey.BlockedPoints];
   if (
-    (activePointsSelected || blockedPointsSelected) &&
+    Object.values(selection.marks).some(Boolean) &&
     data.pointStates !== undefined &&
     data.events !== undefined
   ) {
-    if (activePointsSelected && blockedPointsSelected) {
-      filtered.pointStates = data.pointStates;
-      filtered.events = data.events;
-    } else {
-      const { active: activePointStates, blocked: blockedPointStates } =
-        partitionPointStatesByBlock(data.pointStates);
-      const { active: activeEvents, blocked: blockedEvents } =
-        partitionEventsByBlock(data.events);
-      filtered.pointStates = activePointsSelected
-        ? activePointStates
-        : blockedPointStates;
-      filtered.events = activePointsSelected ? activeEvents : blockedEvents;
-    }
+    filtered.pointStates = data.pointStates;
+    filtered.events = data.events;
   }
   if (selection.settings[ExportSettingKey.Mirrored]) {
     filtered.mirrored = data.mirrored;

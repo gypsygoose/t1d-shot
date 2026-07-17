@@ -1,8 +1,10 @@
-import { ExportMarksKey } from "../../../types";
+import { ZoneType } from "../../../types";
+import { ZONE_TYPES } from "../../../data";
 
-export function allMarks(value: boolean): Record<ExportMarksKey, boolean> {
-  return {
-    [ExportMarksKey.ActivePoints]: value,
-    [ExportMarksKey.BlockedPoints]: value,
-  };
+// Builds a uniform-value marks record — ExportOptionsDialog/ClearOptionsDialog
+// both use this for their own default ExportSelection.
+export function allMarks(value: boolean): Record<ZoneType, boolean> {
+  return Object.fromEntries(
+    ZONE_TYPES.map((zoneType) => [zoneType, value]),
+  ) as Record<ZoneType, boolean>;
 }

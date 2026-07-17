@@ -162,8 +162,6 @@ export const ru: AppLocale = {
       title: "Экспорт данных",
       message: "Выберите, что экспортировать в файл.",
       marksLabel: "Отметки точек укола",
-      activePointsLabel: "Активные точки",
-      blockedPointsLabel: "Заблокированные вручную точки",
       settingsLabel: "Настройки приложения",
       confirmLabel: "Экспортировать",
       shareDialogTitle: "Экспорт данных {{appName}}",

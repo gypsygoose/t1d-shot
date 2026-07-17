@@ -1,9 +1,9 @@
 import { ExportSelection } from "../../../types";
-import { MARKS_KEYS, SETTING_KEYS } from "../constants";
+import { SETTING_KEYS } from "../constants";
 
 export function isSelectionEmpty(selection: ExportSelection): boolean {
   return (
-    MARKS_KEYS.every((key) => !selection.marks[key]) &&
+    Object.values(selection.marks).every((checked) => !checked) &&
     SETTING_KEYS.every((key) => !selection.settings[key])
   );
 }

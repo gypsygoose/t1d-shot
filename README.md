@@ -21,7 +21,7 @@ Tap a point on the body diagram to log an injection at that spot. The point's co
 - Manual site lock (long-press) to mark a spot as temporarily unavailable
 - Light, dark, or system-matched theme, switchable from the menu's Settings screen (defaults to following the OS appearance)
 - Russian, English, Spanish, German, French, Turkish, and Brazilian Portuguese UI, switchable from the menu's Settings screen (defaults to following the device language)
-- Undo, injection history, and selective import/export/clear of your data (choose which of active points / manually blocked points / individual app settings to include on export; on import, pick which of the categories actually present in the file to apply; on clear, pick which of those same categories to permanently reset to their defaults) — all stored locally on-device, no account or backend required
+- Undo, injection history, and selective import/export/clear of your data (choose whether to include injection point marks and/or which individual app settings to export; on import, pick which of the categories actually present in the file to apply; on clear, pick which body areas — shoulders, belly, thighs — and/or which individual app settings to permanently reset to their defaults) — all stored locally on-device, no account or backend required
 
 ## Getting started
 

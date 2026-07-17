@@ -2,7 +2,7 @@ import { AppEvent } from './event';
 import { StoredPointState } from './point';
 import { ThemeMode } from './theme';
 import { LanguageMode } from './language';
-import { EnabledZones, ZonePointCounts } from './zone';
+import { EnabledZones, ZonePointCounts, ZoneType } from './zone';
 import { PointRestoreMode } from './pointRestoreMode';
 import { Gender } from './gender';
 
@@ -56,17 +56,17 @@ export enum ExportSettingKey {
   Theme = 'theme',
 }
 
-// Which sub-category of injection point marks ExportOptionsDialog writes to
-// the export file — mirrors ExportSettingKey's role for the settings group,
-// but partitions pointStates/events by StoredPointState.isManuallyBlocked
-// instead of gating independent scalar fields. See "Selective export /
-// merge import" in CLAUDE.md.
-export enum ExportMarksKey {
-  ActivePoints = 'active-points',
-  BlockedPoints = 'blocked-points',
-}
-
+// The marks group, keyed by ZoneType (Shoulder/Belly/Thigh) — the same shape
+// is shared by all three AppDataSelector dialogs. ExportOptionsDialog/
+// ImportOptionsDialog render it as a single bulk checkbox (AppDataSelector's
+// marksExpandable left at its default false), so in practice every zone
+// type is always selected together there — export/import always act on all
+// marks, regardless of StoredPointState.isManuallyBlocked, or none at all.
+// ClearOptionsDialog renders it as an accordion (marksExpandable true),
+// letting individual zone types be cleared independently, still regardless
+// of block status. See "Selective export / merge import / clear" in
+// CLAUDE.md.
 export interface ExportSelection {
-  marks: Record<ExportMarksKey, boolean>;
+  marks: Record<ZoneType, boolean>;
   settings: Record<ExportSettingKey, boolean>;
 }

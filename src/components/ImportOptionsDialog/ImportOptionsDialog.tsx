@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Dialog } from "../common";
-import { AppDataSelector, isSelectionEmpty, MARKS_KEYS, SETTING_KEYS } from "../AppDataSelector";
+import { AppDataSelector, isSelectionEmpty, SETTING_KEYS } from "../AppDataSelector";
 import { ExportedAppData, ExportSelection } from "../../types";
+import { ZONE_TYPES } from "../../data";
 import { availableMarks, availableSettings } from "./utils";
 
 interface Props {
@@ -19,7 +20,7 @@ interface Props {
 export function ImportOptionsDialog({ visible, data, onConfirm, onCancel }: Props) {
   const { t } = useTranslation();
   const marksAvailable = availableMarks(data);
-  const disabledMarksKeys = MARKS_KEYS.filter((key) => !marksAvailable[key]);
+  const disabledMarksKeys = ZONE_TYPES.filter((zoneType) => !marksAvailable[zoneType]);
   const settingsAvailable = availableSettings(data);
   const disabledSettingKeys = SETTING_KEYS.filter(
     (key) => !settingsAvailable[key],

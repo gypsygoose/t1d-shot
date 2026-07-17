@@ -1,5 +1,4 @@
 import { AppStorage, PointDefinition } from "../../types";
-import { migrateLegacyPointIds } from "./migrateLegacyPointIds";
 
 // Merge any active points not yet present (e.g. loading data saved by an
 // older app version, a file imported from a different point in time, or a
@@ -12,15 +11,11 @@ export function normalizeStorage(
   parsed: Partial<AppStorage>,
   activePoints: PointDefinition[],
 ): AppStorage {
-  const migrated = migrateLegacyPointIds(
-    parsed.pointStates ?? {},
-    parsed.events ?? [],
-  );
-  const states = migrated.pointStates;
+  const states = { ...(parsed.pointStates ?? {}) };
   for (const point of activePoints) {
     if (!states[point.id]) {
       states[point.id] = { pointId: point.id, isManuallyBlocked: false };
     }
   }
-  return { pointStates: states, events: migrated.events };
+  return { pointStates: states, events: parsed.events ?? [] };
 }

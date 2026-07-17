@@ -1,13 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { Checkbox, Accordion } from "../common";
-import { ExportMarksKey, ExportSelection, ExportSettingKey } from "../../types";
+import { ExportSelection, ExportSettingKey, ZoneType } from "../../types";
 import type { TranslationKey } from "../../i18n";
-import { MARKS_KEYS, SETTING_KEYS } from "./constants";
-
-const MARKS_LABEL_KEY: Record<ExportMarksKey, TranslationKey> = {
-  [ExportMarksKey.ActivePoints]: "menu.exportOptionsDialog.activePointsLabel",
-  [ExportMarksKey.BlockedPoints]: "menu.exportOptionsDialog.blockedPointsLabel",
-};
+import { ZONE_TYPES, ZONE_TYPE_LABEL_KEY } from "../../data";
+import { SETTING_KEYS } from "./constants";
 
 const SETTING_LABEL_KEY: Record<ExportSettingKey, TranslationKey> = {
   [ExportSettingKey.Mirrored]: "menu.mirrorRow",
@@ -25,15 +21,14 @@ const SETTING_LABEL_KEY: Record<ExportSettingKey, TranslationKey> = {
 interface Props {
   selection: ExportSelection;
   onSelectionChange: (next: ExportSelection) => void;
-  // Renders the marks row as an accordion with independent Active/Blocked
-  // checkboxes when true. ExportOptionsDialog/ImportOptionsDialog leave this
-  // false — export and import always act on both marks sub-categories
-  // together (see ImportOptionsDialog/utils/availableMarks.ts: a file can
-  // never carry just one), so a single flat checkbox is enough there. Only
-  // ClearOptionsDialog sets this true, since its default selection (only
-  // "Активные точки" checked) needs the two sub-categories choosable
-  // independently. marksExpanded/onToggleMarksExpanded are only read in the
-  // accordion branch.
+  // Renders the marks row as an accordion with one independent checkbox per
+  // ZoneType (Shoulder/Belly/Thigh) when true. ExportOptionsDialog/
+  // ImportOptionsDialog leave this false — export and import always act on
+  // every zone type together, so a single flat checkbox (bulk-toggling all
+  // of ZONE_TYPES at once) is enough there. Only ClearOptionsDialog sets
+  // this true, since it needs individual zone types choosable independently.
+  // marksExpanded/onToggleMarksExpanded are only read in the accordion
+  // branch.
   marksExpandable?: boolean;
   marksExpanded?: boolean;
   onToggleMarksExpanded?: () => void;
@@ -44,13 +39,13 @@ interface Props {
   // since every category is always available to export/clear);
   // ImportOptionsDialog passes these in to grey out a category absent from
   // the imported file.
-  disabledMarksKeys?: ExportMarksKey[];
+  disabledMarksKeys?: ZoneType[];
   disabledSettingKeys?: ExportSettingKey[];
 }
 
 // The "Отметки точек укола" row (a plain checkbox, or an accordion of
-// independent active/blocked-points checkboxes when marksExpandable) plus
-// the "Настройки приложения" accordion of per-setting checkboxes, shared by
+// independent per-ZoneType checkboxes when marksExpandable) plus the
+// "Настройки приложения" accordion of per-setting checkboxes, shared by
 // ExportOptionsDialog, ImportOptionsDialog, and ClearOptionsDialog — beyond
 // marksExpandable, only the meaning of a disabled row differs across the
 // three (export: never; import: category absent from the file; clear:
@@ -67,13 +62,13 @@ export function AppDataSelector({
   disabledSettingKeys = [],
 }: Props) {
   const { t } = useTranslation();
-  const checkableMarksKeys = MARKS_KEYS.filter(
-    (key) => !disabledMarksKeys.includes(key),
+  const checkableMarksKeys = ZONE_TYPES.filter(
+    (zoneType) => !disabledMarksKeys.includes(zoneType),
   );
   const marksGroupDisabled = checkableMarksKeys.length === 0;
 
   const selectedCheckableMarksCount = checkableMarksKeys.filter(
-    (key) => selection.marks[key],
+    (zoneType) => selection.marks[zoneType],
   ).length;
   const allMarksChecked =
     checkableMarksKeys.length > 0 &&
@@ -96,14 +91,14 @@ export function AppDataSelector({
   const toggleAllMarks = () => {
     const nextValue = !allMarksChecked;
     const nextMarks = { ...selection.marks };
-    for (const key of checkableMarksKeys) nextMarks[key] = nextValue;
+    for (const zoneType of checkableMarksKeys) nextMarks[zoneType] = nextValue;
     onSelectionChange({ ...selection, marks: nextMarks });
   };
 
-  const toggleMark = (key: ExportMarksKey) =>
+  const toggleMark = (zoneType: ZoneType) =>
     onSelectionChange({
       ...selection,
-      marks: { ...selection.marks, [key]: !selection.marks[key] },
+      marks: { ...selection.marks, [zoneType]: !selection.marks[zoneType] },
     });
 
   const toggleAllSettings = () => {
@@ -136,13 +131,13 @@ export function AppDataSelector({
           onToggleExpanded={onToggleMarksExpanded ?? (() => {})}
           disabled={marksGroupDisabled}
         >
-          {MARKS_KEYS.map((key) => (
+          {ZONE_TYPES.map((zoneType) => (
             <Checkbox
-              key={key}
-              label={t(MARKS_LABEL_KEY[key])}
-              checked={selection.marks[key]}
-              onToggle={() => toggleMark(key)}
-              disabled={disabledMarksKeys.includes(key)}
+              key={zoneType}
+              label={t(ZONE_TYPE_LABEL_KEY[zoneType])}
+              checked={selection.marks[zoneType]}
+              onToggle={() => toggleMark(zoneType)}
+              disabled={disabledMarksKeys.includes(zoneType)}
             />
           ))}
         </Accordion>

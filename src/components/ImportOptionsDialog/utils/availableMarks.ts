@@ -1,15 +1,13 @@
-import { ExportedAppData, ExportMarksKey } from "../../../types";
+import { ExportedAppData, ZoneType } from "../../../types";
+import { ZONE_TYPES } from "../../../data";
 
-// The parsed file carries a single pointStates/events pair — an export made
-// with only one marks sub-category selected already narrowed that pair down
-// on the way out (see useAppStore's exportData), so both sub-categories are
-// available together whenever the pair is present at all.
-export function availableMarks(
-  data: ExportedAppData,
-): Record<ExportMarksKey, boolean> {
+// The parsed file carries a single pointStates/events pair, covering every
+// zone type together (there's no per-zone-type split on the export side) —
+// so every ZoneType is available together whenever the pair is present at
+// all.
+export function availableMarks(data: ExportedAppData): Record<ZoneType, boolean> {
   const available = data.pointStates !== undefined && data.events !== undefined;
-  return {
-    [ExportMarksKey.ActivePoints]: available,
-    [ExportMarksKey.BlockedPoints]: available,
-  };
+  return Object.fromEntries(
+    ZONE_TYPES.map((zoneType) => [zoneType, available]),
+  ) as Record<ZoneType, boolean>;
 }

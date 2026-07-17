@@ -125,9 +125,7 @@ export const DEFAULT_ENABLED_ZONES: EnabledZones = {
 };
 
 // Default point grid per zone type — today's fixed counts, kept as the
-// starting value for the configurable setting (ZonePointsDialog) and as the
-// shape legacy (pre-setting) point ids were generated under, used by
-// storage/utils/migrateLegacyPointIds.ts to reinterpret them.
+// starting value for the configurable setting (ZonePointsDialog).
 export const DEFAULT_ZONE_POINT_COUNTS: ZonePointCounts = {
   [ZoneType.Shoulder]: { rows: 3, cols: 1 },
   [ZoneType.Belly]: { rows: 3, cols: 3 },
@@ -196,9 +194,7 @@ const ZONE_CELL_SIZE: Record<
 const BODY_MIDLINE_X = 0.5;
 
 // Whether a zone's canonical (unmirrored) position falls left of the body's
-// own vertical midline — exported so storage/utils/migrateLegacyPointIds.ts
-// can reapply the same center-relative flip below when reinterpreting
-// pre-setting point ids.
+// own vertical midline.
 export function isZoneLeftOfMidline(zoneId: ZoneId): boolean {
   return ZONE_ANCHOR[zoneId].centerX < BODY_MIDLINE_X;
 }
@@ -351,8 +347,7 @@ function buildZoneLayout(
   return zoneLayout;
 }
 
-// Short id prefix per zone, matching each ZoneId (unchanged from the
-// original point ids, e.g. "sr-0" -> "sr-r1c1").
+// Short id prefix per zone, matching each ZoneId.
 const ZONE_ID_PREFIX: Record<ZoneId, string> = {
   [ZoneId.ShoulderRight]: "sr",
   [ZoneId.ShoulderLeft]: "sl",
@@ -361,6 +356,21 @@ const ZONE_ID_PREFIX: Record<ZoneId, string> = {
   [ZoneId.ThighRight]: "tr",
   [ZoneId.ThighLeft]: "tl",
 };
+
+// Reverse of ZONE_ID_PREFIX — recovers which zone a point id belongs to from
+// its own prefix, even for an id outside the zone's *current* point grid (an
+// orphaned StoredPointState key still carries its zone's prefix). Used by
+// useClearSelected (src/hooks/) to scope a zone-type-based clear (see
+// ClearOptionsDialog) to the right point ids regardless of whether they're
+// in the active grid right now.
+const ZONE_ID_BY_PREFIX: Record<string, ZoneId> = Object.fromEntries(
+  Object.entries(ZONE_ID_PREFIX).map(([zoneId, prefix]) => [prefix, zoneId]),
+) as Record<string, ZoneId>;
+
+export function zoneIdFromPointId(pointId: string): ZoneId {
+  const prefix = pointId.split("-")[0];
+  return ZONE_ID_BY_PREFIX[prefix];
+}
 
 // Builds every zone/point-derived value from the current ZonePointCounts
 // setting — replaces what used to be static consts (POINTS/POINT_MAP/

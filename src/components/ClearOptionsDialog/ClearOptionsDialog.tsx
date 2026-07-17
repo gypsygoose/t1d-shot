@@ -9,12 +9,12 @@ import {
 } from "../AppDataSelector";
 import { ExportSelection } from "../../types";
 
-// Unlike ExportOptionsDialog (everything defaults to checked), only "Активные
-// точки" defaults to checked here — clearing is destructive, so the default
-// selection stays narrow rather than reproducing the old all-or-nothing
-// "Очистить" behavior; every other category needs a deliberate opt-in.
+// Unlike ExportOptionsDialog (everything defaults to checked), nothing in
+// either group defaults to checked here: clearing is destructive, and
+// there's no single zone type that's a "safe" default, so every category
+// needs a deliberate opt-in.
 const DEFAULT_SELECTION: ExportSelection = {
-  marks: { ...allMarks(false) },
+  marks: allMarks(false),
   settings: allSettings(false),
 };
 const DEFAULT_MARKS_EXPANDED = false;

@@ -1,28 +1,29 @@
 import { useCallback } from "react";
-import { ExportMarksKey, ExportSelection, ExportSettingKey } from "../types";
+import { ExportSelection, ExportSettingKey } from "../types";
 import {
   DEFAULT_AUTO_LOCK_AFTER_MARK_SECONDS,
   DEFAULT_AUTO_LOCK_AFTER_UNLOCK_SECONDS,
   StorageService,
 } from "../storage";
-import { DEFAULT_ENABLED_ZONES, DEFAULT_ZONE_POINT_COUNTS } from "../data";
+import {
+  DEFAULT_ENABLED_ZONES,
+  DEFAULT_ZONE_POINT_COUNTS,
+  ZONE_TYPE,
+  ZONE_TYPES,
+  zoneIdFromPointId,
+} from "../data";
 import {
   DEFAULT_DAYS_TO_AVAILABLE,
   DEFAULT_DAYS_TO_WHITE,
   DEFAULT_GENDER,
   DEFAULT_POINT_RESTORE_MODE,
 } from "../constants";
-import {
-  computeZoneBackfill,
-  partitionEventsByBlock,
-  partitionPointStatesByBlock,
-  resetPointStates,
-} from "../utils";
+import { computeZoneBackfill, resetPointStates } from "../utils";
 import { AppState, SetAppState } from "./types";
 
 // Resets exactly the selected marks/settings categories to their defaults,
-// leaving every unselected category — and, within marks, the unselected
-// partition — untouched. Mirrors exportData's selection semantics as an
+// leaving every unselected category — and, within marks, every zone type
+// not selected — untouched. Mirrors exportData's selection semantics as an
 // in-place reset instead of a file write (see ClearOptionsDialog, built on
 // AppDataSelector). Doesn't reset themeMode/languageMode: like applyImport,
 // the caller resets those via ThemeProvider/LanguageProvider's own setMode
@@ -33,28 +34,21 @@ export function useClearSelected(setState: SetAppState): (selection: ExportSelec
       setState((prev) => {
         const next: AppState = { ...prev };
 
-        const activePointsSelected = selection.marks[ExportMarksKey.ActivePoints];
-        const blockedPointsSelected = selection.marks[ExportMarksKey.BlockedPoints];
-        if (activePointsSelected || blockedPointsSelected) {
-          const { active, blocked } = partitionPointStatesByBlock(prev.pointStates);
-          const { active: activeEvents, blocked: blockedEvents } =
-            partitionEventsByBlock(prev.events);
-          if (activePointsSelected && blockedPointsSelected) {
-            next.pointStates = resetPointStates(Object.keys(prev.pointStates));
-            next.events = [];
-          } else if (activePointsSelected) {
-            next.pointStates = {
-              ...blocked,
-              ...resetPointStates(Object.keys(active)),
-            };
-            next.events = blockedEvents;
-          } else {
-            next.pointStates = {
-              ...active,
-              ...resetPointStates(Object.keys(blocked)),
-            };
-            next.events = activeEvents;
-          }
+        const selectedZoneTypes = ZONE_TYPES.filter(
+          (zoneType) => selection.marks[zoneType],
+        );
+        if (selectedZoneTypes.length > 0) {
+          const pointIdsToReset = Object.keys(prev.pointStates).filter(
+            (pointId) =>
+              selectedZoneTypes.includes(ZONE_TYPE[zoneIdFromPointId(pointId)]),
+          );
+          next.pointStates = {
+            ...prev.pointStates,
+            ...resetPointStates(pointIdsToReset),
+          };
+          next.events = prev.events.filter(
+            (event) => !selectedZoneTypes.includes(ZONE_TYPE[event.zoneId]),
+          );
           StorageService.saveStorage({
             pointStates: next.pointStates,
             events: next.events,
