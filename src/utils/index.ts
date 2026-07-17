@@ -1,4 +1,5 @@
 export { appendEvent } from "./appendEvent";
+export { computeZoneBackfill } from "./computeZoneBackfill";
 export { formatDateTime } from "./formatDateTime";
 export { lastPressedByGroup } from "./lastPressedByGroup";
 export { pad2 } from "./pad2";
