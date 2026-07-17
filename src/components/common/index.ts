@@ -6,6 +6,7 @@ export type { ContextMenuItem } from "./ContextMenu";
 export { Dialog } from "./Dialog";
 export { Modal } from "./Modal";
 export { NumberPickerField } from "./NumberPickerField";
+export { RadioGroup } from "./RadioGroup";
 export { TimeField } from "./TimeField";
 export { ToastStack } from "./ToastStack";
 export type { ToastEntry } from "./ToastStack";

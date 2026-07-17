@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-import { Platform, StyleSheet } from "react-native";
-import { Picker } from "@react-native-picker/picker";
 import { useTranslation } from "react-i18next";
-import { Dialog } from "./common";
-import { useTheme } from "../theme";
+import { Dialog, RadioGroup } from "./common";
 import { Gender } from "../types";
 import { GENDER_KEY } from "./SettingsSheet";
 
@@ -23,9 +20,7 @@ export function GenderDialog({
   onCancel,
 }: Props) {
   const { t } = useTranslation();
-  const { colors } = useTheme();
   const [gender, setGender] = useState(initialGender);
-  const pickerItemColor = Platform.OS === "android" ? colors.primaryText : undefined;
 
   useEffect(() => {
     if (!visible) return;
@@ -41,32 +36,14 @@ export function GenderDialog({
       onConfirm={() => onConfirm(gender)}
       onCancel={onCancel}
     >
-      <Picker
-        style={[styles.picker, { color: colors.primaryText }]}
-        itemStyle={[styles.pickerItem, { color: colors.primaryText }]}
+      <RadioGroup
+        options={GENDER_OPTIONS.map((option) => ({
+          value: option,
+          label: t(GENDER_KEY[option]),
+        }))}
         selectedValue={gender}
-        onValueChange={(value) => setGender(value as Gender)}
-        dropdownIconColor={colors.primaryText}
-      >
-        {GENDER_OPTIONS.map((option) => (
-          <Picker.Item
-            key={option}
-            label={t(GENDER_KEY[option])}
-            value={option}
-            color={pickerItemColor}
-          />
-        ))}
-      </Picker>
+        onSelect={(value) => setGender(value as Gender)}
+      />
     </Dialog>
   );
 }
-
-const styles = StyleSheet.create({
-  picker: {
-    width: "100%",
-  },
-  pickerItem: {
-    fontSize: 18,
-    height: 120,
-  },
-});
