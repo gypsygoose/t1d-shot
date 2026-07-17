@@ -257,7 +257,9 @@ export function BottomMenu({
         onEditDaysToWhite={handleEditDaysToWhite}
         daysToAvailable={daysToAvailable}
         onEditDaysToAvailable={handleEditDaysToAvailable}
+        zonePointCounts={zonePointCounts}
         onEditZonePointCounts={handleEditZonePointCounts}
+        enabledZones={enabledZones}
         onEditZones={handleEditZones}
         themeMode={themeMode}
         onEditTheme={handleEditTheme}

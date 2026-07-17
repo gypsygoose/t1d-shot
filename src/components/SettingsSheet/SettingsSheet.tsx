@@ -2,8 +2,22 @@ import { Text, TouchableOpacity, View, Switch, StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
 import { BottomSheet } from "../common";
 import { useTheme } from "../../theme";
-import { Gender, LanguageMode, PointRestoreMode, ThemeMode } from "../../types";
-import { formatDuration } from "./utils";
+import {
+  EnabledZones,
+  Gender,
+  LanguageMode,
+  PointRestoreMode,
+  ThemeMode,
+  ZonePointCounts,
+} from "../../types";
+import {
+  buildActiveZonesSummary,
+  buildZonePointsSummary,
+  countActivePoints,
+  countActiveZones,
+  formatDuration,
+  isAllZonesActive,
+} from "./utils";
 import {
   GENDER_KEY,
   LANGUAGE_MODE_KEY,
@@ -29,7 +43,9 @@ interface Props {
   onEditDaysToWhite: () => void;
   daysToAvailable: number;
   onEditDaysToAvailable: () => void;
+  zonePointCounts: ZonePointCounts;
   onEditZonePointCounts: () => void;
+  enabledZones: EnabledZones;
   onEditZones: () => void;
   themeMode: ThemeMode;
   onEditTheme: () => void;
@@ -55,7 +71,9 @@ export function SettingsSheet({
   onEditDaysToWhite,
   daysToAvailable,
   onEditDaysToAvailable,
+  zonePointCounts,
   onEditZonePointCounts,
+  enabledZones,
   onEditZones,
   themeMode,
   onEditTheme,
@@ -65,6 +83,12 @@ export function SettingsSheet({
   const { t } = useTranslation();
   const { colors } = useTheme();
   const isManualRestoreMode = pointRestoreMode === PointRestoreMode.Manual;
+  const activeZonesSummary = buildActiveZonesSummary(t, enabledZones);
+  const zonePointsSummary = buildZonePointsSummary({
+    t,
+    zonePointCounts,
+    enabledZones,
+  });
 
   return (
     <BottomSheet
@@ -130,23 +154,51 @@ export function SettingsSheet({
       </View>
 
       <TouchableOpacity
-        style={styles.row}
+        style={styles.rowWithSummary}
         onPress={onEditZones}
         activeOpacity={0.7}
       >
-        <Text style={[styles.rowLabel, { color: colors.primaryText }]}>
-          {t("menu.zonesRow")}
-        </Text>
+        <View style={styles.rowHeader}>
+          <Text style={[styles.rowLabel, { color: colors.primaryText }]}>
+            {t("menu.zonesRow")}
+          </Text>
+          <Text style={[styles.rowValue, { color: colors.mutedText }]}>
+            {isAllZonesActive(enabledZones)
+              ? t("menu.allZonesActiveValue")
+              : countActiveZones(enabledZones)}
+          </Text>
+        </View>
+        {activeZonesSummary.map((line) => (
+          <Text
+            key={line}
+            style={[styles.rowDescription, { color: colors.mutedText }]}
+          >
+            {line}
+          </Text>
+        ))}
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={styles.row}
+        style={styles.rowWithSummary}
         onPress={onEditZonePointCounts}
         activeOpacity={0.7}
       >
-        <Text style={[styles.rowLabel, { color: colors.primaryText }]}>
-          {t("menu.zonePointsRow")}
-        </Text>
+        <View style={styles.rowHeader}>
+          <Text style={[styles.rowLabel, { color: colors.primaryText }]}>
+            {t("menu.zonePointsRow")}
+          </Text>
+          <Text style={[styles.rowValue, { color: colors.mutedText }]}>
+            {countActivePoints(zonePointCounts, enabledZones)}
+          </Text>
+        </View>
+        {zonePointsSummary.map((line) => (
+          <Text
+            key={line}
+            style={[styles.rowDescription, { color: colors.mutedText }]}
+          >
+            {line}
+          </Text>
+        ))}
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -226,6 +278,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 14,
     paddingHorizontal: 4,
+  },
+  rowWithSummary: {
+    paddingVertical: 14,
+    paddingHorizontal: 4,
+  },
+  rowHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   rowLabel: {
     fontSize: 16,

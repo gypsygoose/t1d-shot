@@ -8,8 +8,8 @@ Tap a point on the body diagram to log an injection at that spot. The point's co
 
 ## Features
 
-- Interactive body diagram with 30 injection points across 6 zones (shoulders, belly, thighs) by default — the row/column grid is configurable per zone type from the menu's Settings screen (up to 3×2 for shoulders, 4×4 for belly, 4×3 for thighs), without losing injection history for points that stay in range
-- Individual zones (e.g. left/right shoulder) can be hidden from the body diagram entirely from the menu's Settings screen, without losing their injection history — at least one zone always stays enabled
+- Interactive body diagram with 30 injection points across 6 zones (shoulders, belly, thighs) by default — the row/column grid is configurable per zone type from the menu's Settings screen (up to 3×2 for shoulders, 4×4 for belly, 4×3 for thighs), without losing injection history for points that stay in range; the Settings screen's own row shows the current total point count plus a per-zone-type rows/columns summary
+- Individual zones (e.g. left/right shoulder) can be hidden from the body diagram entirely from the menu's Settings screen, without losing their injection history — at least one zone always stays enabled; the Settings screen's own row shows the current active zone count plus a summary of which sides are enabled per zone type
 - Long-press a point to see its body-relative address (row from top, position in the row from the body's center) alongside its history and actions; a toast with the same address confirms every marked injection, calling out a triggered blackout or a backdated mark's date/time when relevant
 - Status toasts (info/warning/success/error, each with its own color and icon) confirm every action — marking, blocking, clearing, undo, and import/export — and flag anything that needs attention, like a site getting system-blacked-out or a failed import
 - Color-coded rotation cycle (maroon → red → orange → yellow → green → white) based on local calendar days since last injection

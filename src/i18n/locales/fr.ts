@@ -32,6 +32,12 @@ export const fr: AppLocale = {
     groupShoulder: "Épaules",
     groupBelly: "Ventre",
     groupThigh: "Cuisses",
+    sideShoulderRight: "droite",
+    sideShoulderLeft: "gauche",
+    sideBellyRight: "droite",
+    sideBellyLeft: "gauche",
+    sideThighRight: "droite",
+    sideThighLeft: "gauche",
   },
   toast: {
     blocked: "Ce point est bloqué et ne peut pas être marqué",
@@ -94,6 +100,8 @@ export const fr: AppLocale = {
     daysToAvailableRow: "Jours avant que le point soit à nouveau disponible",
     zonePointsRow: "Disposition des points de zone",
     zonesRow: "Zones actives",
+    allZonesActiveValue: "Toutes",
+    allZonesDisabledSummary: "Toutes les zones sont désactivées",
     genderRow: "Sexe",
     gender: {
       male: "Homme",

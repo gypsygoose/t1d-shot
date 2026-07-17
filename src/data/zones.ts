@@ -49,6 +49,33 @@ export const ZONE_TYPE_LABEL_KEY: Record<ZoneType, TranslationKey> = {
   [ZoneType.Thigh]: "zones.groupThigh",
 };
 
+// Just the "left"/"right" side word for each zone, agreeing in gender/case
+// with that zone type's own body-part noun (e.g. RU "правое"/"левое" for the
+// neuter "плечо"/"бедро" vs "справа"/"слева" for the masculine "живот") —
+// distinct from ZONE_LABEL_KEY, which carries the full "<side> <body part>"
+// label. Used by SettingsSheet's active-zones summary
+// (SettingsSheet/utils/buildActiveZonesSummary.ts) to list just the enabled
+// sides after a ZONE_TYPE_LABEL_KEY-labeled group prefix, e.g. "Плечи:
+// левое, правое".
+export const ZONE_SIDE_LABEL_KEY: Record<ZoneId, TranslationKey> = {
+  [ZoneId.ShoulderRight]: "zones.sideShoulderRight",
+  [ZoneId.ShoulderLeft]: "zones.sideShoulderLeft",
+  [ZoneId.BellyRight]: "zones.sideBellyRight",
+  [ZoneId.BellyLeft]: "zones.sideBellyLeft",
+  [ZoneId.ThighRight]: "zones.sideThighRight",
+  [ZoneId.ThighLeft]: "zones.sideThighLeft",
+};
+
+// Every ZoneType, in the same order the three per-type accordions render in
+// ZonePointsDialog/ZonesDialog — also reused by SettingsSheet/utils' summary
+// builders, so it lives here instead of being duplicated as a local const in
+// each of those three places.
+export const ZONE_TYPES: ZoneType[] = [
+  ZoneType.Shoulder,
+  ZoneType.Belly,
+  ZoneType.Thigh,
+];
+
 export const ZONE_MAP: Record<ZoneId, Zone> = Object.fromEntries(
   ZONES.map((zone) => [zone.id, zone]),
 ) as Record<ZoneId, Zone>;

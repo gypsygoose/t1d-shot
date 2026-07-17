@@ -32,6 +32,12 @@ export const tr: AppLocale = {
     groupShoulder: "Omuzlar",
     groupBelly: "Karın",
     groupThigh: "Uyluklar",
+    sideShoulderRight: "sağ",
+    sideShoulderLeft: "sol",
+    sideBellyRight: "sağ",
+    sideBellyLeft: "sol",
+    sideThighRight: "sağ",
+    sideThighLeft: "sol",
   },
   toast: {
     blocked: "Bu nokta engellendi ve işaretlenemez",
@@ -94,6 +100,8 @@ export const tr: AppLocale = {
     daysToAvailableRow: "Noktanın tekrar kullanılabilir olmasına kalan gün sayısı",
     zonePointsRow: "Bölge nokta düzeni",
     zonesRow: "Etkin bölgeler",
+    allZonesActiveValue: "Tümü",
+    allZonesDisabledSummary: "Tüm bölgeler devre dışı",
     genderRow: "Cinsiyet",
     gender: {
       male: "Erkek",

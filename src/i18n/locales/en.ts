@@ -31,6 +31,12 @@ export const en = {
     groupShoulder: "Shoulders",
     groupBelly: "Belly",
     groupThigh: "Thighs",
+    sideShoulderRight: "right",
+    sideShoulderLeft: "left",
+    sideBellyRight: "right",
+    sideBellyLeft: "left",
+    sideThighRight: "right",
+    sideThighLeft: "left",
   },
   toast: {
     blocked: "This point is blocked and can't be marked",
@@ -90,6 +96,8 @@ export const en = {
     daysToAvailableRow: "Days until point is available again",
     zonePointsRow: "Zone point layout",
     zonesRow: "Active zones",
+    allZonesActiveValue: "All",
+    allZonesDisabledSummary: "All zones are disabled",
     genderRow: "Gender",
     gender: {
       male: "Male",

@@ -2,17 +2,11 @@ import { useEffect, useState } from "react";
 import { Text, StyleSheet, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Dialog, NumberPickerField, Accordion } from "../common";
-import { ZONE_MAX_GRID, ZONE_TYPE_LABEL_KEY } from "../../data";
+import { ZONE_MAX_GRID, ZONE_TYPE_LABEL_KEY, ZONE_TYPES } from "../../data";
 import { ZoneGridConfig, ZonePointCounts, ZoneType } from "../../types";
 import { useTheme } from "../../theme";
 import { MIN_ZONE_COLS, MIN_ZONE_ROWS } from "../../constants";
 import { buildRangeOptions } from "./utils";
-
-const ZONE_TYPES: ZoneType[] = [
-  ZoneType.Shoulder,
-  ZoneType.Belly,
-  ZoneType.Thigh,
-];
 
 const COLLAPSED_ALL: Record<ZoneType, boolean> = {
   [ZoneType.Shoulder]: false,

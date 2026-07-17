@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Dialog, Checkbox, Accordion } from "../common";
-import { ZONE_LABEL_KEY, ZONE_TYPE_LABEL_KEY, ZONE_TYPE_ZONE_IDS } from "../../data";
+import {
+  ZONE_LABEL_KEY,
+  ZONE_TYPE_LABEL_KEY,
+  ZONE_TYPE_ZONE_IDS,
+  ZONE_TYPES,
+} from "../../data";
 import { EnabledZones, ZoneId, ZoneType } from "../../types";
 import { allDisabled } from "./utils";
-
-const ZONE_TYPES: ZoneType[] = [
-  ZoneType.Shoulder,
-  ZoneType.Belly,
-  ZoneType.Thigh,
-];
 
 const COLLAPSED_ALL: Record<ZoneType, boolean> = {
   [ZoneType.Shoulder]: false,

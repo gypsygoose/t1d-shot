@@ -32,6 +32,12 @@ export const de: AppLocale = {
     groupShoulder: "Schultern",
     groupBelly: "Bauch",
     groupThigh: "Oberschenkel",
+    sideShoulderRight: "rechte",
+    sideShoulderLeft: "linke",
+    sideBellyRight: "rechts",
+    sideBellyLeft: "links",
+    sideThighRight: "rechter",
+    sideThighLeft: "linker",
   },
   toast: {
     blocked: "Dieser Punkt ist gesperrt und kann nicht markiert werden",
@@ -90,6 +96,8 @@ export const de: AppLocale = {
     daysToAvailableRow: "Tage bis der Punkt wieder verfügbar ist",
     zonePointsRow: "Punktraster der Zonen",
     zonesRow: "Aktive Zonen",
+    allZonesActiveValue: "Alle",
+    allZonesDisabledSummary: "Alle Zonen sind deaktiviert",
     genderRow: "Geschlecht",
     gender: {
       male: "Männlich",

@@ -30,6 +30,12 @@ export const ru: AppLocale = {
     groupShoulder: "Плечи",
     groupBelly: "Живот",
     groupThigh: "Бёдра",
+    sideShoulderRight: "правое",
+    sideShoulderLeft: "левое",
+    sideBellyRight: "справа",
+    sideBellyLeft: "слева",
+    sideThighRight: "правое",
+    sideThighLeft: "левое",
   },
   toast: {
     blocked: "Точка заблокирована и не может быть отмечена",
@@ -89,6 +95,8 @@ export const ru: AppLocale = {
     daysToAvailableRow: "Дней до доступности точки",
     zonePointsRow: "Точки в зонах",
     zonesRow: "Активные зоны",
+    allZonesActiveValue: "Все",
+    allZonesDisabledSummary: "Все зоны отключены",
     genderRow: "Пол",
     gender: {
       male: "Мужской",
