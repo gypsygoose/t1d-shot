@@ -8,31 +8,50 @@ import {
   PanResponder,
   Pressable,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import { useTheme } from "../../../theme";
+import { BackIcon } from "../../icons";
 import {
   DISMISS_DISTANCE,
   DISMISS_VELOCITY,
+  PAGE_SLIDE_MS,
   SCREEN_HEIGHT,
+  SCREEN_WIDTH,
   SHEET_CLOSE_MS,
   SHEET_OPEN_MS,
   VERTICAL_MOVE_THRESHOLD,
 } from "./constants";
+import { BottomSheetSecondaryPage } from "./types";
 
 interface Props {
   visible: boolean;
   onClose: () => void;
   title?: string;
   children: ReactNode;
+  secondaryPage?: BottomSheetSecondaryPage;
 }
 
-export function BottomSheet({ visible, onClose, title, children }: Props) {
+export function BottomSheet({
+  visible,
+  onClose,
+  title,
+  children,
+  secondaryPage,
+}: Props) {
   const { colors } = useTheme();
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const secondaryTranslateX = useRef(new Animated.Value(SCREEN_WIDTH)).current;
   // Kept mounted for the duration of the dismiss animation, then unmounted
   // entirely so the (otherwise full-screen) overlay stops intercepting
   // touches meant for whatever is behind the sheet.
   const [mounted, setMounted] = useState(visible);
+  // Same reasoning, applied to the secondary page: while it's translated
+  // off to the right it would otherwise still sit (via transform, not
+  // layout) on top of the primary page's touchable rows.
+  const [secondaryMounted, setSecondaryMounted] = useState(
+    secondaryPage?.visible ?? false,
+  );
 
   useEffect(() => {
     if (visible) {
@@ -54,13 +73,36 @@ export function BottomSheet({ visible, onClose, title, children }: Props) {
   }, [visible]);
 
   useEffect(() => {
+    if (secondaryPage?.visible) {
+      setSecondaryMounted(true);
+      secondaryTranslateX.setValue(SCREEN_WIDTH);
+      Animated.timing(secondaryTranslateX, {
+        toValue: 0,
+        duration: PAGE_SLIDE_MS,
+        useNativeDriver: true,
+      }).start();
+    } else if (secondaryMounted) {
+      Animated.timing(secondaryTranslateX, {
+        toValue: SCREEN_WIDTH,
+        duration: PAGE_SLIDE_MS,
+        useNativeDriver: true,
+      }).start(() => setSecondaryMounted(false));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [secondaryPage?.visible]);
+
+  useEffect(() => {
     if (!visible) return;
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
-      onClose();
+      if (secondaryPage?.visible) {
+        secondaryPage.onBack();
+      } else {
+        onClose();
+      }
       return true;
     });
     return () => sub.remove();
-  }, [visible, onClose]);
+  }, [visible, onClose, secondaryPage]);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -128,22 +170,61 @@ export function BottomSheet({ visible, onClose, title, children }: Props) {
               { backgroundColor: colors.bottomSheetHandle },
             ]}
           />
-          {title ? (
-            <View style={styles.header}>
-              <Text style={[styles.title, { color: colors.primaryText }]}>
-                {title}
-              </Text>
-            </View>
-          ) : null}
         </View>
 
-        <ScrollView
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-        >
-          {children}
-          <View style={styles.bottomPad} />
-        </ScrollView>
+        <View style={styles.pageContainer}>
+          <View style={styles.page}>
+            {title ? (
+              <View style={styles.header}>
+                <Text style={[styles.title, { color: colors.primaryText }]}>
+                  {title}
+                </Text>
+              </View>
+            ) : null}
+
+            <ScrollView
+              style={styles.scrollView}
+              showsVerticalScrollIndicator={false}
+            >
+              {children}
+              <View style={styles.bottomPad} />
+            </ScrollView>
+          </View>
+
+          {secondaryMounted && secondaryPage ? (
+            <Animated.View
+              style={[
+                styles.page,
+                styles.secondaryPage,
+                {
+                  backgroundColor: colors.surface,
+                  transform: [{ translateX: secondaryTranslateX }],
+                },
+              ]}
+            >
+              <View style={styles.header}>
+                <TouchableOpacity
+                  style={styles.backButton}
+                  onPress={secondaryPage.onBack}
+                  activeOpacity={0.7}
+                >
+                  <BackIcon />
+                </TouchableOpacity>
+                <Text style={[styles.title, { color: colors.primaryText }]}>
+                  {secondaryPage.title}
+                </Text>
+              </View>
+
+              <ScrollView
+                style={styles.scrollView}
+                showsVerticalScrollIndicator={false}
+              >
+                {secondaryPage.children}
+                <View style={styles.bottomPad} />
+              </ScrollView>
+            </Animated.View>
+          ) : null}
+        </View>
       </Animated.View>
     </Animated.View>
   );
@@ -162,6 +243,20 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
   },
+  pageContainer: {
+    flex: 1,
+    overflow: "hidden",
+  },
+  page: {
+    flex: 1,
+  },
+  secondaryPage: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
   scrollView: {
     flex: 1,
   },
@@ -176,6 +271,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 16,
+  },
+  backButton: {
+    marginRight: 8,
+    marginLeft: -8,
+    paddingHorizontal: 8,
   },
   title: {
     flex: 1,

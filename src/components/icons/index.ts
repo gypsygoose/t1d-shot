@@ -1,3 +1,4 @@
+export { BackIcon } from "./BackIcon";
 export { HelpIcon } from "./HelpIcon";
 export { LockClosedIcon } from "./LockClosedIcon";
 export { LockOpenIcon } from "./LockOpenIcon";

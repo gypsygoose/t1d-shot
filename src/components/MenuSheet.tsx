@@ -1,12 +1,16 @@
 import { Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
 import { BottomSheet } from "./common";
+import { SettingsSheet, SettingsSheetProps } from "./SettingsSheet";
 import { useTheme } from "../theme";
 
 interface Props {
   visible: boolean;
   onClose: () => void;
   onOpenSettings: () => void;
+  settingsVisible: boolean;
+  onBackFromSettings: () => void;
+  settings: SettingsSheetProps;
   onExport: () => void;
   onImport: () => void;
   onClear: () => void;
@@ -16,6 +20,9 @@ export function MenuSheet({
   visible,
   onClose,
   onOpenSettings,
+  settingsVisible,
+  onBackFromSettings,
+  settings,
   onExport,
   onImport,
   onClear,
@@ -24,7 +31,17 @@ export function MenuSheet({
   const { colors } = useTheme();
 
   return (
-    <BottomSheet visible={visible} onClose={onClose} title={t("menu.title")}>
+    <BottomSheet
+      visible={visible}
+      onClose={onClose}
+      title={t("menu.title")}
+      secondaryPage={{
+        visible: settingsVisible,
+        title: t("menu.settingsRow"),
+        onBack: onBackFromSettings,
+        children: <SettingsSheet {...settings} />,
+      }}
+    >
       <TouchableOpacity
         style={styles.row}
         onPress={onOpenSettings}

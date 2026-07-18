@@ -1,15 +1,7 @@
 import { Text, TouchableOpacity, View, Switch, StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
-import { BottomSheet } from "../common";
 import { useTheme } from "../../theme";
-import {
-  EnabledZones,
-  Gender,
-  LanguageMode,
-  PointRestoreMode,
-  ThemeMode,
-  ZonePointCounts,
-} from "../../types";
+import { PointRestoreMode } from "../../types";
 import {
   buildActiveZonesSummary,
   buildZonePointsSummary,
@@ -24,38 +16,9 @@ import {
   POINT_RESTORE_MODE_KEY,
   THEME_MODE_KEY,
 } from "./constants";
-
-interface Props {
-  visible: boolean;
-  onClose: () => void;
-  gender: Gender;
-  onEditGender: () => void;
-  mirrored: boolean;
-  onToggleMirrored: (value: boolean) => void;
-  autoLockEnabled: boolean;
-  autoLockAfterMarkSeconds: number;
-  autoLockAfterUnlockSeconds: number;
-  onToggleAutoLocked: (value: boolean) => void;
-  onEditAutoLockSettings: () => void;
-  pointRestoreMode: PointRestoreMode;
-  onEditPointRestoreMode: () => void;
-  daysToWhite: number;
-  onEditDaysToWhite: () => void;
-  daysToAvailable: number;
-  onEditDaysToAvailable: () => void;
-  zonePointCounts: ZonePointCounts;
-  onEditZonePointCounts: () => void;
-  enabledZones: EnabledZones;
-  onEditZones: () => void;
-  themeMode: ThemeMode;
-  onEditTheme: () => void;
-  languageMode: LanguageMode;
-  onEditLanguage: () => void;
-}
+import { SettingsSheetProps } from "./types";
 
 export function SettingsSheet({
-  visible,
-  onClose,
   gender,
   onEditGender,
   mirrored,
@@ -79,7 +42,7 @@ export function SettingsSheet({
   onEditTheme,
   languageMode,
   onEditLanguage,
-}: Props) {
+}: SettingsSheetProps) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const isManualRestoreMode = pointRestoreMode === PointRestoreMode.Manual;
@@ -91,11 +54,7 @@ export function SettingsSheet({
   });
 
   return (
-    <BottomSheet
-      visible={visible}
-      onClose={onClose}
-      title={t("menu.settingsRow")}
-    >
+    <>
       <TouchableOpacity
         style={styles.row}
         onPress={onEditGender}
@@ -267,7 +226,7 @@ export function SettingsSheet({
           {t(THEME_MODE_KEY[themeMode])}
         </Text>
       </TouchableOpacity>
-    </BottomSheet>
+    </>
   );
 }
 

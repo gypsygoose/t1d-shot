@@ -6,7 +6,6 @@ import { ConfirmDialog } from "../common";
 import { HelpSheet } from "../HelpSheet";
 import { MenuSheet } from "../MenuSheet";
 import {
-  SettingsSheet,
   LANGUAGE_MODE_KEY,
   POINT_RESTORE_MODE_KEY,
   GENDER_KEY,
@@ -219,54 +218,55 @@ export function BottomMenu({
       />
       <MenuSheet
         visible={showMenu}
-        onClose={() => setShowMenu(false)}
-        onOpenSettings={() => {
+        onClose={() => {
           setShowMenu(false);
-          setShowSettings(true);
+          setShowSettings(false);
         }}
+        onOpenSettings={() => setShowSettings(true)}
+        settingsVisible={showSettings}
+        onBackFromSettings={() => setShowSettings(false)}
         onImport={handleImport}
         onExport={() => {
           setShowMenu(false);
+          setShowSettings(false);
           setShowExportOptions(true);
         }}
         onClear={() => {
           setShowMenu(false);
+          setShowSettings(false);
           setShowClearOptions(true);
         }}
-      />
-
-      <SettingsSheet
-        visible={showSettings}
-        onClose={() => setShowSettings(false)}
-        mirrored={mirrored}
-        onToggleMirrored={(value) => {
-          onToggleMirrored(value);
-          onNotify(
-            value ? t("toast.mirrorEnabled") : t("toast.mirrorDisabled"),
-            ToastStatus.Success,
-          );
+        settings={{
+          gender,
+          onEditGender: handleEditGender,
+          mirrored,
+          onToggleMirrored: (value) => {
+            onToggleMirrored(value);
+            onNotify(
+              value ? t("toast.mirrorEnabled") : t("toast.mirrorDisabled"),
+              ToastStatus.Success,
+            );
+          },
+          autoLockEnabled,
+          autoLockAfterMarkSeconds,
+          autoLockAfterUnlockSeconds,
+          onToggleAutoLocked: handleToggleAutoLock,
+          onEditAutoLockSettings: handleEditAutoLockSettings,
+          pointRestoreMode,
+          onEditPointRestoreMode: handleEditPointRestoreMode,
+          daysToWhite,
+          onEditDaysToWhite: handleEditDaysToWhite,
+          daysToAvailable,
+          onEditDaysToAvailable: handleEditDaysToAvailable,
+          zonePointCounts,
+          onEditZonePointCounts: handleEditZonePointCounts,
+          enabledZones,
+          onEditZones: handleEditZones,
+          themeMode,
+          onEditTheme: handleEditTheme,
+          languageMode,
+          onEditLanguage: handleEditLanguage,
         }}
-        autoLockEnabled={autoLockEnabled}
-        autoLockAfterMarkSeconds={autoLockAfterMarkSeconds}
-        autoLockAfterUnlockSeconds={autoLockAfterUnlockSeconds}
-        onToggleAutoLocked={handleToggleAutoLock}
-        onEditAutoLockSettings={handleEditAutoLockSettings}
-        pointRestoreMode={pointRestoreMode}
-        onEditPointRestoreMode={handleEditPointRestoreMode}
-        gender={gender}
-        onEditGender={handleEditGender}
-        daysToWhite={daysToWhite}
-        onEditDaysToWhite={handleEditDaysToWhite}
-        daysToAvailable={daysToAvailable}
-        onEditDaysToAvailable={handleEditDaysToAvailable}
-        zonePointCounts={zonePointCounts}
-        onEditZonePointCounts={handleEditZonePointCounts}
-        enabledZones={enabledZones}
-        onEditZones={handleEditZones}
-        themeMode={themeMode}
-        onEditTheme={handleEditTheme}
-        languageMode={languageMode}
-        onEditLanguage={handleEditLanguage}
       />
 
       <AutoLockDialog
