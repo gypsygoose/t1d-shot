@@ -34,7 +34,14 @@ export interface PointAppEvent extends AppEventBase {
     | AppEventType.ManualClear;
   pointId: string;
   zoneId: ZoneId;
-  prevPointState: StoredPointState;
+  // Required but nullable: `null` states outright that the point had no
+  // stored state before this action (a fresh/untouched point has no map
+  // entry — see PointStatesMap), so undoing it deletes the entry again
+  // rather than restoring anything. Deliberately not an optional field —
+  // "absent" would be ambiguous with "we forgot to record it", and an
+  // undefined value would be dropped entirely by JSON.stringify when the
+  // event history is persisted, whereas null survives the round-trip.
+  prevPointState: StoredPointState | null;
 }
 
 // The settings slice a BulkAppEvent snapshots — every setting a clear or an
@@ -61,11 +68,13 @@ export interface BulkAppEventSettings {
 
 // A bulk action — clearing selected categories (ClearOptionsDialog) or
 // applying an import file — snapshots the entire pre-action pointStates map
-// plus the settings above, and undo restores both wholesale. themeMode/
-// languageMode live above the store (ThemeProvider/LanguageProvider), so
-// MainScreen passes their current values into clearSelected/applyImport for
-// the snapshot and restores them itself after undoing a bulk event (see its
-// onUndo wrapper).
+// plus the settings above, and undo restores both wholesale. The snapshot is
+// a plain Record, not the live PointStatesMap: events are JSON-serialized to
+// AsyncStorage, and a Map isn't serializable — the store converts to/from a
+// Map at the snapshot/restore boundary. themeMode/languageMode live above
+// the store (ThemeProvider/LanguageProvider), so MainScreen passes their
+// current values into clearSelected/applyImport for the snapshot and
+// restores them itself after undoing a bulk event (see its onUndo wrapper).
 export interface BulkAppEvent extends AppEventBase {
   type: AppEventType.ClearSelected | AppEventType.Import;
   prevPointStates: Record<string, StoredPointState>;

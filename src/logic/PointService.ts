@@ -18,6 +18,11 @@ import {
   ColorLabelParams,
 } from "./types";
 
+// A point with no stored state — every field at its default. A missing
+// PointStatesMap entry is exactly this, so each public method below resolves
+// an undefined `state` argument to it rather than special-casing absence.
+const FRESH_POINT_STATE: StoredPointState = { isManuallyBlocked: false };
+
 // Injection-site color computation and press handling — every method is
 // static, so callers reach it as PointService.computePointColor() etc.
 // without needing to create/thread an instance (see CLAUDE.md's "Helper
@@ -38,11 +43,12 @@ export class PointService {
   }
 
   static computePointColor({
-    state,
+    state: providedState,
     now,
     daysToWhite,
     pointRestoreMode,
   }: ComputePointColorParams): PointColor {
+    const state = providedState ?? FRESH_POINT_STATE;
     if (state.isManuallyBlocked) return PointColor.Gray;
 
     // Manual restore mode ignores the day-based cycle entirely: a point is
@@ -97,12 +103,13 @@ export class PointService {
   // daysToWhite below a previously-set daysToAvailable shortens the wait
   // instead of leaving it stuck at the old, now out-of-range value.
   static daysUntilAvailable({
-    state,
+    state: providedState,
     now,
     daysToWhite,
     daysToAvailable,
     pointRestoreMode,
   }: DaysUntilAvailableParams): number | undefined {
+    const state = providedState ?? FRESH_POINT_STATE;
     // Manual restore mode has no partial-day gating — a point is either
     // available (White) or blocked outright (Marked/Gray), the latter
     // already conveyed by its color, not this separate countdown.
@@ -149,12 +156,13 @@ export class PointService {
   // ---------------------------------------------------------------------
 
   static onPress({
-    state,
+    state: providedState,
     now,
     daysToWhite,
     daysToAvailable,
     pointRestoreMode,
   }: OnPressParams): PressResult {
+    const state = providedState ?? FRESH_POINT_STATE;
     const color = PointService.computePointColor({ state, now, daysToWhite, pointRestoreMode });
 
     if (

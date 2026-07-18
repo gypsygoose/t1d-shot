@@ -400,10 +400,9 @@ export function zoneIdFromPointId(pointId: string): ZoneId {
 // `enabledZones` (see ZonesDialog) is treated the same way a shrunk grid
 // treats an out-of-range slot: a disabled zone contributes no entries to
 // `points`/`pointMap`/`pointAddress`/`pointsByZone` (so it's excluded from
-// normalizeStorage's active-points list and from group indicators), but
-// `zoneLayout` is still computed for it unconditionally — MainScreen simply
-// skips rendering a ZoneContainer for a disabled zone rather than relying on
-// an empty layout.
+// group indicators), but `zoneLayout` is still computed for it
+// unconditionally — MainScreen simply skips rendering a ZoneContainer for a
+// disabled zone rather than relying on an empty layout.
 export function buildZoneData(
   zonePointCounts: ZonePointCounts,
   enabledZones: EnabledZones,

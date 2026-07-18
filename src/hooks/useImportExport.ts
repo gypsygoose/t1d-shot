@@ -1,19 +1,13 @@
-import { MutableRefObject, useCallback } from "react";
+import { useCallback } from "react";
 import {
   AppEvent,
   AppEventType,
   ExportedAppData,
   ExportSettingKey,
-  ZoneRuntimeData,
 } from "../types";
 import { ImportResult, StorageService } from "../storage";
 import { SECOND_MS } from "../constants";
-import {
-  appendEvent,
-  buildBulkEventSettings,
-  computeZoneBackfill,
-  uuid,
-} from "../utils";
+import { appendEvent, buildBulkEventSettings, uuid } from "../utils";
 import {
   AppState,
   ApplyImportParams,
@@ -24,9 +18,6 @@ import {
 interface UseImportExportParams {
   state: AppState;
   setState: SetAppState;
-  // Read by pickImportFile so it always sees the live active-points list —
-  // see useZoneSettings.ts's zoneDataRef.
-  zoneDataRef: MutableRefObject<ZoneRuntimeData>;
 }
 
 interface ImportExportActions {
@@ -35,7 +26,7 @@ interface ImportExportActions {
   applyImport(params: ApplyImportParams): void;
 }
 
-export function useImportExport({ state, setState, zoneDataRef }: UseImportExportParams): ImportExportActions {
+export function useImportExport({ state, setState }: UseImportExportParams): ImportExportActions {
   // themeMode/languageMode are passed in rather than read from state —
   // they're owned by ThemeProvider/LanguageProvider (mounted in App.tsx,
   // above this hook's caller), not by this store. See
@@ -51,7 +42,9 @@ export function useImportExport({ state, setState, zoneDataRef }: UseImportExpor
     async ({ themeMode, languageMode, dialogTitle, selection }: ExportDataParams) => {
       const data: ExportedAppData = {};
       if (Object.values(selection.marks).some(Boolean)) {
-        data.pointStates = state.pointStates;
+        // The export file carries a plain id→state Record, not the live
+        // PointStatesMap (Map isn't JSON-serializable).
+        data.pointStates = Object.fromEntries(state.pointStates);
       }
       if (selection.settings[ExportSettingKey.Mirrored]) {
         data.mirrored = state.mirrored;
@@ -103,8 +96,8 @@ export function useImportExport({ state, setState, zoneDataRef }: UseImportExpor
   );
 
   const pickImportFile = useCallback(
-    () => StorageService.pickImportFile(zoneDataRef.current.points),
-    [zoneDataRef],
+    () => StorageService.pickImportFile(),
+    [],
   );
 
   // Merge-imports whatever categories `data` carries — a field left absent
@@ -125,7 +118,8 @@ export function useImportExport({ state, setState, zoneDataRef }: UseImportExpor
           id: uuid(),
           timestamp: Date.now(),
           type: AppEventType.Import,
-          prevPointStates: prev.pointStates,
+          // Snapshot as a plain Record (see BulkAppEvent) for serialization.
+          prevPointStates: Object.fromEntries(prev.pointStates),
           prevSettings: buildBulkEventSettings({
             state: prev,
             themeMode,
@@ -136,8 +130,10 @@ export function useImportExport({ state, setState, zoneDataRef }: UseImportExpor
         StorageService.saveEvents(next.events);
 
         if (data.pointStates !== undefined) {
-          next.pointStates = data.pointStates;
-          StorageService.savePointStates(data.pointStates);
+          // The file carries a plain id→state Record — rehydrate into a Map.
+          const imported = new Map(Object.entries(data.pointStates));
+          next.pointStates = imported;
+          StorageService.savePointStates(imported);
         }
         if (data.mirrored !== undefined) {
           next.mirrored = data.mirrored;
@@ -165,28 +161,16 @@ export function useImportExport({ state, setState, zoneDataRef }: UseImportExpor
           next.autoLockDeadline = deadline;
         }
 
-        // Same backfill-defaults treatment as setZonePointCounts/
-        // setEnabledZones, since an imported grid or zone selection may
-        // bring previously out-of-range/disabled slots into range. Handled
-        // together (rather than as two independent ifs) so a file carrying
-        // only one of the two still recomputes active points against the
-        // other's current value instead of stale data.
-        if (data.zonePointCounts !== undefined || data.enabledZones !== undefined) {
-          const nextZonePointCounts = data.zonePointCounts ?? prev.zonePointCounts;
-          const nextEnabledZones = data.enabledZones ?? prev.enabledZones;
-          next.pointStates = computeZoneBackfill({
-            zonePointCounts: nextZonePointCounts,
-            enabledZones: nextEnabledZones,
-            pointStates: next.pointStates,
-          });
-          if (data.zonePointCounts !== undefined) {
-            next.zonePointCounts = data.zonePointCounts;
-            StorageService.saveZonePointCounts(data.zonePointCounts);
-          }
-          if (data.enabledZones !== undefined) {
-            next.enabledZones = data.enabledZones;
-            StorageService.saveEnabledZones(data.enabledZones);
-          }
+        // An imported grid or zone selection touches no point data — a
+        // sparse map needs no backfill (a slot brought into range just has
+        // no entry = a fresh, White point), so each applies independently.
+        if (data.zonePointCounts !== undefined) {
+          next.zonePointCounts = data.zonePointCounts;
+          StorageService.saveZonePointCounts(data.zonePointCounts);
+        }
+        if (data.enabledZones !== undefined) {
+          next.enabledZones = data.enabledZones;
+          StorageService.saveEnabledZones(data.enabledZones);
         }
 
         if (data.pointRestoreMode !== undefined) {

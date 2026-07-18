@@ -1,4 +1,4 @@
-import { PointDefinition, StoredPointState, ZoneGroup } from "../types";
+import { PointDefinition, PointStatesMap, ZoneGroup } from "../types";
 import { ZONE_MAP } from "../data";
 
 // Derive checked pointId per group: the point with the latest press date
@@ -9,7 +9,7 @@ import { ZONE_MAP } from "../data";
 // ZonePointCounts-derived map (see data/zones.ts's buildZoneData), passed in
 // rather than imported since it's no longer a static constant.
 export function lastPressedByGroup(
-  pointStates: Record<string, StoredPointState>,
+  pointStates: PointStatesMap,
   pointMap: Record<string, PointDefinition>,
 ): Record<ZoneGroup, string | null> {
   const result: Record<ZoneGroup, string | null> = {
@@ -20,8 +20,7 @@ export function lastPressedByGroup(
     [ZoneGroup.Thighs]: -Infinity,
     [ZoneGroup.ShouldersAndBelly]: -Infinity,
   };
-  for (const pointId in pointStates) {
-    const pointState = pointStates[pointId];
+  for (const [pointId, pointState] of pointStates) {
     const point = pointMap[pointId];
     if (!point) continue;
     const zone = ZONE_MAP[point.zoneId];

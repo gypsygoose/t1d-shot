@@ -8,8 +8,8 @@ import {
   ExportedAppData,
   Gender,
   LanguageMode,
-  PointDefinition,
   PointRestoreMode,
+  PointStatesMap,
   StoredPointState,
   ThemeMode,
   ZonePointCounts,
@@ -22,7 +22,6 @@ import {
 } from "../constants";
 import { DEFAULT_ZONE_POINT_COUNTS, DEFAULT_ENABLED_ZONES } from "../data";
 import {
-  normalizeStorage,
   defaultAutoLock,
   DEFAULT_AUTO_LOCK_AFTER_MARK_SECONDS,
   DEFAULT_AUTO_LOCK_AFTER_UNLOCK_SECONDS,
@@ -66,17 +65,20 @@ export { DEFAULT_AUTO_LOCK_AFTER_MARK_SECONDS, DEFAULT_AUTO_LOCK_AFTER_UNLOCK_SE
 // placement" — this stays the module's public API, same role storage.ts's
 // standalone functions used to serve).
 export class StorageService {
-  static async loadPointStates(
-    activePoints: PointDefinition[],
-  ): Promise<Record<string, StoredPointState>> {
+  // Point states are stored as a plain id→state object (Map isn't
+  // JSON-serializable) and rehydrated into a PointStatesMap on load. The map
+  // is sparse — only points carrying real data are present — so there's no
+  // active-points list to backfill against; whatever's stored is loaded
+  // as-is (a missing entry is a fresh, untouched point).
+  static async loadPointStates(): Promise<PointStatesMap> {
     try {
       const raw = await AsyncStorage.getItem(POINT_STATES_KEY);
-      return normalizeStorage(
-        raw ? (JSON.parse(raw) as Record<string, StoredPointState>) : undefined,
-        activePoints,
+      if (!raw) return new Map();
+      return new Map(
+        Object.entries(JSON.parse(raw) as Record<string, StoredPointState>),
       );
     } catch {
-      return normalizeStorage(undefined, activePoints);
+      return new Map();
     }
   }
 
@@ -89,10 +91,11 @@ export class StorageService {
     }
   }
 
-  static async savePointStates(
-    pointStates: Record<string, StoredPointState>,
-  ): Promise<void> {
-    await AsyncStorage.setItem(POINT_STATES_KEY, JSON.stringify(pointStates));
+  static async savePointStates(pointStates: PointStatesMap): Promise<void> {
+    await AsyncStorage.setItem(
+      POINT_STATES_KEY,
+      JSON.stringify(Object.fromEntries(pointStates)),
+    );
   }
 
   static async saveEvents(events: AppEvent[]): Promise<void> {
@@ -291,9 +294,9 @@ export class StorageService {
   // Missing fields are left absent (not defaulted) so the caller can tell a
   // category that was deliberately excluded from the export apart from one
   // that was included with a default value — see ExportedAppData's comment.
-  static async pickImportFile(
-    activePoints: PointDefinition[],
-  ): Promise<ImportResult> {
+  // pointStates is kept as the parsed id→state Record (the export file's
+  // shape); applyImport converts it to a PointStatesMap when applying.
+  static async pickImportFile(): Promise<ImportResult> {
     const picked = await DocumentPicker.getDocumentAsync({
       type: JSON_MIME_TYPE,
       copyToCacheDirectory: true,
@@ -307,9 +310,6 @@ export class StorageService {
       if (!isValidAppStorage(parsed)) return { type: ImportResultType.Invalid };
 
       const data: ExportedAppData = { ...parsed };
-      if (data.pointStates !== undefined) {
-        data.pointStates = normalizeStorage(data.pointStates, activePoints);
-      }
       if (data.daysToWhite !== undefined) {
         data.daysToWhite = clampDaysToWhite(data.daysToWhite);
       }

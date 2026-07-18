@@ -109,7 +109,7 @@ export function MainScreen() {
   const handlePress = useCallback(
     (id: string) => {
       const color = PointService.computePointColor({
-        state: pointStates[id],
+        state: pointStates.get(id),
         now,
         daysToWhite,
         pointRestoreMode,
@@ -138,7 +138,7 @@ export function MainScreen() {
       }
 
       const daysUntilAvailable = PointService.daysUntilAvailable({
-        state: pointStates[id],
+        state: pointStates.get(id),
         now,
         daysToWhite,
         daysToAvailable,
@@ -159,7 +159,7 @@ export function MainScreen() {
         t,
         locale: i18n.language,
         pointId: id,
-        pointState: pointStates[id],
+        pointState: pointStates.get(id),
         timestamp,
         daysToWhite,
         daysToAvailable,
@@ -194,8 +194,8 @@ export function MainScreen() {
     ? ZONE_MAP[zoneData.pointMap[menuPointId]?.zoneId]
     : undefined;
   const menuZoneLabel = menuZone ? t(ZONE_LABEL_KEY[menuZone.id]) : undefined;
-  const menuPointState = menuPointId ? pointStates[menuPointId] : undefined;
-  const menuPointColor = menuPointState
+  const menuPointState = menuPointId ? pointStates.get(menuPointId) : undefined;
+  const menuPointColor = menuPointId
     ? PointService.computePointColor({
         state: menuPointState,
         now,
@@ -203,7 +203,7 @@ export function MainScreen() {
         pointRestoreMode,
       })
     : undefined;
-  const menuDaysUntilAvailable = menuPointState
+  const menuDaysUntilAvailable = menuPointId
     ? PointService.daysUntilAvailable({
         state: menuPointState,
         now,
@@ -273,7 +273,7 @@ export function MainScreen() {
             pointsByZone={zoneData.pointsByZone}
             getColor={(pointId) =>
               PointService.computePointColor({
-                state: pointStates[pointId],
+                state: pointStates.get(pointId),
                 now,
                 daysToWhite,
                 pointRestoreMode,
@@ -285,7 +285,7 @@ export function MainScreen() {
             }
             isUnavailable={(pointId) =>
               PointService.daysUntilAvailable({
-                state: pointStates[pointId],
+                state: pointStates.get(pointId),
                 now,
                 daysToWhite,
                 daysToAvailable,
@@ -438,7 +438,7 @@ export function MainScreen() {
       <MarkDialog
         visible={markPointId !== null}
         minDate={
-          markPointId ? pointStates[markPointId]?.lastInjectionAt : undefined
+          markPointId ? pointStates.get(markPointId)?.lastInjectionAt : undefined
         }
         onConfirm={(timestamp) => {
           if (markPointId) {
@@ -446,7 +446,7 @@ export function MainScreen() {
               t,
               locale: i18n.language,
               pointId: markPointId,
-              pointState: pointStates[markPointId],
+              pointState: pointStates.get(markPointId),
               timestamp,
               daysToWhite,
               daysToAvailable,

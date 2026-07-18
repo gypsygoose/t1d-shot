@@ -7,7 +7,7 @@ const DAY = DAY_MS;
 const NOW = 1000000000000; // fixed reference timestamp
 const AUTO = PointRestoreMode.Auto;
 
-const fresh: StoredPointState = { pointId: 'x', isManuallyBlocked: false };
+const fresh: StoredPointState = { isManuallyBlocked: false };
 
 // ---------------------------------------------------------------------------
 // computePointColor — normal injection cycle
@@ -618,5 +618,30 @@ describe('colorLabel — manual restore mode', () => {
     expect(
       PointService.colorLabel({ color: PointColor.White, daysToWhite: 8, pointRestoreMode: PointRestoreMode.Auto }),
     ).toEqual({ type: ColorLabelType.White, count: 8 });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Undefined state — a point with no stored entry is a fresh, untouched point
+// ---------------------------------------------------------------------------
+
+describe('undefined state (no stored entry)', () => {
+  test('computePointColor treats it as White in both restore modes', () => {
+    expect(PointService.computePointColor({ state: undefined, now: NOW, daysToWhite: 8, pointRestoreMode: AUTO })).toBe(PointColor.White);
+    expect(PointService.computePointColor({ state: undefined, now: NOW, daysToWhite: 8, pointRestoreMode: PointRestoreMode.Manual })).toBe(PointColor.White);
+  });
+
+  test('daysUntilAvailable is undefined (always available)', () => {
+    expect(PointService.daysUntilAvailable({ state: undefined, now: NOW, daysToWhite: 8, daysToAvailable: 5, pointRestoreMode: AUTO })).toBeUndefined();
+  });
+
+  test('onPress marks it, producing a state with no pointId', () => {
+    const result = PointService.onPress({ state: undefined, now: NOW, daysToWhite: 8, daysToAvailable: 0, pointRestoreMode: AUTO });
+    expect(result.type).toBe(PressResultType.Injection);
+    if (result.type === PressResultType.Injection) {
+      expect(result.newState.lastInjectionAt).toBe(NOW);
+      expect(result.newState.isManuallyBlocked).toBe(false);
+      expect('pointId' in result.newState).toBe(false);
+    }
   });
 });

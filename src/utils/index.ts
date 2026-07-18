@@ -1,11 +1,10 @@
 export { appendEvent } from "./appendEvent";
 export { buildBulkEventSettings } from "./buildBulkEventSettings";
-export { computeZoneBackfill } from "./computeZoneBackfill";
 export { formatDateTime } from "./formatDateTime";
 export { isBulkAppEvent } from "./isBulkAppEvent";
 export { lastPressedByGroup } from "./lastPressedByGroup";
 export { pad2 } from "./pad2";
-export { resetPointStates } from "./resetPointStates";
+export { setPointState } from "./setPointState";
 export { SECONDS_PER_MINUTE, splitSeconds } from "./splitSeconds";
 export type { SplitSeconds } from "./splitSeconds";
 export { topRightHalfCirclePath } from "./topRightHalfCirclePath";

@@ -18,13 +18,7 @@ import {
   DEFAULT_GENDER,
   DEFAULT_POINT_RESTORE_MODE,
 } from "../constants";
-import {
-  appendEvent,
-  buildBulkEventSettings,
-  computeZoneBackfill,
-  resetPointStates,
-  uuid,
-} from "../utils";
+import { appendEvent, buildBulkEventSettings, uuid } from "../utils";
 import { AppState, ClearSelectedParams, SetAppState } from "./types";
 
 // Resets exactly the selected marks/settings categories to their defaults,
@@ -48,7 +42,8 @@ export function useClearSelected(setState: SetAppState): (params: ClearSelectedP
           id: uuid(),
           timestamp: Date.now(),
           type: AppEventType.ClearSelected,
-          prevPointStates: prev.pointStates,
+          // Snapshot as a plain Record (see BulkAppEvent) for serialization.
+          prevPointStates: Object.fromEntries(prev.pointStates),
           prevSettings: buildBulkEventSettings({
             state: prev,
             themeMode,
@@ -61,14 +56,17 @@ export function useClearSelected(setState: SetAppState): (params: ClearSelectedP
           (zoneType) => selection.marks[zoneType],
         );
         if (selectedZoneTypes.length > 0) {
-          const pointIdsToReset = Object.keys(prev.pointStates).filter(
-            (pointId) =>
-              selectedZoneTypes.includes(ZONE_TYPE[zoneIdFromPointId(pointId)]),
-          );
-          next.pointStates = {
-            ...prev.pointStates,
-            ...resetPointStates(pointIdsToReset),
-          };
+          // Clearing marks just deletes those points' entries — an absent
+          // entry is a fresh, White point (see PointStatesMap). The point's
+          // zone is recovered from its id prefix (zoneIdFromPointId), so an
+          // orphaned/out-of-range id still clears with its zone type.
+          const nextPointStates = new Map(prev.pointStates);
+          for (const pointId of prev.pointStates.keys()) {
+            if (selectedZoneTypes.includes(ZONE_TYPE[zoneIdFromPointId(pointId)])) {
+              nextPointStates.delete(pointId);
+            }
+          }
+          next.pointStates = nextPointStates;
           StorageService.savePointStates(next.pointStates);
         }
 
@@ -90,39 +88,17 @@ export function useClearSelected(setState: SetAppState): (params: ClearSelectedP
           });
         }
 
-        // Same combined-backfill treatment as applyImport/setZonePointCounts/
-        // setEnabledZones, since resetting either the grid or the zone
-        // selection may bring previously out-of-range/disabled slots into
-        // range — handled together so resetting only one still recomputes
-        // active points against the other's current value instead of stale
-        // data.
-        if (
-          selection.settings[ExportSettingKey.ZonePointCounts] ||
-          selection.settings[ExportSettingKey.EnabledZones]
-        ) {
-          const nextZonePointCounts = selection.settings[
-            ExportSettingKey.ZonePointCounts
-          ]
-            ? DEFAULT_ZONE_POINT_COUNTS
-            : prev.zonePointCounts;
-          const nextEnabledZones = selection.settings[
-            ExportSettingKey.EnabledZones
-          ]
-            ? DEFAULT_ENABLED_ZONES
-            : prev.enabledZones;
-          next.pointStates = computeZoneBackfill({
-            zonePointCounts: nextZonePointCounts,
-            enabledZones: nextEnabledZones,
-            pointStates: next.pointStates,
-          });
-          if (selection.settings[ExportSettingKey.ZonePointCounts]) {
-            next.zonePointCounts = DEFAULT_ZONE_POINT_COUNTS;
-            StorageService.saveZonePointCounts(DEFAULT_ZONE_POINT_COUNTS);
-          }
-          if (selection.settings[ExportSettingKey.EnabledZones]) {
-            next.enabledZones = DEFAULT_ENABLED_ZONES;
-            StorageService.saveEnabledZones(DEFAULT_ENABLED_ZONES);
-          }
+        // Resetting the grid or zone selection touches no point data — a
+        // sparse map needs no backfill (a slot brought back into range just
+        // has no entry = a fresh, White point), so each setting resets
+        // independently.
+        if (selection.settings[ExportSettingKey.ZonePointCounts]) {
+          next.zonePointCounts = DEFAULT_ZONE_POINT_COUNTS;
+          StorageService.saveZonePointCounts(DEFAULT_ZONE_POINT_COUNTS);
+        }
+        if (selection.settings[ExportSettingKey.EnabledZones]) {
+          next.enabledZones = DEFAULT_ENABLED_ZONES;
+          StorageService.saveEnabledZones(DEFAULT_ENABLED_ZONES);
         }
 
         if (selection.settings[ExportSettingKey.PointRestoreMode]) {

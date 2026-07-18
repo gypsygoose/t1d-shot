@@ -1,5 +1,5 @@
 import { useCallback, useRef } from "react";
-import { AppEvent, StoredPointState } from "../types";
+import { AppEvent, PointStatesMap } from "../types";
 import { StorageService } from "../storage";
 
 // Debounce delay before persisting a pointStates/events change to
@@ -7,7 +7,7 @@ import { StorageService } from "../storage";
 const SAVE_DEBOUNCE_MS = 300;
 
 export type ScheduleSave = (
-  pointStates: Record<string, StoredPointState>,
+  pointStates: PointStatesMap,
   events: AppEvent[],
 ) => void;
 

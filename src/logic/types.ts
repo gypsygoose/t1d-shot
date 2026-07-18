@@ -4,8 +4,11 @@ import { PointColor, PointRestoreMode, StoredPointState } from "../types";
 // "more than 2 parameters" coding-convention bullet. daysUntilAvailable and
 // onPress need the exact same context computePointColor does, plus
 // daysToAvailable, so their params extend/alias it rather than repeating it.
+// `state` may be undefined — a point with no stored entry is a fresh,
+// untouched point (see PointStatesMap); each method resolves undefined to a
+// fresh default internally.
 export interface ComputePointColorParams {
-  state: StoredPointState;
+  state: StoredPointState | undefined;
   now: number;
   daysToWhite: number;
   pointRestoreMode: PointRestoreMode;

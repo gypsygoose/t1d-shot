@@ -1,4 +1,3 @@
-export { normalizeStorage } from "./normalizeStorage";
 export {
   defaultAutoLock,
   DEFAULT_AUTO_LOCK_AFTER_MARK_SECONDS,

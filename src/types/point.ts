@@ -31,12 +31,22 @@ export interface PointAddress {
   column: number;
 }
 
-// Persisted per-point state
+// Persisted per-point state. No `pointId` field — the point's id is the key
+// its state is stored under (in PointStatesMap / the exported Record), never
+// duplicated inside the value.
 export interface StoredPointState {
-  pointId: string;
   lastInjectionAt?: number;
   blackoutStartedAt?: number;
   blackoutDurationDays?: number;
   isManuallyBlocked: boolean;
   manuallyBlockedAt?: number;
 }
+
+// In-memory point states, keyed by point id. Sparse: a point with no data
+// (never marked, not manually blocked) simply has no entry — its absence is
+// exactly a fresh, White, available point. Only points carrying real data
+// are ever stored, so there's no backfill/normalize step and clearing a
+// point just deletes its entry. Persisted to AsyncStorage / written to an
+// export file as a plain Record (Map isn't JSON-serializable) — see
+// StorageService and ExportedAppData.
+export type PointStatesMap = Map<string, StoredPointState>;

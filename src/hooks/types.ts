@@ -7,7 +7,7 @@ import {
   Gender,
   LanguageMode,
   PointRestoreMode,
-  StoredPointState,
+  PointStatesMap,
   ThemeMode,
   ZoneGroup,
   ZonePointCounts,
@@ -16,7 +16,7 @@ import {
 import { ImportResult } from "../storage";
 
 export interface AppState {
-  pointStates: Record<string, StoredPointState>;
+  pointStates: PointStatesMap;
   events: AppEvent[];
   now: number;
   isLoaded: boolean;

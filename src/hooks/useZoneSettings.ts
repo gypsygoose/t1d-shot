@@ -2,15 +2,12 @@ import { MutableRefObject, useCallback, useMemo, useRef } from "react";
 import { EnabledZones, ZonePointCounts, ZoneRuntimeData } from "../types";
 import { StorageService } from "../storage";
 import { buildZoneData } from "../data";
-import { computeZoneBackfill } from "../utils";
-import { ScheduleSave } from "./useDebouncedSave";
 import { SetAppState } from "./types";
 
 interface UseZoneSettingsParams {
   zonePointCounts: ZonePointCounts;
   enabledZones: EnabledZones;
   setState: SetAppState;
-  scheduleSave: ScheduleSave;
 }
 
 interface ZoneSettings {
@@ -27,7 +24,6 @@ export function useZoneSettings({
   zonePointCounts,
   enabledZones,
   setState,
-  scheduleSave,
 }: UseZoneSettingsParams): ZoneSettings {
   // Recomputed only when zonePointCounts/enabledZones changes, not on every
   // render — see data/zones.ts's buildZoneData.
@@ -38,45 +34,25 @@ export function useZoneSettings({
   const zoneDataRef = useRef(zoneData);
   zoneDataRef.current = zoneData;
 
-  // Backfills default states for any slot newly brought into range by the
-  // grid change, while leaving every other point's history — including
-  // slots now outside the grid — untouched, so shrinking then re-growing a
-  // zone's grid restores its old history (see CLAUDE.md's "Zones and
-  // points").
+  // Point states are sparse, so a grid/zone change touches no point data at
+  // all: a slot newly brought into range simply has no entry (a fresh, White
+  // point), and a slot taken out of range keeps its untouched entry as a
+  // harmless orphan — shrinking then re-growing a zone restores its history
+  // for free, with no backfill step (see CLAUDE.md's "Zones and points").
   const setZonePointCounts = useCallback(
     (next: ZonePointCounts) => {
-      setState((prev) => {
-        const normalized = computeZoneBackfill({
-          zonePointCounts: next,
-          enabledZones: prev.enabledZones,
-          pointStates: prev.pointStates,
-        });
-        scheduleSave(normalized, prev.events);
-        return { ...prev, zonePointCounts: next, pointStates: normalized };
-      });
+      setState((prev) => ({ ...prev, zonePointCounts: next }));
       StorageService.saveZonePointCounts(next);
     },
-    [setState, scheduleSave],
+    [setState],
   );
 
-  // Same backfill-defaults treatment as setZonePointCounts — re-enabling a
-  // zone reveals its points (and their history) again, since a disabled
-  // zone's points are simply excluded from buildZoneData's active-points
-  // list (see CLAUDE.md's "Zones and points") rather than deleted.
   const setEnabledZones = useCallback(
     (next: EnabledZones) => {
-      setState((prev) => {
-        const normalized = computeZoneBackfill({
-          zonePointCounts: prev.zonePointCounts,
-          enabledZones: next,
-          pointStates: prev.pointStates,
-        });
-        scheduleSave(normalized, prev.events);
-        return { ...prev, enabledZones: next, pointStates: normalized };
-      });
+      setState((prev) => ({ ...prev, enabledZones: next }));
       StorageService.saveEnabledZones(next);
     },
-    [setState, scheduleSave],
+    [setState],
   );
 
   return { zoneData, zoneDataRef, setZonePointCounts, setEnabledZones };

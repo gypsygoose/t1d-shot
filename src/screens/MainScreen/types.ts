@@ -19,7 +19,10 @@ export interface BuildMarkToastMessageParams {
   t: TFunction;
   locale: string;
   pointId: string;
-  pointState: StoredPointState;
+  // Undefined when the point has no stored entry — a fresh, untouched point;
+  // PointService.onPress resolves undefined to a fresh default (see
+  // PointStatesMap).
+  pointState: StoredPointState | undefined;
   timestamp: number;
   daysToWhite: number;
   daysToAvailable: number;

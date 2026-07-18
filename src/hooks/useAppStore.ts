@@ -28,7 +28,7 @@ import { useImportExport } from "./useImportExport";
 // itself. See useAutoLock.ts.
 export function useAppStore(onAutoLockFired?: () => void): [AppStoreState, AppActions] {
   const [state, setState] = useState<AppState>({
-    pointStates: {},
+    pointStates: new Map(),
     events: [],
     now: Date.now(),
     isLoaded: false,
@@ -55,7 +55,6 @@ export function useAppStore(onAutoLockFired?: () => void): [AppStoreState, AppAc
     zonePointCounts: state.zonePointCounts,
     enabledZones: state.enabledZones,
     setState,
-    scheduleSave,
   });
 
   const { setInterfaceLocked, enableAutoLock, disableAutoLock, updateAutoLockTimes } = useAutoLock({
@@ -75,7 +74,7 @@ export function useAppStore(onAutoLockFired?: () => void): [AppStoreState, AppAc
   const { setMirrored, setDaysToWhite, setDaysToAvailable, setPointRestoreMode, setGender } =
     useSettingsActions(setState);
 
-  const { exportData, pickImportFile, applyImport } = useImportExport({ state, setState, zoneDataRef });
+  const { exportData, pickImportFile, applyImport } = useImportExport({ state, setState });
 
   const lastInGroup = lastPressedByGroup(state.pointStates, zoneData.pointMap);
 

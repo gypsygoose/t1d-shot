@@ -1,9 +1,14 @@
 import { MutableRefObject, useCallback } from "react";
-import { AppEvent, AppEventType, StoredPointState, ZoneRuntimeData } from "../types";
+import {
+  AppEvent,
+  AppEventType,
+  StoredPointState,
+  ZoneRuntimeData,
+} from "../types";
 import { StorageService } from "../storage";
 import { PointService, PressResultType } from "../logic";
 import { SECOND_MS } from "../constants";
-import { appendEvent, isBulkAppEvent, uuid } from "../utils";
+import { appendEvent, isBulkAppEvent, setPointState, uuid } from "../utils";
 import { ScheduleSave } from "./useDebouncedSave";
 import { SetAppState } from "./types";
 
@@ -22,7 +27,11 @@ interface PointActions {
   undo(): void;
 }
 
-export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePointActionsParams): PointActions {
+export function usePointActions({
+  setState,
+  zoneDataRef,
+  scheduleSave,
+}: UsePointActionsParams): PointActions {
   const pressPoint = useCallback(
     (pointId: string) => {
       setState((prev) => {
@@ -30,7 +39,7 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
         const point = zoneDataRef.current.pointMap[pointId];
         if (!point) return prev;
 
-        const currentPointState = prev.pointStates[pointId];
+        const currentPointState = prev.pointStates.get(pointId);
         const result = PointService.onPress({
           state: currentPointState,
           now,
@@ -53,13 +62,14 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
               : AppEventType.Blackout,
           pointId,
           zoneId: point.zoneId,
-          prevPointState: { ...currentPointState },
+          prevPointState: currentPointState ? { ...currentPointState } : null,
         };
 
-        const nextPointStates = {
-          ...prev.pointStates,
-          [pointId]: result.newState,
-        };
+        const nextPointStates = setPointState(
+          prev.pointStates,
+          pointId,
+          result.newState,
+        );
         const nextEvents = appendEvent(prev.events, event);
         scheduleSave(nextPointStates, nextEvents);
 
@@ -75,7 +85,13 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
           });
         }
 
-        return { ...prev, pointStates: nextPointStates, events: nextEvents, now, autoLockDeadline };
+        return {
+          ...prev,
+          pointStates: nextPointStates,
+          events: nextEvents,
+          now,
+          autoLockDeadline,
+        };
       });
     },
     [setState, zoneDataRef, scheduleSave],
@@ -88,10 +104,9 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
         const point = zoneDataRef.current.pointMap[pointId];
         if (!point) return prev;
 
-        const currentPointState = prev.pointStates[pointId];
+        const currentPointState = prev.pointStates.get(pointId);
         const newPointState: StoredPointState = {
           ...currentPointState,
-          pointId,
           isManuallyBlocked: true,
           manuallyBlockedAt: now,
         };
@@ -102,15 +117,22 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
           type: AppEventType.ManualBlock,
           pointId,
           zoneId: point.zoneId,
-          prevPointState: currentPointState
-            ? { ...currentPointState }
-            : { pointId, isManuallyBlocked: false },
+          prevPointState: currentPointState ? { ...currentPointState } : null,
         };
 
-        const nextPointStates = { ...prev.pointStates, [pointId]: newPointState };
+        const nextPointStates = setPointState(
+          prev.pointStates,
+          pointId,
+          newPointState,
+        );
         const nextEvents = appendEvent(prev.events, event);
         scheduleSave(nextPointStates, nextEvents);
-        return { ...prev, pointStates: nextPointStates, events: nextEvents, now };
+        return {
+          ...prev,
+          pointStates: nextPointStates,
+          events: nextEvents,
+          now,
+        };
       });
     },
     [setState, zoneDataRef, scheduleSave],
@@ -123,7 +145,7 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
         const point = zoneDataRef.current.pointMap[pointId];
         if (!point) return prev;
 
-        const currentPointState = prev.pointStates[pointId];
+        const currentPointState = prev.pointStates.get(pointId);
         if (!currentPointState) return prev;
         const newPointState: StoredPointState = {
           ...currentPointState,
@@ -140,10 +162,21 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
           prevPointState: { ...currentPointState },
         };
 
-        const nextPointStates = { ...prev.pointStates, [pointId]: newPointState };
+        // setPointState drops the entry if unblocking leaves it empty (a
+        // point that was only ever manually blocked, never injected).
+        const nextPointStates = setPointState(
+          prev.pointStates,
+          pointId,
+          newPointState,
+        );
         const nextEvents = appendEvent(prev.events, event);
         scheduleSave(nextPointStates, nextEvents);
-        return { ...prev, pointStates: nextPointStates, events: nextEvents, now };
+        return {
+          ...prev,
+          pointStates: nextPointStates,
+          events: nextEvents,
+          now,
+        };
       });
     },
     [setState, zoneDataRef, scheduleSave],
@@ -158,7 +191,7 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
         const point = zoneDataRef.current.pointMap[pointId];
         if (!point) return prev;
 
-        const currentPointState = prev.pointStates[pointId];
+        const currentPointState = prev.pointStates.get(pointId);
         const result = PointService.onPress({
           state: currentPointState,
           now: timestamp,
@@ -181,15 +214,22 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
               : AppEventType.Blackout,
           pointId,
           zoneId: point.zoneId,
-          prevPointState: currentPointState
-            ? { ...currentPointState }
-            : { pointId, isManuallyBlocked: false },
+          prevPointState: currentPointState ? { ...currentPointState } : null,
         };
 
-        const nextPointStates = { ...prev.pointStates, [pointId]: result.newState };
+        const nextPointStates = setPointState(
+          prev.pointStates,
+          pointId,
+          result.newState,
+        );
         const nextEvents = appendEvent(prev.events, event);
         scheduleSave(nextPointStates, nextEvents);
-        return { ...prev, pointStates: nextPointStates, events: nextEvents, now };
+        return {
+          ...prev,
+          pointStates: nextPointStates,
+          events: nextEvents,
+          now,
+        };
       });
     },
     [setState, zoneDataRef, scheduleSave],
@@ -202,24 +242,28 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
         const point = zoneDataRef.current.pointMap[pointId];
         if (!point) return prev;
 
-        const currentPointState = prev.pointStates[pointId];
-        const newPointState: StoredPointState = { pointId, isManuallyBlocked: false };
-
+        const currentPointState = prev.pointStates.get(pointId);
         const event: AppEvent = {
           id: uuid(),
           timestamp: now,
           type: AppEventType.ManualClear,
           pointId,
           zoneId: point.zoneId,
-          prevPointState: currentPointState
-            ? { ...currentPointState }
-            : { pointId, isManuallyBlocked: false },
+          prevPointState: currentPointState ? { ...currentPointState } : null,
         };
 
-        const nextPointStates = { ...prev.pointStates, [pointId]: newPointState };
+        // Clearing a point is just removing its data — delete the entry so
+        // the map stays sparse (an absent entry is a fresh, White point).
+        const nextPointStates = new Map(prev.pointStates);
+        nextPointStates.delete(pointId);
         const nextEvents = appendEvent(prev.events, event);
         scheduleSave(nextPointStates, nextEvents);
-        return { ...prev, pointStates: nextPointStates, events: nextEvents, now };
+        return {
+          ...prev,
+          pointStates: nextPointStates,
+          events: nextEvents,
+          now,
+        };
       });
     },
     [setState, zoneDataRef, scheduleSave],
@@ -256,10 +300,15 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
         StorageService.saveGender(settings.gender);
         StorageService.saveZonePointCounts(settings.zonePointCounts);
         StorageService.saveEnabledZones(settings.enabledZones);
-        scheduleSave(last.prevPointStates, nextEvents);
+        // The snapshot is a plain Record (see BulkAppEvent) — rehydrate it
+        // into a fresh PointStatesMap.
+        const restoredPointStates = new Map(
+          Object.entries(last.prevPointStates),
+        );
+        scheduleSave(restoredPointStates, nextEvents);
         return {
           ...prev,
-          pointStates: last.prevPointStates,
+          pointStates: restoredPointStates,
           events: nextEvents,
           mirrored: settings.mirrored,
           autoLockEnabled: settings.autoLockEnabled,
@@ -275,14 +324,24 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
         };
       }
 
-      const nextPointStates = {
-        ...prev.pointStates,
-        [last.pointId]: last.prevPointState,
-      };
+      const nextPointStates = new Map(prev.pointStates);
+      if (last.prevPointState) {
+        nextPointStates.set(last.pointId, last.prevPointState);
+      } else {
+        // The point had no stored entry before this action — empty it again.
+        nextPointStates.delete(last.pointId);
+      }
       scheduleSave(nextPointStates, nextEvents);
       return { ...prev, pointStates: nextPointStates, events: nextEvents };
     });
   }, [setState, scheduleSave]);
 
-  return { pressPoint, blockPoint, unblockPoint, markPointAt, clearPoint, undo };
+  return {
+    pressPoint,
+    blockPoint,
+    unblockPoint,
+    markPointAt,
+    clearPoint,
+    undo,
+  };
 }
