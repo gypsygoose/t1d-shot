@@ -1,9 +1,25 @@
 import { MutableRefObject, useCallback } from "react";
-import { ExportedAppData, ExportSettingKey, ZoneRuntimeData } from "../types";
+import {
+  AppEvent,
+  AppEventType,
+  ExportedAppData,
+  ExportSettingKey,
+  ZoneRuntimeData,
+} from "../types";
 import { ImportResult, StorageService } from "../storage";
 import { SECOND_MS } from "../constants";
-import { computeZoneBackfill } from "../utils";
-import { AppState, ExportDataParams, SetAppState } from "./types";
+import {
+  appendEvent,
+  buildBulkEventSettings,
+  computeZoneBackfill,
+  uuid,
+} from "../utils";
+import {
+  AppState,
+  ApplyImportParams,
+  ExportDataParams,
+  SetAppState,
+} from "./types";
 
 interface UseImportExportParams {
   state: AppState;
@@ -16,7 +32,7 @@ interface UseImportExportParams {
 interface ImportExportActions {
   exportData(params: ExportDataParams): Promise<void>;
   pickImportFile(): Promise<ImportResult>;
-  applyImport(data: ExportedAppData): void;
+  applyImport(params: ApplyImportParams): void;
 }
 
 export function useImportExport({ state, setState, zoneDataRef }: UseImportExportParams): ImportExportActions {
@@ -36,7 +52,6 @@ export function useImportExport({ state, setState, zoneDataRef }: UseImportExpor
       const data: ExportedAppData = {};
       if (Object.values(selection.marks).some(Boolean)) {
         data.pointStates = state.pointStates;
-        data.events = state.events;
       }
       if (selection.settings[ExportSettingKey.Mirrored]) {
         data.mirrored = state.mirrored;
@@ -74,7 +89,6 @@ export function useImportExport({ state, setState, zoneDataRef }: UseImportExpor
     },
     [
       state.pointStates,
-      state.events,
       state.mirrored,
       state.autoLockEnabled,
       state.autoLockAfterMarkSeconds,
@@ -94,18 +108,41 @@ export function useImportExport({ state, setState, zoneDataRef }: UseImportExpor
   );
 
   // Merge-imports whatever categories `data` carries — a field left absent
-  // (because ExportOptionsDialog excluded it) leaves that category's
+  // (because ImportOptionsDialog excluded it) leaves that category's
   // current state/storage untouched instead of resetting it. Doesn't
-  // persist data.themeMode — the caller applies it via ThemeProvider's
-  // setMode, which owns that setting's storage key.
+  // persist data.themeMode/languageMode — the caller applies those via
+  // ThemeProvider/LanguageProvider's setMode, which own their storage keys;
+  // the params' themeMode/languageMode are only the *current* values,
+  // captured into the undo snapshot. Every confirmed import appends one
+  // BulkAppEvent snapshotting the whole pre-import pointStates map and
+  // settings, so undo can revert it wholesale (see src/types/event.ts).
   const applyImport = useCallback(
-    (data: ExportedAppData) => {
+    ({ data, themeMode, languageMode }: ApplyImportParams) => {
       setState((prev) => {
         const next: AppState = { ...prev };
 
-        if (data.pointStates !== undefined) next.pointStates = data.pointStates;
-        if (data.events !== undefined) next.events = data.events;
-        if (data.mirrored !== undefined) next.mirrored = data.mirrored;
+        const importEvent: AppEvent = {
+          id: uuid(),
+          timestamp: Date.now(),
+          type: AppEventType.Import,
+          prevPointStates: prev.pointStates,
+          prevSettings: buildBulkEventSettings({
+            state: prev,
+            themeMode,
+            languageMode,
+          }),
+        };
+        next.events = appendEvent(prev.events, importEvent);
+        StorageService.saveEvents(next.events);
+
+        if (data.pointStates !== undefined) {
+          next.pointStates = data.pointStates;
+          StorageService.savePointStates(data.pointStates);
+        }
+        if (data.mirrored !== undefined) {
+          next.mirrored = data.mirrored;
+          StorageService.saveMirrored(data.mirrored);
+        }
 
         if (data.autoLockEnabled !== undefined) {
           const afterMarkSeconds =
@@ -137,13 +174,11 @@ export function useImportExport({ state, setState, zoneDataRef }: UseImportExpor
         if (data.zonePointCounts !== undefined || data.enabledZones !== undefined) {
           const nextZonePointCounts = data.zonePointCounts ?? prev.zonePointCounts;
           const nextEnabledZones = data.enabledZones ?? prev.enabledZones;
-          const normalized = computeZoneBackfill({
+          next.pointStates = computeZoneBackfill({
             zonePointCounts: nextZonePointCounts,
             enabledZones: nextEnabledZones,
-            storage: { pointStates: next.pointStates, events: next.events },
+            pointStates: next.pointStates,
           });
-          next.pointStates = normalized.pointStates;
-          next.events = normalized.events;
           if (data.zonePointCounts !== undefined) {
             next.zonePointCounts = data.zonePointCounts;
             StorageService.saveZonePointCounts(data.zonePointCounts);
@@ -176,7 +211,6 @@ export function useImportExport({ state, setState, zoneDataRef }: UseImportExpor
 
         return next;
       });
-      StorageService.importStorage(data);
     },
     [setState],
   );

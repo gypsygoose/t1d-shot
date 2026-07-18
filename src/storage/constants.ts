@@ -1,6 +1,7 @@
 import { Gender, LanguageMode, PointRestoreMode, ThemeMode } from "../types";
 
-export const STORAGE_KEY = "@insulin_shot_tracker_v1";
+export const POINT_STATES_KEY = "@insulin_shot_tracker_point_states_v1";
+export const EVENTS_KEY = "@insulin_shot_tracker_events_v1";
 export const MIRROR_KEY = "@insulin_shot_tracker_mirror_v1";
 export const INTERFACE_LOCKED_KEY = "@insulin_shot_tracker_interface_locked_v1";
 export const AUTO_LOCK_KEY = "@insulin_shot_tracker_autolock_v1";

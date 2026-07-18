@@ -4,7 +4,7 @@ import { buildZoneData } from "../data";
 import { SetAppState } from "./types";
 
 // Loads every persisted setting + point data on mount. zonePointCounts/
-// enabledZones load first since loadStorage needs the resulting
+// enabledZones load first since loadPointStates needs the resulting
 // active-points list to know which point ids to backfill defaults for; the
 // rest loads together (rather than each in its own .then()) so the
 // just-reopened-the-app auto-lock catch-up check below always sees the real
@@ -17,7 +17,8 @@ export function useLoadInitialState(setState: SetAppState): void {
     ]).then(([zonePointCounts, enabledZones]) => {
       const activePoints = buildZoneData(zonePointCounts, enabledZones).points;
       Promise.all([
-        StorageService.loadStorage(activePoints),
+        StorageService.loadPointStates(activePoints),
+        StorageService.loadEvents(),
         StorageService.loadMirrored(),
         StorageService.loadInterfaceLocked(),
         StorageService.loadAutoLock(),
@@ -25,7 +26,7 @@ export function useLoadInitialState(setState: SetAppState): void {
         StorageService.loadDaysToAvailable(),
         StorageService.loadPointRestoreMode(),
         StorageService.loadGender(),
-      ]).then(([stored, mirrored, storedInterfaceLocked, autoLock, daysToWhite, daysToAvailable, pointRestoreMode, gender]) => {
+      ]).then(([pointStates, events, mirrored, storedInterfaceLocked, autoLock, daysToWhite, daysToAvailable, pointRestoreMode, gender]) => {
         const now = Date.now();
         let interfaceLocked = storedInterfaceLocked;
         let deadline = autoLock.deadline;
@@ -48,7 +49,8 @@ export function useLoadInitialState(setState: SetAppState): void {
         }
         setState((prev) => ({
           ...prev,
-          ...stored,
+          pointStates,
+          events,
           mirrored,
           interfaceLocked,
           autoLockEnabled: autoLock.enabled,

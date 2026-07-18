@@ -3,13 +3,14 @@ import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import * as DocumentPicker from "expo-document-picker";
 import {
-  AppStorage,
+  AppEvent,
   EnabledZones,
   ExportedAppData,
   Gender,
   LanguageMode,
   PointDefinition,
   PointRestoreMode,
+  StoredPointState,
   ThemeMode,
   ZonePointCounts,
 } from "../types";
@@ -21,7 +22,6 @@ import {
 } from "../constants";
 import { DEFAULT_ZONE_POINT_COUNTS, DEFAULT_ENABLED_ZONES } from "../data";
 import {
-  defaultStorage,
   normalizeStorage,
   defaultAutoLock,
   DEFAULT_AUTO_LOCK_AFTER_MARK_SECONDS,
@@ -33,7 +33,8 @@ import {
   isValidAppStorage,
 } from "./utils";
 import {
-  STORAGE_KEY,
+  POINT_STATES_KEY,
+  EVENTS_KEY,
   MIRROR_KEY,
   INTERFACE_LOCKED_KEY,
   AUTO_LOCK_KEY,
@@ -60,24 +61,42 @@ import { ImportResult, ImportResultType, StoredAutoLock } from "./types";
 export { DEFAULT_AUTO_LOCK_AFTER_MARK_SECONDS, DEFAULT_AUTO_LOCK_AFTER_UNLOCK_SECONDS };
 
 // AsyncStorage load/save/clear + export/import — every method is static, so
-// callers reach it as StorageService.loadStorage() etc. without needing to
+// callers reach it as StorageService.loadPointStates() etc. without needing to
 // create/thread an instance (see CLAUDE.md's "Helper function / hook
 // placement" — this stays the module's public API, same role storage.ts's
 // standalone functions used to serve).
 export class StorageService {
-  static async loadStorage(activePoints: PointDefinition[]): Promise<AppStorage> {
+  static async loadPointStates(
+    activePoints: PointDefinition[],
+  ): Promise<Record<string, StoredPointState>> {
     try {
-      const raw = await AsyncStorage.getItem(STORAGE_KEY);
-      if (!raw) return defaultStorage(activePoints);
-      const parsed = JSON.parse(raw) as AppStorage;
-      return normalizeStorage(parsed, activePoints);
+      const raw = await AsyncStorage.getItem(POINT_STATES_KEY);
+      return normalizeStorage(
+        raw ? (JSON.parse(raw) as Record<string, StoredPointState>) : undefined,
+        activePoints,
+      );
     } catch {
-      return defaultStorage(activePoints);
+      return normalizeStorage(undefined, activePoints);
     }
   }
 
-  static async saveStorage(data: AppStorage): Promise<void> {
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  static async loadEvents(): Promise<AppEvent[]> {
+    try {
+      const raw = await AsyncStorage.getItem(EVENTS_KEY);
+      return raw ? (JSON.parse(raw) as AppEvent[]) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  static async savePointStates(
+    pointStates: Record<string, StoredPointState>,
+  ): Promise<void> {
+    await AsyncStorage.setItem(POINT_STATES_KEY, JSON.stringify(pointStates));
+  }
+
+  static async saveEvents(events: AppEvent[]): Promise<void> {
+    await AsyncStorage.setItem(EVENTS_KEY, JSON.stringify(events));
   }
 
   static async loadMirrored(): Promise<boolean> {
@@ -289,15 +308,7 @@ export class StorageService {
 
       const data: ExportedAppData = { ...parsed };
       if (data.pointStates !== undefined) {
-        const normalized = normalizeStorage(
-          {
-            pointStates: data.pointStates,
-            events: data.events ?? [],
-          },
-          activePoints,
-        );
-        data.pointStates = normalized.pointStates;
-        data.events = normalized.events;
+        data.pointStates = normalizeStorage(data.pointStates, activePoints);
       }
       if (data.daysToWhite !== undefined) {
         data.daysToWhite = clampDaysToWhite(data.daysToWhite);
@@ -317,18 +328,4 @@ export class StorageService {
     }
   }
 
-  // Persists only the categories present in `data`, leaving any omitted
-  // category's stored value untouched — the merge-import counterpart to
-  // ExportOptionsDialog's selective export.
-  static async importStorage(data: ExportedAppData): Promise<void> {
-    if (data.pointStates !== undefined && data.events !== undefined) {
-      await StorageService.saveStorage({
-        pointStates: data.pointStates,
-        events: data.events,
-      });
-    }
-    if (data.mirrored !== undefined) {
-      await StorageService.saveMirrored(data.mirrored);
-    }
-  }
 }

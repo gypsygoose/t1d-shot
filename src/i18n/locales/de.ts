@@ -55,7 +55,15 @@ export const de: AppLocale = {
     interfaceLockDisabled: "Oberfläche entsperrt",
     autoLockFired: "Oberfläche automatisch gesperrt",
     clearSuccess: "Daten gelöscht",
-    undo: "Letzte Aktion rückgängig gemacht",
+    undo: {
+      injection: "Injektion rückgängig gemacht",
+      blackout: "Injektion rückgängig gemacht (Systemsperre aufgehoben)",
+      manualBlock: "Manuelle Sperrung rückgängig gemacht",
+      manualUnblock: "Manuelle Entsperrung rückgängig gemacht",
+      manualClear: "Löschen des Punkts rückgängig gemacht",
+      clearSelected: "Datenlöschung rückgängig gemacht",
+      import: "Datenimport rückgängig gemacht",
+    },
     exportSuccess: "Daten exportiert",
     importSuccess: "Daten importiert",
     importFailure:
@@ -170,19 +178,19 @@ export const de: AppLocale = {
     importOptionsDialog: {
       title: "Daten importieren",
       message:
-        "Wähle, was aus der Datei importiert werden soll. Kategorien, die nicht in der Datei enthalten sind, stehen nicht zur Verfügung. Ausgewählte Kategorien ersetzen die aktuellen Daten — diese Aktion kann nicht rückgängig gemacht werden.",
+        "Wähle, was aus der Datei importiert werden soll. Kategorien, die nicht in der Datei enthalten sind, stehen nicht zur Verfügung. Ausgewählte Kategorien ersetzen die aktuellen Daten.",
       confirmLabel: "Importieren",
     },
     undoConfirm: {
-      title: "Letzte Injektion rückgängig machen?",
+      title: "Letzte Aktion rückgängig machen?",
       message:
-        "Die zuletzt erfasste Injektion wird entfernt. Diese Aktion kann nicht erneut rückgängig gemacht werden.",
-      confirmLabel: "Injektion rückgängig machen",
+        "Die letzte Aktion (eine Injektion, eine Sperrung, das Löschen eines Punkts, das Löschen von Daten oder ein Import) wird rückgängig gemacht. Die rückgängig gemachte Aktion kann nicht wiederholt werden.",
+      confirmLabel: "Rückgängig",
     },
     clearOptionsDialog: {
       title: "Daten löschen",
       message:
-        "Wähle, was gelöscht werden soll. Ausgewählte Injektionspunkt-Markierungen und/oder App-Einstellungen werden dauerhaft auf ihre Standardwerte zurückgesetzt — diese Aktion kann nicht rückgängig gemacht werden.",
+        "Wähle, was gelöscht werden soll. Ausgewählte Injektionspunkt-Markierungen und/oder App-Einstellungen werden auf ihre Standardwerte zurückgesetzt.",
       confirmLabel: "Löschen",
     },
   },
@@ -210,7 +218,7 @@ export const de: AppLocale = {
     clearPointConfirm: {
       title: "Diesen Punkt löschen?",
       message:
-        "Die Daten dieses Punkts werden entfernt und er wird weiß (frei). Diese Aktion kann nicht erneut rückgängig gemacht werden.",
+        "Die Daten dieses Punkts werden entfernt und er wird weiß (frei).",
     },
   },
   help: {
@@ -258,7 +266,7 @@ export const de: AppLocale = {
         "<bold>✓ Häkchen</bold> — zuletzt verwendeter Punkt in der Gruppe.",
     },
     bottomBar: {
-      undo: "<bold>Rückgängig</bold> — die letzte Aktion rückgängig machen (eine Injektion, eine Sperrung oder eine Entsperrung).",
+      undo: "<bold>Rückgängig</bold> — die letzte Aktion rückgängig machen (eine Injektion, eine Sperrung, eine Entsperrung, ein Löschen oder ein Datenimport).",
       menu: "<bold>{{label}}</bold> — das Einstellungs- und Datenmenü öffnen.",
       help: "<bold>{{label}}</bold> — diesen Bildschirm öffnen.",
       lock: "<bold>Sperre</bold> — die Oberfläche sperren oder entsperren, um versehentliches Antippen zu vermeiden.",
@@ -288,7 +296,7 @@ export const de: AppLocale = {
       import:
         "<bold>{{label}}</bold> — wähle, was aus einer Datei übernommen werden soll: Injektionspunkt-Markierungen und/oder App-Einstellungen (einzeln). Kategorien, die nicht in der Datei enthalten sind, können nicht ausgewählt werden; die übrigen aktuellen Daten bleiben unverändert.",
       clear:
-        "<bold>{{label}}</bold> — wähle, was zurückgesetzt werden soll: Injektionspunkt-Markierungen und/oder App-Einstellungen (einzeln), dauerhaft und ohne Wiederherstellungsmöglichkeit.",
+        "<bold>{{label}}</bold> — wähle, was zurückgesetzt werden soll: Injektionspunkt-Markierungen und/oder App-Einstellungen (einzeln).",
     },
   },
   stateMachine: {

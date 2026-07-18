@@ -1,15 +1,16 @@
 import { MutableRefObject, useCallback } from "react";
-import { AppEvent, AppEventType, AppStorage, StoredPointState, ZoneRuntimeData } from "../types";
+import { AppEvent, AppEventType, StoredPointState, ZoneRuntimeData } from "../types";
 import { StorageService } from "../storage";
 import { PointService, PressResultType } from "../logic";
 import { SECOND_MS } from "../constants";
-import { appendEvent, uuid } from "../utils";
+import { appendEvent, isBulkAppEvent, uuid } from "../utils";
+import { ScheduleSave } from "./useDebouncedSave";
 import { SetAppState } from "./types";
 
 interface UsePointActionsParams {
   setState: SetAppState;
   zoneDataRef: MutableRefObject<ZoneRuntimeData>;
-  scheduleSave: (nextState: AppStorage) => void;
+  scheduleSave: ScheduleSave;
 }
 
 interface PointActions {
@@ -60,8 +61,7 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
           [pointId]: result.newState,
         };
         const nextEvents = appendEvent(prev.events, event);
-        const next: AppStorage = { pointStates: nextPointStates, events: nextEvents };
-        scheduleSave(next);
+        scheduleSave(nextPointStates, nextEvents);
 
         // Marking a zone re-arms the auto-lock countdown.
         let autoLockDeadline = prev.autoLockDeadline;
@@ -75,7 +75,7 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
           });
         }
 
-        return { ...prev, ...next, now, autoLockDeadline };
+        return { ...prev, pointStates: nextPointStates, events: nextEvents, now, autoLockDeadline };
       });
     },
     [setState, zoneDataRef, scheduleSave],
@@ -109,9 +109,8 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
 
         const nextPointStates = { ...prev.pointStates, [pointId]: newPointState };
         const nextEvents = appendEvent(prev.events, event);
-        const next: AppStorage = { pointStates: nextPointStates, events: nextEvents };
-        scheduleSave(next);
-        return { ...prev, ...next, now };
+        scheduleSave(nextPointStates, nextEvents);
+        return { ...prev, pointStates: nextPointStates, events: nextEvents, now };
       });
     },
     [setState, zoneDataRef, scheduleSave],
@@ -143,9 +142,8 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
 
         const nextPointStates = { ...prev.pointStates, [pointId]: newPointState };
         const nextEvents = appendEvent(prev.events, event);
-        const next: AppStorage = { pointStates: nextPointStates, events: nextEvents };
-        scheduleSave(next);
-        return { ...prev, ...next, now };
+        scheduleSave(nextPointStates, nextEvents);
+        return { ...prev, pointStates: nextPointStates, events: nextEvents, now };
       });
     },
     [setState, zoneDataRef, scheduleSave],
@@ -190,9 +188,8 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
 
         const nextPointStates = { ...prev.pointStates, [pointId]: result.newState };
         const nextEvents = appendEvent(prev.events, event);
-        const next: AppStorage = { pointStates: nextPointStates, events: nextEvents };
-        scheduleSave(next);
-        return { ...prev, ...next, now };
+        scheduleSave(nextPointStates, nextEvents);
+        return { ...prev, pointStates: nextPointStates, events: nextEvents, now };
       });
     },
     [setState, zoneDataRef, scheduleSave],
@@ -221,9 +218,8 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
 
         const nextPointStates = { ...prev.pointStates, [pointId]: newPointState };
         const nextEvents = appendEvent(prev.events, event);
-        const next: AppStorage = { pointStates: nextPointStates, events: nextEvents };
-        scheduleSave(next);
-        return { ...prev, ...next, now };
+        scheduleSave(nextPointStates, nextEvents);
+        return { ...prev, pointStates: nextPointStates, events: nextEvents, now };
       });
     },
     [setState, zoneDataRef, scheduleSave],
@@ -233,14 +229,58 @@ export function usePointActions({ setState, zoneDataRef, scheduleSave }: UsePoin
     setState((prev) => {
       if (prev.events.length === 0) return prev;
       const last = prev.events[prev.events.length - 1];
+      const nextEvents = prev.events.slice(0, -1);
+
+      // A bulk clear/import event restores the entire snapshot it carries —
+      // the whole pointStates map plus every setting (see BulkAppEvent).
+      // themeMode/languageMode are provider-owned and restored by
+      // MainScreen's onUndo wrapper instead. The auto-lock deadline is
+      // recomputed rather than restored, so undo can't revive an
+      // already-elapsed deadline and instantly lock the interface.
+      if (isBulkAppEvent(last)) {
+        const settings = last.prevSettings;
+        const autoLockDeadline =
+          settings.autoLockEnabled && !prev.interfaceLocked
+            ? Date.now() + settings.autoLockAfterUnlockSeconds * SECOND_MS
+            : null;
+        StorageService.saveMirrored(settings.mirrored);
+        StorageService.saveAutoLock({
+          enabled: settings.autoLockEnabled,
+          afterMarkSeconds: settings.autoLockAfterMarkSeconds,
+          afterUnlockSeconds: settings.autoLockAfterUnlockSeconds,
+          deadline: autoLockDeadline,
+        });
+        StorageService.saveDaysToWhite(settings.daysToWhite);
+        StorageService.saveDaysToAvailable(settings.daysToAvailable);
+        StorageService.savePointRestoreMode(settings.pointRestoreMode);
+        StorageService.saveGender(settings.gender);
+        StorageService.saveZonePointCounts(settings.zonePointCounts);
+        StorageService.saveEnabledZones(settings.enabledZones);
+        scheduleSave(last.prevPointStates, nextEvents);
+        return {
+          ...prev,
+          pointStates: last.prevPointStates,
+          events: nextEvents,
+          mirrored: settings.mirrored,
+          autoLockEnabled: settings.autoLockEnabled,
+          autoLockAfterMarkSeconds: settings.autoLockAfterMarkSeconds,
+          autoLockAfterUnlockSeconds: settings.autoLockAfterUnlockSeconds,
+          autoLockDeadline,
+          daysToWhite: settings.daysToWhite,
+          daysToAvailable: settings.daysToAvailable,
+          pointRestoreMode: settings.pointRestoreMode,
+          gender: settings.gender,
+          zonePointCounts: settings.zonePointCounts,
+          enabledZones: settings.enabledZones,
+        };
+      }
+
       const nextPointStates = {
         ...prev.pointStates,
         [last.pointId]: last.prevPointState,
       };
-      const nextEvents = prev.events.slice(0, -1);
-      const next: AppStorage = { pointStates: nextPointStates, events: nextEvents };
-      scheduleSave(next);
-      return { ...prev, ...next };
+      scheduleSave(nextPointStates, nextEvents);
+      return { ...prev, pointStates: nextPointStates, events: nextEvents };
     });
   }, [setState, scheduleSave]);
 

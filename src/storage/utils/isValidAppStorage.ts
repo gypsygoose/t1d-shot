@@ -1,5 +1,4 @@
 import { ExportedAppData, Gender, LanguageMode, PointRestoreMode, ThemeMode } from "../../types";
-import { isValidEvent } from "./isValidEvent";
 import { isValidPointState } from "./isValidPointState";
 import { isValidZonePointCounts } from "./isValidZonePointCounts";
 import { isValidEnabledZones } from "./isValidEnabledZones";
@@ -19,10 +18,6 @@ export function isValidAppStorage(data: unknown): data is ExportedAppData {
     if (typeof candidate.pointStates !== "object") return false;
     if (!Object.values(candidate.pointStates).every(isValidPointState))
       return false;
-  }
-  if (candidate.events !== undefined) {
-    if (!Array.isArray(candidate.events)) return false;
-    if (!candidate.events.every(isValidEvent)) return false;
   }
   if (
     candidate.mirrored !== undefined &&

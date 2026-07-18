@@ -55,7 +55,15 @@ export const tr: AppLocale = {
     interfaceLockDisabled: "Arayüz kilidi açıldı",
     autoLockFired: "Arayüz otomatik olarak kilitlendi",
     clearSuccess: "Veriler temizlendi",
-    undo: "Son işlem geri alındı",
+    undo: {
+      injection: "Enjeksiyon geri alındı",
+      blackout: "Enjeksiyon geri alındı (sistem engeli kaldırıldı)",
+      manualBlock: "Elle engelleme geri alındı",
+      manualUnblock: "Elle engel kaldırma geri alındı",
+      manualClear: "Nokta temizleme geri alındı",
+      clearSelected: "Veri temizleme geri alındı",
+      import: "Veri içe aktarma geri alındı",
+    },
     exportSuccess: "Veriler dışa aktarıldı",
     importSuccess: "Veriler içe aktarıldı",
     importFailure:
@@ -174,19 +182,19 @@ export const tr: AppLocale = {
     importOptionsDialog: {
       title: "Verileri içe aktar",
       message:
-        "Dosyadan nelerin içe aktarılacağını seçin. Dosyada bulunmayan kategoriler kullanılamaz. Seçilen kategoriler mevcut verilerin yerini alacak — bu işlem geri alınamaz.",
+        "Dosyadan nelerin içe aktarılacağını seçin. Dosyada bulunmayan kategoriler kullanılamaz. Seçilen kategoriler mevcut verilerin yerini alacak.",
       confirmLabel: "İçe aktar",
     },
     undoConfirm: {
-      title: "Son enjeksiyon geri alınsın mı?",
+      title: "Son işlem geri alınsın mı?",
       message:
-        "Kaydedilen son enjeksiyon kaldırılacak. Bu işlem tekrar geri alınamaz.",
-      confirmLabel: "Enjeksiyonu geri al",
+        "Son işlem (bir enjeksiyon, engelleme, nokta temizleme, veri temizleme veya içe aktarma) geri alınacak. Geri alınan işlem tekrarlanamaz.",
+      confirmLabel: "Geri al",
     },
     clearOptionsDialog: {
       title: "Verileri temizle",
       message:
-        "Neyin temizleneceğini seçin. Seçilen enjeksiyon noktası işaretleri ve/veya uygulama ayarları kalıcı olarak varsayılan değerlerine sıfırlanacak — bu işlem geri alınamaz.",
+        "Neyin temizleneceğini seçin. Seçilen enjeksiyon noktası işaretleri ve/veya uygulama ayarları varsayılan değerlerine sıfırlanacak.",
       confirmLabel: "Temizle",
     },
   },
@@ -214,7 +222,7 @@ export const tr: AppLocale = {
     clearPointConfirm: {
       title: "Bu nokta temizlensin mi?",
       message:
-        "Bu noktanın verileri kaldırılacak ve beyaza (serbest) dönecek. Bu işlem tekrar geri alınamaz.",
+        "Bu noktanın verileri kaldırılacak ve beyaza (serbest) dönecek.",
     },
   },
   help: {
@@ -262,7 +270,7 @@ export const tr: AppLocale = {
         "<bold>✓ Onay işareti</bold> — gruptaki en son kullanılan nokta.",
     },
     bottomBar: {
-      undo: "<bold>Geri al</bold> — son işlemi geri alır (bir enjeksiyon, engelleme veya engel kaldırma).",
+      undo: "<bold>Geri al</bold> — son işlemi geri alır (bir enjeksiyon, engelleme, engel kaldırma, temizleme veya veri içe aktarma).",
       menu: "<bold>{{label}}</bold> — ayarlar ve veri menüsünü açar.",
       help: "<bold>{{label}}</bold> — bu ekranı açar.",
       lock: "<bold>Kilit</bold> — yanlışlıkla dokunmaları önlemek için arayüzü kilitler veya kilidini açar.",
@@ -292,7 +300,7 @@ export const tr: AppLocale = {
       import:
         "<bold>{{label}}</bold> — bir dosyadan nelerin uygulanacağını seçin: enjeksiyon noktası işaretleri ve/veya uygulama ayarları (ayrı ayrı). Dosyada bulunmayan kategoriler seçilemez; diğer mevcut veriler değiştirilmez.",
       clear:
-        "<bold>{{label}}</bold> — nelerin sıfırlanacağını seçin: enjeksiyon noktası işaretleri ve/veya uygulama ayarları (ayrı ayrı), kalıcı olarak ve geri kazanma imkânı olmadan.",
+        "<bold>{{label}}</bold> — nelerin sıfırlanacağını seçin: enjeksiyon noktası işaretleri ve/veya uygulama ayarları (ayrı ayrı).",
     },
   },
   stateMachine: {

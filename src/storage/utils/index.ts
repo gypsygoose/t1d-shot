@@ -1,4 +1,3 @@
-export { defaultStorage } from "./defaultStorage";
 export { normalizeStorage } from "./normalizeStorage";
 export {
   defaultAutoLock,

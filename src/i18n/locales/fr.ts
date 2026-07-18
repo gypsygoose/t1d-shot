@@ -55,7 +55,15 @@ export const fr: AppLocale = {
     interfaceLockDisabled: "Interface déverrouillée",
     autoLockFired: "Interface verrouillée automatiquement",
     clearSuccess: "Données effacées",
-    undo: "Dernière action annulée",
+    undo: {
+      injection: "Injection annulée",
+      blackout: "Injection annulée (blocage système annulé)",
+      manualBlock: "Blocage manuel annulé",
+      manualUnblock: "Déblocage manuel annulé",
+      manualClear: "Effacement du point annulé",
+      clearSelected: "Effacement des données annulé",
+      import: "Importation des données annulée",
+    },
     exportSuccess: "Données exportées",
     importSuccess: "Données importées",
     importFailure:
@@ -174,19 +182,19 @@ export const fr: AppLocale = {
     importOptionsDialog: {
       title: "Importer les données",
       message:
-        "Choisissez ce qu'il faut importer depuis le fichier. Les catégories absentes du fichier ne sont pas disponibles. Les catégories sélectionnées remplaceront les données actuelles — cette action est irréversible.",
+        "Choisissez ce qu'il faut importer depuis le fichier. Les catégories absentes du fichier ne sont pas disponibles. Les catégories sélectionnées remplaceront les données actuelles.",
       confirmLabel: "Importer",
     },
     undoConfirm: {
-      title: "Annuler la dernière injection ?",
+      title: "Annuler la dernière action ?",
       message:
-        "La dernière injection enregistrée sera supprimée. Cette action ne peut plus être annulée par la suite.",
-      confirmLabel: "Annuler l'injection",
+        "La dernière action (une injection, un blocage, l'effacement d'un point, l'effacement de données ou une importation) sera annulée. L'action annulée ne pourra pas être répétée.",
+      confirmLabel: "Annuler l'action",
     },
     clearOptionsDialog: {
       title: "Effacer les données",
       message:
-        "Choisissez ce qu'il faut effacer. Les marques de points d'injection et/ou les paramètres de l'application sélectionnés seront définitivement réinitialisés à leurs valeurs par défaut — cette action est irréversible.",
+        "Choisissez ce qu'il faut effacer. Les marques de points d'injection et/ou les paramètres de l'application sélectionnés seront réinitialisés à leurs valeurs par défaut.",
       confirmLabel: "Effacer",
     },
   },
@@ -214,7 +222,7 @@ export const fr: AppLocale = {
     clearPointConfirm: {
       title: "Effacer ce point ?",
       message:
-        "Les données de ce point seront supprimées et il deviendra blanc (libre). Cette action ne peut plus être annulée par la suite.",
+        "Les données de ce point seront supprimées et il deviendra blanc (libre).",
     },
   },
   help: {
@@ -262,7 +270,7 @@ export const fr: AppLocale = {
         "<bold>✓ Coche</bold> — point le plus récemment utilisé du groupe.",
     },
     bottomBar: {
-      undo: "<bold>Annuler</bold> — annuler la dernière action (une injection, un blocage ou un déblocage).",
+      undo: "<bold>Annuler</bold> — annuler la dernière action (une injection, un blocage, un déblocage, un effacement ou une importation de données).",
       menu: "<bold>{{label}}</bold> — ouvrir le menu des paramètres et des données.",
       help: "<bold>{{label}}</bold> — ouvrir cet écran.",
       lock: "<bold>Verrou</bold> — verrouiller ou déverrouiller l'interface pour éviter les appuis accidentels.",
@@ -292,7 +300,7 @@ export const fr: AppLocale = {
       import:
         "<bold>{{label}}</bold> — choisissez ce qu'il faut appliquer depuis un fichier : marques de points d'injection et/ou paramètres de l'application (séparément). Les catégories absentes du fichier ne peuvent pas être sélectionnées ; les autres données actuelles ne sont pas modifiées.",
       clear:
-        "<bold>{{label}}</bold> — choisissez ce qu'il faut réinitialiser : marques de points d'injection et/ou paramètres de l'application (séparément), de façon permanente et sans possibilité de récupération.",
+        "<bold>{{label}}</bold> — choisissez ce qu'il faut réinitialiser : marques de points d'injection et/ou paramètres de l'application (séparément).",
     },
   },
   stateMachine: {

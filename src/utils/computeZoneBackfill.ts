@@ -1,11 +1,11 @@
-import { AppStorage, EnabledZones, ZonePointCounts } from "../types";
+import { EnabledZones, StoredPointState, ZonePointCounts } from "../types";
 import { buildZoneData } from "../data";
 import { normalizeStorage } from "../storage";
 
 interface ComputeZoneBackfillParams {
   zonePointCounts: ZonePointCounts;
   enabledZones: EnabledZones;
-  storage: AppStorage;
+  pointStates: Record<string, StoredPointState>;
 }
 
 // Backfills default states for any point newly brought into range by a
@@ -18,8 +18,8 @@ interface ComputeZoneBackfillParams {
 export function computeZoneBackfill({
   zonePointCounts,
   enabledZones,
-  storage,
-}: ComputeZoneBackfillParams): AppStorage {
+  pointStates,
+}: ComputeZoneBackfillParams): Record<string, StoredPointState> {
   const activePoints = buildZoneData(zonePointCounts, enabledZones).points;
-  return normalizeStorage(storage, activePoints);
+  return normalizeStorage(pointStates, activePoints);
 }

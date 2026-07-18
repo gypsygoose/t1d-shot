@@ -30,6 +30,7 @@ import {
   MAX_STACKED_TOASTS,
   TOAST_DURATION_MS,
 } from "../../constants";
+import { isBulkAppEvent } from "../../utils";
 import { buildPointAddressSuffix, buildMarkToastMessage } from "./utils";
 
 // See CLAUDE.md's "more than 2 parameters" coding-convention bullet — local
@@ -300,8 +301,23 @@ export function MainScreen() {
       {/* Bottom menu */}
       <BottomMenu
         canUndo={events.length > 0}
-        onUndo={actions.undo}
-        onClear={actions.clearSelected}
+        onUndo={() => {
+          // Undoing a bulk clear/import event must also restore the
+          // provider-owned themeMode/languageMode from its snapshot —
+          // actions.undo can't reach those setters, so it's done here.
+          // The popped event's own type is returned so BottomMenu can show
+          // a toast naming which action was undone.
+          const lastEvent = events[events.length - 1];
+          actions.undo();
+          if (lastEvent !== undefined && isBulkAppEvent(lastEvent)) {
+            onSetThemeMode(lastEvent.prevSettings.themeMode);
+            onSetLanguageMode(lastEvent.prevSettings.languageMode);
+          }
+          return lastEvent?.type;
+        }}
+        onClear={(selection) =>
+          actions.clearSelected({ selection, themeMode, languageMode })
+        }
         mirrored={mirrored}
         onToggleMirrored={actions.setMirrored}
         interfaceLocked={interfaceLocked}
@@ -349,7 +365,7 @@ export function MainScreen() {
         }
         onPickImportFile={actions.pickImportFile}
         onApplyImport={(data) => {
-          actions.applyImport(data);
+          actions.applyImport({ data, themeMode, languageMode });
           if (data.themeMode !== undefined) onSetThemeMode(data.themeMode);
           if (data.languageMode !== undefined)
             onSetLanguageMode(data.languageMode);

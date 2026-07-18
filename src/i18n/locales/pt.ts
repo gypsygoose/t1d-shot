@@ -56,7 +56,15 @@ export const pt: AppLocale = {
     interfaceLockDisabled: "Interface desbloqueada",
     autoLockFired: "Interface bloqueada automaticamente",
     clearSuccess: "Dados apagados",
-    undo: "Última ação desfeita",
+    undo: {
+      injection: "Injeção desfeita",
+      blackout: "Injeção desfeita (bloqueio do sistema revertido)",
+      manualBlock: "Bloqueio manual desfeito",
+      manualUnblock: "Desbloqueio manual desfeito",
+      manualClear: "Limpeza do ponto desfeita",
+      clearSelected: "Limpeza de dados desfeita",
+      import: "Importação de dados desfeita",
+    },
     exportSuccess: "Dados exportados",
     importSuccess: "Dados importados",
     importFailure:
@@ -174,19 +182,19 @@ export const pt: AppLocale = {
     importOptionsDialog: {
       title: "Importar dados",
       message:
-        "Escolha o que importar do arquivo. Categorias ausentes no arquivo não ficam disponíveis. As categorias selecionadas substituirão os dados atuais — esta ação não pode ser desfeita.",
+        "Escolha o que importar do arquivo. Categorias ausentes no arquivo não ficam disponíveis. As categorias selecionadas substituirão os dados atuais.",
       confirmLabel: "Importar",
     },
     undoConfirm: {
-      title: "Desfazer a última injeção?",
+      title: "Desfazer a última ação?",
       message:
-        "A última injeção registrada será removida. Esta ação não pode ser desfeita novamente.",
-      confirmLabel: "Desfazer injeção",
+        "A última ação (uma injeção, um bloqueio, a limpeza de um ponto, a limpeza de dados ou uma importação) será revertida. A ação desfeita não poderá ser repetida.",
+      confirmLabel: "Desfazer",
     },
     clearOptionsDialog: {
       title: "Apagar dados",
       message:
-        "Escolha o que apagar. As marcas de pontos de injeção e/ou configurações do aplicativo selecionadas serão permanentemente redefinidas para os padrões — esta ação não pode ser desfeita.",
+        "Escolha o que apagar. As marcas de pontos de injeção e/ou configurações do aplicativo selecionadas serão redefinidas para os padrões.",
       confirmLabel: "Apagar",
     },
   },
@@ -214,7 +222,7 @@ export const pt: AppLocale = {
     clearPointConfirm: {
       title: "Apagar este ponto?",
       message:
-        "Os dados deste ponto serão removidos e ele ficará branco (livre). Esta ação não pode ser desfeita novamente.",
+        "Os dados deste ponto serão removidos e ele ficará branco (livre).",
     },
   },
   help: {
@@ -262,7 +270,7 @@ export const pt: AppLocale = {
         "<bold>✓ Marca de seleção</bold> — ponto usado mais recentemente no grupo.",
     },
     bottomBar: {
-      undo: "<bold>Desfazer</bold> — desfaz a última ação (uma injeção, um bloqueio ou um desbloqueio).",
+      undo: "<bold>Desfazer</bold> — desfaz a última ação (uma injeção, um bloqueio, um desbloqueio, uma limpeza ou uma importação de dados).",
       menu: "<bold>{{label}}</bold> — abre o menu de configurações e dados.",
       help: "<bold>{{label}}</bold> — abre esta tela.",
       lock: "<bold>Bloqueio</bold> — bloqueia ou desbloqueia a interface para evitar toques acidentais.",
@@ -292,7 +300,7 @@ export const pt: AppLocale = {
       import:
         "<bold>{{label}}</bold> — escolha o que aplicar a partir de um arquivo: marcas de pontos de injeção e/ou configurações do aplicativo (separadamente). Categorias ausentes no arquivo não podem ser selecionadas; os demais dados atuais permanecem inalterados.",
       clear:
-        "<bold>{{label}}</bold> — escolha o que redefinir: marcas de pontos de injeção e/ou configurações do aplicativo (separadamente), de forma permanente e sem possibilidade de recuperação.",
+        "<bold>{{label}}</bold> — escolha o que redefinir: marcas de pontos de injeção e/ou configurações do aplicativo (separadamente).",
     },
   },
   stateMachine: {

@@ -1,15 +1,16 @@
 import { MutableRefObject, useCallback, useMemo, useRef } from "react";
-import { AppStorage, EnabledZones, ZonePointCounts, ZoneRuntimeData } from "../types";
+import { EnabledZones, ZonePointCounts, ZoneRuntimeData } from "../types";
 import { StorageService } from "../storage";
 import { buildZoneData } from "../data";
 import { computeZoneBackfill } from "../utils";
+import { ScheduleSave } from "./useDebouncedSave";
 import { SetAppState } from "./types";
 
 interface UseZoneSettingsParams {
   zonePointCounts: ZonePointCounts;
   enabledZones: EnabledZones;
   setState: SetAppState;
-  scheduleSave: (nextState: AppStorage) => void;
+  scheduleSave: ScheduleSave;
 }
 
 interface ZoneSettings {
@@ -48,10 +49,10 @@ export function useZoneSettings({
         const normalized = computeZoneBackfill({
           zonePointCounts: next,
           enabledZones: prev.enabledZones,
-          storage: { pointStates: prev.pointStates, events: prev.events },
+          pointStates: prev.pointStates,
         });
-        scheduleSave(normalized);
-        return { ...prev, zonePointCounts: next, ...normalized };
+        scheduleSave(normalized, prev.events);
+        return { ...prev, zonePointCounts: next, pointStates: normalized };
       });
       StorageService.saveZonePointCounts(next);
     },
@@ -68,10 +69,10 @@ export function useZoneSettings({
         const normalized = computeZoneBackfill({
           zonePointCounts: prev.zonePointCounts,
           enabledZones: next,
-          storage: { pointStates: prev.pointStates, events: prev.events },
+          pointStates: prev.pointStates,
         });
-        scheduleSave(normalized);
-        return { ...prev, enabledZones: next, ...normalized };
+        scheduleSave(normalized, prev.events);
+        return { ...prev, enabledZones: next, pointStates: normalized };
       });
       StorageService.saveEnabledZones(next);
     },

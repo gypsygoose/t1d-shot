@@ -54,7 +54,15 @@ export const en = {
     interfaceLockDisabled: "Interface unlocked",
     autoLockFired: "Interface locked automatically",
     clearSuccess: "Data cleared",
-    undo: "Last action undone",
+    undo: {
+      injection: "Injection mark undone",
+      blackout: "Injection mark undone (system block reverted)",
+      manualBlock: "Manual block undone",
+      manualUnblock: "Manual unblock undone",
+      manualClear: "Point clear undone",
+      clearSelected: "Data clear undone",
+      import: "Data import undone",
+    },
     exportSuccess: "Data exported",
     importSuccess: "Data imported",
     importFailure:
@@ -170,19 +178,19 @@ export const en = {
     importOptionsDialog: {
       title: "Import data",
       message:
-        "Choose what to import from the file. Categories not present in the file are unavailable. Selected categories will replace the current data — this action can't be undone.",
+        "Choose what to import from the file. Categories not present in the file are unavailable. Selected categories will replace the current data.",
       confirmLabel: "Import",
     },
     undoConfirm: {
-      title: "Undo last injection?",
+      title: "Undo last action?",
       message:
-        "The last recorded injection will be removed. This action can't be undone again.",
-      confirmLabel: "Undo injection",
+        "The last action (an injection, a block, a point clear, a data clear, or an import) will be reverted. The undone action can't be repeated.",
+      confirmLabel: "Undo",
     },
     clearOptionsDialog: {
       title: "Clear data",
       message:
-        "Choose what to clear. Selected injection point marks and/or app settings will be permanently reset to their defaults — this action can't be undone.",
+        "Choose what to clear. Selected injection point marks and/or app settings will be reset to their defaults.",
       confirmLabel: "Clear",
     },
   },
@@ -210,7 +218,7 @@ export const en = {
     clearPointConfirm: {
       title: "Clear this point?",
       message:
-        "This point's data will be removed and it will turn white (free). This action can't be undone again.",
+        "This point's data will be removed and it will turn white (free).",
     },
   },
   help: {
@@ -258,7 +266,7 @@ export const en = {
         "<bold>✓ Checkmark</bold> — most recently used point in the group.",
     },
     bottomBar: {
-      undo: "<bold>Undo</bold> — undo the last action (an injection, a block, or an unblock).",
+      undo: "<bold>Undo</bold> — undo the last action (an injection, a block, an unblock, a clear, or a data import).",
       menu: "<bold>{{label}}</bold> — open the settings and data menu.",
       help: "<bold>{{label}}</bold> — open this screen.",
       lock: "<bold>Lock</bold> — lock or unlock the interface to avoid accidental taps.",
@@ -288,7 +296,7 @@ export const en = {
       import:
         "<bold>{{label}}</bold> — choose what to apply from a file: injection point marks and/or app settings (individually). Categories not present in the file are unavailable to select; other current data is left untouched.",
       clear:
-        "<bold>{{label}}</bold> — choose what to reset: injection point marks and/or app settings (individually), permanently and with no way to recover them.",
+        "<bold>{{label}}</bold> — choose what to reset: injection point marks and/or app settings (individually).",
     },
   },
   stateMachine: {

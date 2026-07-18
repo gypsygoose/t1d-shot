@@ -1,4 +1,3 @@
-import { AppEvent } from './event';
 import { StoredPointState } from './point';
 import { ThemeMode } from './theme';
 import { LanguageMode } from './language';
@@ -6,22 +5,20 @@ import { EnabledZones, ZonePointCounts, ZoneType } from './zone';
 import { PointRestoreMode } from './pointRestoreMode';
 import { Gender } from './gender';
 
-// Full app storage
-export interface AppStorage {
-  pointStates: Record<string, StoredPointState>;
-  events: AppEvent[];
-}
-
 // Full app state as written to / read from an export file — includes
-// settings (like mirror mode) that live outside AppStorage in AsyncStorage.
+// pointStates plus every setting (like mirror mode), each persisted under
+// its own AsyncStorage key (see StorageService in src/storage/StorageService.ts).
 // All fields are optional: ExportOptionsDialog lets the user pick which
 // categories to write, so a file may carry only a subset. On import, a
 // missing field means "leave this category untouched" (see
-// StorageService.importStorage / useAppStore#applyImport), not "reset to
-// default" — so fields must never be defaulted away during export/import.
+// useImportExport's applyImport), not "reset to default" — so fields must
+// never be defaulted away during export/import.
+// The AppEvent history deliberately never round-trips through this shape:
+// export writes only pointStates for the marks category, and import ignores
+// an `events` key in an older file — the history lives under its own
+// AsyncStorage key (EVENTS_KEY), which import never writes.
 export interface ExportedAppData {
   pointStates?: Record<string, StoredPointState>;
-  events?: AppEvent[];
   mirrored?: boolean;
   autoLockEnabled?: boolean;
   autoLockAfterMarkSeconds?: number;

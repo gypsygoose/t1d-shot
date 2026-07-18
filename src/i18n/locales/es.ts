@@ -55,7 +55,15 @@ export const es: AppLocale = {
     interfaceLockDisabled: "Interfaz desbloqueada",
     autoLockFired: "Interfaz bloqueada automáticamente",
     clearSuccess: "Datos borrados",
-    undo: "Última acción deshecha",
+    undo: {
+      injection: "Inyección deshecha",
+      blackout: "Inyección deshecha (bloqueo del sistema revertido)",
+      manualBlock: "Bloqueo manual deshecho",
+      manualUnblock: "Desbloqueo manual deshecho",
+      manualClear: "Borrado del punto deshecho",
+      clearSelected: "Borrado de datos deshecho",
+      import: "Importación de datos deshecha",
+    },
     exportSuccess: "Datos exportados",
     importSuccess: "Datos importados",
     importFailure:
@@ -174,19 +182,19 @@ export const es: AppLocale = {
     importOptionsDialog: {
       title: "Importar datos",
       message:
-        "Elige qué importar del archivo. Las categorías que no están en el archivo no están disponibles. Las categorías seleccionadas reemplazarán los datos actuales — esta acción no se puede deshacer.",
+        "Elige qué importar del archivo. Las categorías que no están en el archivo no están disponibles. Las categorías seleccionadas reemplazarán los datos actuales.",
       confirmLabel: "Importar",
     },
     undoConfirm: {
-      title: "¿Deshacer la última inyección?",
+      title: "¿Deshacer la última acción?",
       message:
-        "Se eliminará la última inyección registrada. Esta acción no se puede deshacer de nuevo.",
-      confirmLabel: "Deshacer inyección",
+        "La última acción (una inyección, un bloqueo, el borrado de un punto, el borrado de datos o una importación) se revertirá. La acción deshecha no se podrá repetir.",
+      confirmLabel: "Deshacer",
     },
     clearOptionsDialog: {
       title: "Borrar datos",
       message:
-        "Elige qué borrar. Las marcas de puntos de inyección y/o los ajustes de la aplicación seleccionados se restablecerán permanentemente a sus valores predeterminados — esta acción no se puede deshacer.",
+        "Elige qué borrar. Las marcas de puntos de inyección y/o los ajustes de la aplicación seleccionados se restablecerán a sus valores predeterminados.",
       confirmLabel: "Borrar",
     },
   },
@@ -214,7 +222,7 @@ export const es: AppLocale = {
     clearPointConfirm: {
       title: "¿Borrar este punto?",
       message:
-        "Se eliminarán los datos de este punto y se volverá blanco (libre). Esta acción no se puede deshacer de nuevo.",
+        "Se eliminarán los datos de este punto y se volverá blanco (libre).",
     },
   },
   help: {
@@ -262,7 +270,7 @@ export const es: AppLocale = {
         "<bold>✓ Marca de verificación</bold> — punto usado más recientemente en el grupo.",
     },
     bottomBar: {
-      undo: "<bold>Deshacer</bold> — deshacer la última acción (una inyección, un bloqueo o un desbloqueo).",
+      undo: "<bold>Deshacer</bold> — deshacer la última acción (una inyección, un bloqueo, un desbloqueo, un borrado o una importación de datos).",
       menu: "<bold>{{label}}</bold> — abrir el menú de ajustes y datos.",
       help: "<bold>{{label}}</bold> — abrir esta pantalla.",
       lock: "<bold>Bloqueo</bold> — bloquear o desbloquear la interfaz para evitar toques accidentales.",
@@ -292,7 +300,7 @@ export const es: AppLocale = {
       import:
         "<bold>{{label}}</bold> — elige qué aplicar desde un archivo: marcas de puntos de inyección y/o ajustes de la aplicación (por separado). Las categorías no presentes en el archivo no se pueden seleccionar; el resto de los datos actuales no se modifica.",
       clear:
-        "<bold>{{label}}</bold> — elige qué restablecer: marcas de puntos de inyección y/o ajustes de la aplicación (por separado), de forma permanente y sin posibilidad de recuperación.",
+        "<bold>{{label}}</bold> — elige qué restablecer: marcas de puntos de inyección y/o ajustes de la aplicación (por separado).",
     },
   },
   stateMachine: {

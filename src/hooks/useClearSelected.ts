@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { ExportSelection, ExportSettingKey } from "../types";
+import { AppEvent, AppEventType, ExportSettingKey } from "../types";
 import {
   DEFAULT_AUTO_LOCK_AFTER_MARK_SECONDS,
   DEFAULT_AUTO_LOCK_AFTER_UNLOCK_SECONDS,
@@ -18,8 +18,14 @@ import {
   DEFAULT_GENDER,
   DEFAULT_POINT_RESTORE_MODE,
 } from "../constants";
-import { computeZoneBackfill, resetPointStates } from "../utils";
-import { AppState, SetAppState } from "./types";
+import {
+  appendEvent,
+  buildBulkEventSettings,
+  computeZoneBackfill,
+  resetPointStates,
+  uuid,
+} from "../utils";
+import { AppState, ClearSelectedParams, SetAppState } from "./types";
 
 // Resets exactly the selected marks/settings categories to their defaults,
 // leaving every unselected category — and, within marks, every zone type
@@ -27,12 +33,29 @@ import { AppState, SetAppState } from "./types";
 // in-place reset instead of a file write (see ClearOptionsDialog, built on
 // AppDataSelector). Doesn't reset themeMode/languageMode: like applyImport,
 // the caller resets those via ThemeProvider/LanguageProvider's own setMode
-// when selection.settings[ExportSettingKey.Theme/Language] is checked.
-export function useClearSelected(setState: SetAppState): (selection: ExportSelection) => void {
+// when selection.settings[ExportSettingKey.Theme/Language] is checked — the
+// params' themeMode/languageMode are only the *current* values, captured
+// into the undo snapshot below. Every confirmed clear appends one
+// BulkAppEvent snapshotting the whole pre-clear pointStates map and
+// settings, so undo can revert it wholesale (see src/types/event.ts).
+export function useClearSelected(setState: SetAppState): (params: ClearSelectedParams) => void {
   return useCallback(
-    (selection: ExportSelection) => {
+    ({ selection, themeMode, languageMode }: ClearSelectedParams) => {
       setState((prev) => {
         const next: AppState = { ...prev };
+
+        const clearEvent: AppEvent = {
+          id: uuid(),
+          timestamp: Date.now(),
+          type: AppEventType.ClearSelected,
+          prevPointStates: prev.pointStates,
+          prevSettings: buildBulkEventSettings({
+            state: prev,
+            themeMode,
+            languageMode,
+          }),
+        };
+        next.events = appendEvent(prev.events, clearEvent);
 
         const selectedZoneTypes = ZONE_TYPES.filter(
           (zoneType) => selection.marks[zoneType],
@@ -46,13 +69,7 @@ export function useClearSelected(setState: SetAppState): (selection: ExportSelec
             ...prev.pointStates,
             ...resetPointStates(pointIdsToReset),
           };
-          next.events = prev.events.filter(
-            (event) => !selectedZoneTypes.includes(ZONE_TYPE[event.zoneId]),
-          );
-          StorageService.saveStorage({
-            pointStates: next.pointStates,
-            events: next.events,
-          });
+          StorageService.savePointStates(next.pointStates);
         }
 
         if (selection.settings[ExportSettingKey.Mirrored]) {
@@ -93,13 +110,11 @@ export function useClearSelected(setState: SetAppState): (selection: ExportSelec
           ]
             ? DEFAULT_ENABLED_ZONES
             : prev.enabledZones;
-          const normalized = computeZoneBackfill({
+          next.pointStates = computeZoneBackfill({
             zonePointCounts: nextZonePointCounts,
             enabledZones: nextEnabledZones,
-            storage: { pointStates: next.pointStates, events: next.events },
+            pointStates: next.pointStates,
           });
-          next.pointStates = normalized.pointStates;
-          next.events = normalized.events;
           if (selection.settings[ExportSettingKey.ZonePointCounts]) {
             next.zonePointCounts = DEFAULT_ZONE_POINT_COUNTS;
             StorageService.saveZonePointCounts(DEFAULT_ZONE_POINT_COUNTS);
@@ -130,6 +145,7 @@ export function useClearSelected(setState: SetAppState): (selection: ExportSelec
           StorageService.saveDaysToAvailable(DEFAULT_DAYS_TO_AVAILABLE);
         }
 
+        StorageService.saveEvents(next.events);
         return next;
       });
     },

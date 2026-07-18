@@ -1,12 +1,13 @@
 import { Dispatch, SetStateAction } from "react";
 import {
-  AppStorage,
+  AppEvent,
   EnabledZones,
   ExportedAppData,
   ExportSelection,
   Gender,
   LanguageMode,
   PointRestoreMode,
+  StoredPointState,
   ThemeMode,
   ZoneGroup,
   ZonePointCounts,
@@ -14,7 +15,9 @@ import {
 } from "../types";
 import { ImportResult } from "../storage";
 
-export interface AppState extends AppStorage {
+export interface AppState {
+  pointStates: Record<string, StoredPointState>;
+  events: AppEvent[];
   now: number;
   isLoaded: boolean;
   mirrored: boolean;
@@ -56,6 +59,21 @@ export interface ExportDataParams {
   selection: ExportSelection;
 }
 
+// themeMode/languageMode below are the caller's *current* provider-owned
+// modes, captured into the bulk undo event's settings snapshot (see
+// BulkAppEvent in src/types/event.ts) — not values to apply.
+export interface ClearSelectedParams {
+  selection: ExportSelection;
+  themeMode: ThemeMode;
+  languageMode: LanguageMode;
+}
+
+export interface ApplyImportParams {
+  data: ExportedAppData;
+  themeMode: ThemeMode;
+  languageMode: LanguageMode;
+}
+
 export interface AppActions {
   pressPoint(pointId: string): void;
   blockPoint(pointId: string): void;
@@ -63,7 +81,7 @@ export interface AppActions {
   markPointAt(pointId: string, timestamp: number): void;
   clearPoint(pointId: string): void;
   undo(): void;
-  clearSelected(selection: ExportSelection): void;
+  clearSelected(params: ClearSelectedParams): void;
   setMirrored(mirrored: boolean): void;
   setInterfaceLocked(locked: boolean): void;
   enableAutoLock(afterMarkSeconds: number, afterUnlockSeconds: number): void;
@@ -77,5 +95,5 @@ export interface AppActions {
   setEnabledZones(next: EnabledZones): void;
   exportData(params: ExportDataParams): Promise<void>;
   pickImportFile(): Promise<ImportResult>;
-  applyImport(data: ExportedAppData): void;
+  applyImport(params: ApplyImportParams): void;
 }

@@ -32,6 +32,7 @@ import {
   MenuIcon,
 } from "../icons";
 import {
+  AppEventType,
   AutoLockDialogMode,
   EnabledZones,
   ExportedAppData,
@@ -46,11 +47,12 @@ import {
 } from "../../types";
 import { ImportResult, ImportResultType } from "../../storage";
 import { useTheme } from "../../theme";
+import { UNDO_TOAST_KEY } from "./constants";
 import { buildImportData } from "./utils";
 
 interface Props {
   canUndo: boolean;
-  onUndo: () => void;
+  onUndo: () => AppEventType | undefined;
   onClear: (selection: ExportSelection) => void;
   mirrored: boolean;
   onToggleMirrored: (value: boolean) => void;
@@ -510,8 +512,10 @@ export function BottomMenu({
         confirmLabel={t("menu.undoConfirm.confirmLabel")}
         onConfirm={() => {
           setShowUndo(false);
-          onUndo();
-          onNotify(t("toast.undo"), ToastStatus.Success);
+          const undoneEventType = onUndo();
+          if (undoneEventType !== undefined) {
+            onNotify(t(UNDO_TOAST_KEY[undoneEventType]), ToastStatus.Success);
+          }
         }}
         onCancel={() => setShowUndo(false)}
       />

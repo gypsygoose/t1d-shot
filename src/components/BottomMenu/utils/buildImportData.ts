@@ -10,11 +10,9 @@ export function buildImportData(
   const filtered: ExportedAppData = {};
   if (
     Object.values(selection.marks).some(Boolean) &&
-    data.pointStates !== undefined &&
-    data.events !== undefined
+    data.pointStates !== undefined
   ) {
     filtered.pointStates = data.pointStates;
-    filtered.events = data.events;
   }
   if (selection.settings[ExportSettingKey.Mirrored]) {
     filtered.mirrored = data.mirrored;

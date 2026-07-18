@@ -1,4 +1,4 @@
-import { AppStorage, PointDefinition } from "../../types";
+import { PointDefinition, StoredPointState } from "../../types";
 
 // Merge any active points not yet present (e.g. loading data saved by an
 // older app version, a file imported from a different point in time, or a
@@ -8,14 +8,14 @@ import { AppStorage, PointDefinition } from "../../types";
 // truly stale, or just currently hidden by a smaller grid) is left
 // untouched rather than dropped, so its history survives a future resize.
 export function normalizeStorage(
-  parsed: Partial<AppStorage>,
+  pointStates: Record<string, StoredPointState> | undefined,
   activePoints: PointDefinition[],
-): AppStorage {
-  const states = { ...(parsed.pointStates ?? {}) };
+): Record<string, StoredPointState> {
+  const states = { ...(pointStates ?? {}) };
   for (const point of activePoints) {
     if (!states[point.id]) {
       states[point.id] = { pointId: point.id, isManuallyBlocked: false };
     }
   }
-  return { pointStates: states, events: parsed.events ?? [] };
+  return states;
 }
